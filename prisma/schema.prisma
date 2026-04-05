@@ -1,0 +1,76 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")        // Pooled (PgBouncer) — runtime / Vercel
+  directUrl = env("DIRECT_DATABASE_URL") // Direct — prisma migrate only
+}
+
+// ─── Models ──────────────────────────────────────────────────────────────────
+
+model User {
+  id         String   @id @default(cuid())
+  supabaseId String   @unique
+  email      String   @unique
+  createdAt  DateTime @default(now())
+  items      Item[]
+}
+
+model Item {
+  id               String           @id @default(cuid())
+  name             String
+  description      String?
+  purchasePrice    Decimal          @db.Decimal(10, 2)
+  purchasePlatform Platform
+  purchasedAt      DateTime
+  shippingCostIn   Decimal          @db.Decimal(10, 2) @default(0)
+  repairCost       Decimal          @db.Decimal(10, 2) @default(0)
+  status           ItemStatus       @default(IN_STOCK)
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  userId           String
+  user             User             @relation(fields: [userId], references: [id])
+  sale             Sale?
+  costs            AdditionalCost[]
+
+  @@index([userId, status])
+  @@index([userId, purchasedAt])
+}
+
+model Sale {
+  id              String   @id @default(cuid())
+  salePrice       Decimal  @db.Decimal(10, 2)
+  salePlatform    Platform
+  shippingCostOut Decimal  @db.Decimal(10, 2) @default(0)
+  soldAt          DateTime
+  createdAt       DateTime @default(now())
+  itemId          String   @unique
+  item            Item     @relation(fields: [itemId], references: [id])
+
+  @@index([soldAt])
+}
+
+model AdditionalCost {
+  id        String   @id @default(cuid())
+  label     String
+  amount    Decimal  @db.Decimal(10, 2)
+  createdAt DateTime @default(now())
+  itemId    String
+  item      Item     @relation(fields: [itemId], references: [id])
+}
+
+// ─── Enums ───────────────────────────────────────────────────────────────────
+
+enum ItemStatus {
+  IN_STOCK
+  SOLD
+}
+
+enum Platform {
+  KLEINANZEIGEN
+  EBAY
+  FACEBOOK
+  OTHER
+}

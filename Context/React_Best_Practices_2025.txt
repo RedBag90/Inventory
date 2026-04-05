@@ -1,0 +1,1514 @@
+# React Web App — Best Practices 2025
+### Umfassende Recherche für Teams mit 5–20 Entwicklern
+**React 19 · TypeScript · Next.js 15 · TanStack Query · Zustand · Vitest · Playwright**
+
+---
+
+# Inhaltsverzeichnis
+
+1. Architecture Overview
+2. Application Structure
+3. State Management
+4. Testing Strategy
+5. Performance Optimization
+6. API Design & Data Fetching
+7. Component Design Patterns
+8. Authentication
+9. TypeScript & Code Quality
+10. Error Handling
+11. CI/CD & DevOps
+12. CSS & Styling
+13. Accessibility (A11y)
+14. Security
+15. Quick Reference Checklist
+
+---
+
+# 1. Architecture Overview
+
+React ist bewusst unopinionated — es erzwingt keine Projektstruktur. Das bedeutet: Die Architekturentscheidungen liegen vollständig beim Team. Gute Architektur ist daher kein Bonus, sondern eine Grundvoraussetzung für skalierbare, wartbare Anwendungen.
+
+## 1.1 Kernprinzipien moderner React-Architektur
+
+Die Industrie hat sich 2025 auf fünf Kernprinzipien geeinigt, die alle Architekturentscheidungen leiten:
+
+- **Separation of Concerns:** UI, State, Logik und Side Effects leben in getrennten Schichten. Keine Geschäftslogik im JSX.
+- **Reusability:** Komponenten, Hooks und Utilities sind wiederverwendbar. Keine Duplizierung.
+- **Maintainability:** Einfach zu debuggen, testen und skalieren. Neue Teammitglieder können sich schnell einarbeiten.
+- **Performance:** Re-Renders minimieren, Bundle-Größen reduzieren, Ladezeiten optimieren.
+- **Scalability:** Wachstum in Teamgröße und App-Komplexität ohne Rewrite bewältigen.
+
+## 1.2 Rendering-Strategie: Hybrid Rendering
+
+Der Industriestandard 2025 ist Hybrid Rendering — verschiedene Seiten nutzen die passende Strategie:
+
+| Strategie | Einsatzgebiet |
+|-----------|--------------|
+| **SSG (Static Site Generation)** | Marketing-Seiten, Blogs, Docs. Schnellste Performance, CDN-geeignet. |
+| **SSR (Server-Side Rendering)** | Personalisierte Seiten, SEO-kritische Inhalte mit dynamischen Daten. |
+| **ISR (Incremental Static Regeneration)** | Inhalte die sich selten ändern aber aktuell bleiben müssen. |
+| **CSR (Client-Side Rendering)** | Hoch-interaktive Dashboards, Tools, App-Bereiche nach Login. |
+
+> **Empfehlung:** Next.js 15 als Standard-Framework. Es unterstützt alle vier Strategien und kann sie pro Seite mischen.
+
+## 1.3 Empfohlener Tech-Stack 2025/26
+
+Auf Basis der Industrie-Recherche ergibt sich folgender empfohlener Stack für Teams mit 5–20 Personen:
+
+| Bereich | Tool | Begründung |
+|---------|------|-----------|
+| Framework | Next.js 15 | Hybrid Rendering, App Router, Server Components |
+| Sprache | TypeScript (strict) | Typ-Sicherheit, bessere IDE-Unterstützung |
+| State (Server) | TanStack Query v5 | API-Caching, Loading/Error States, Retries |
+| State (Client) | Zustand | Einfaches globales State Management |
+| Styling | Tailwind CSS v4 | Utility-First, Zero Runtime, Design Tokens |
+| Komponenten | shadcn/ui | Radix UI-Basis, vollständig anpassbar |
+| Build Tool | Vite | Schnelle HMR, ESM-nativ, für SPAs |
+| Tests (Unit) | Vitest + RTL | 2–4x schneller als Jest, gleiche API |
+| Tests (E2E) | Playwright | Echte Browser, Cross-Browser |
+| Linting | ESLint + Prettier | Code-Qualität automatisch sicherstellen |
+| CI/CD | GitHub Actions | Automatische Pipelines auf jedem PR |
+| Deployment | Vercel oder Netlify | Preview-Environments pro PR inklusive |
+
+---
+
+# 2. Application Structure
+
+Die Ordnerstruktur ist die sichtbarste Architekturentscheidung. Eine schlechte Struktur bremst das gesamte Team — eine gute macht neue Teammitglieder in Stunden produktiv.
+
+## 2.1 Feature-based vs. Type-based Struktur
+
+Der Industriestandard ist heute eindeutig: Feature-basierte Ordnerstrukturen sind typ-basierten vorzuziehen.
+
+| Ansatz | Problem / Vorteil |
+|--------|------------------|
+| **Type-based (vermeiden)** | Alles fragmentiert. LoginForm in /components, useAuth in /hooks, authService in /services. Bei Änderungen viele Dateien anfassen. |
+| **Feature-based (empfohlen)** | src/features/auth/ enthält alles zur Auth. Änderungen bleiben im Feature-Ordner. |
+
+## 2.2 Empfohlene src/-Struktur
+
+```
+src/
+  features/           ← Feature-Module (Hauptanteil des Codes)
+    auth/             ← Alles zur Authentifizierung
+    dashboard/        ← Dashboard-Feature
+    checkout/         ← Checkout-Prozess
+  shared/             ← Gemeinsam genutzte Elemente
+    components/       ← Wiederverwendbare UI-Komponenten
+    hooks/            ← Gemeinsame Custom Hooks
+    utils/            ← Hilfsfunktionen
+  services/           ← Globaler API Client
+    apiClient.ts      ← Axios-Instanz (einmalig)
+  store/              ← Globaler Client-State (Zustand)
+  pages/              ← Routing-Einstiegspunkte
+  routes/             ← Route-Definitionen
+  layouts/            ← Header, Sidebar, etc.
+  assets/             ← Bilder, Fonts, Icons
+```
+
+## 2.3 Zoom: Struktur eines Feature-Moduls
+
+Jedes Feature ist ein Mini-App. Alle nötigen Dateien leben im Feature-Ordner. Über die index.ts wird der öffentliche API des Features definiert.
+
+```
+features/checkout/
+  components/           ← UI Layer: CheckoutForm.tsx, OrderSummary.tsx
+  hooks/                ← Hooks Layer: useCheckout.ts, useCartItems.ts
+  services/             ← Service Layer:
+    CheckoutManager.ts  ← Business-Logik, Transformationen
+    CheckoutRepository.ts  ← API-Calls (fetch/axios)
+  store/                ← Data Layer: checkoutStore.ts (Zustand)
+  utils/                ← Feature-spezifische Hilfsfunktionen
+  index.ts              ← Public API — nur hierher importieren!
+```
+
+> **Kernregel:** Andere Features importieren nur über die `index.ts` eines Features. Niemals direkte Imports in interne Dateien. Das verhindert ungewollte Kopplungen.
+
+## 2.4 Der 4-Schichten-Architektur-Pattern
+
+Der Industriestandard für React-Applikationen ist eine klare 4-Schichten-Architektur: UI → Hooks → Services → Data. Jede Schicht hat genau eine Verantwortung.
+
+| Schicht | Verantwortung & Einschränkung |
+|---------|------------------------------|
+| **UI Layer (Komponenten/Pages)** | Nur Darstellung. Kein direktes fetch(). Ruft Hooks auf. |
+| **Hooks Layer (Custom Hooks)** | Verbindet UI mit Services. Kein JSX. Keine direkten API-Calls. |
+| **Service Layer (Manager + Repository)** | Manager = Business-Logik. Repository = API-Calls. Kein JSX. |
+| **Data Layer (TanStack Query + Zustand)** | Caching, State-Management. Kein UI, keine Business-Logik. |
+
+- **Manager:** Business-Regeln, Datentransformationen, Error-Handling. Weiß nicht woher Daten kommen.
+- **Repository:** Einzige Stelle die API-Calls macht. Weiß nichts über die UI.
+- **Custom Hook:** Verbindet Manager/Repository mit der UI. Gibt State und Aktionen zurück.
+
+---
+
+# 3. State Management
+
+State Management ist eine der kritischsten Architekturentscheidungen. Der häufigste Fehler 2025: Zu viel State global machen — ein Erbe aus der übermäßigen Redux-Nutzung. Mit dem richtigen Kategorisierungsansatz verschwinden ~90% aller State-Probleme von selbst.
+
+## 3.1 Die 4 State-Kategorien
+
+Bevor ein Tool ausgewählt wird, muss der State kategorisiert werden:
+
+| Kategorie | Empfohlenes Tool | Wann verwenden |
+|-----------|-----------------|----------------|
+| **Local State** | useState / useReducer | Nur eine Komponente braucht den State. Formulare, Toggles, lokale UI-Logik. |
+| **Server State** | TanStack Query | Daten vom Backend, brauchen Cache & Sync. Nie manuell in globalen Store! |
+| **Global State** | Zustand / Redux Toolkit | Mehrere unverbundene Komponenten teilen State. Auth, Theme, Cart. |
+| **URL State** | React Router / URLSearchParams | State soll shareable und bookmarkbar sein. Filter, Seite, Suche. |
+
+## 3.2 Entscheidungsbaum
+
+Folgende Fragen in dieser Reihenfolge stellen:
+
+1. Kommt der State vom Backend / einer API? → **Ja → TanStack Query**
+2. Soll der State in der URL stehen (teilbar, bookmarkbar)? → **Ja → useSearchParams**
+3. Brauchen mehrere nicht-verwandte Komponenten den State? → **Ja → Zustand**
+4. Teilen 2–3 direkt verwandte Komponenten den State? → **Ja → Lift State up (useState im Parent)**
+5. Sonst: **State lokal halten mit useState / useReducer**
+
+## 3.3 Library-Vergleich
+
+| Library | Empfehlung | Einsatzgebiet |
+|---------|-----------|--------------|
+| **TanStack Query** | Pflicht | Server State, API-Caching, Loading/Error/Retry automatisch |
+| **Zustand** | Empfohlen | Globaler Client-State, minimal, keine Reducer nötig |
+| **useState / useReducer** | Immer | Default für lokalen State, Formulare, UI-Toggles |
+| **Context API** | Situativ | Nur für selten ändernde Werte: Theme, Locale, Auth-Token |
+| **Redux Toolkit** | Wenn nötig | Große Teams, komplexe State-Logik, DevTools wichtig |
+| **Jotai** | Alternative | Atomarer Ansatz, gut mit React Suspense & Server Components |
+
+## 3.4 Die 5 goldenen Regeln
+
+1. **State so lokal wie möglich halten:** Erst upgraden wenn wirklich nötig. Nicht voreilig global.
+2. **Server State niemals manuell im globalen Store speichern:** TanStack Query hat eigenes Caching. Doppelte Datenhaltung = Inkonsistenz.
+3. **Context API nur für low-frequency updates:** Häufig ändernder State im Context verursacht unnötige Re-Renders.
+4. **State nach unten pushen, Content nach oben heben:** Globalen State dort konsumieren, wo er gerendert wird.
+5. **Filter, Sorting, Pagination gehören in die URL:** Kostenlos shareable, bookmarkbar und browser-back-fähig.
+
+---
+
+# 4. Testing Strategy
+
+2025 ist das Testing Trophy — entwickelt von Kent C. Dodds — der Industriestandard. Es ersetzt die klassische Test-Pyramide und dreht die Gewichtung um: Integration Tests bilden die größte und wichtigste Schicht.
+
+## 4.1 Das Testing Trophy
+
+| Schicht | Anteil | Beschreibung |
+|---------|--------|-------------|
+| **Static Analysis** | 10% | TypeScript, ESLint, Prettier. Ohne Code auszuführen. Günstigste Art Fehler zu fangen. |
+| **Unit Tests** | 20% | Pure Funktionen, Utils, Hooks isoliert. Schnell und gezielt. |
+| **Integration Tests ⭐** | 60% | Mehrere Komponenten + Hooks + Services zusammen. Die Hauptschicht. |
+| **E2E Tests** | 10% | Kritische User-Flows im echten Browser. Langsam aber höchste Konfidenz. |
+
+## 4.2 Empfohlener Tool-Stack
+
+| Tool | Einsatz | Vorteil |
+|------|---------|---------|
+| **Vitest** | Unit + Integration | 2–4x schneller als Jest. Direkte Vite-Integration. Gleiche API. |
+| **React Testing Library** | Component Testing | Testet Verhalten aus User-Perspektive. Kein Test von internem State. |
+| **Playwright** | E2E Testing | Echte Browser (Chromium, Firefox, WebKit). Trace Viewer für Debugging. |
+| **MSW (Mock Service Worker)** | API Mocking | Mockt auf Network-Ebene. Funktioniert in Tests und im Browser identisch. |
+| **jest-axe / vitest-axe** | Accessibility Testing | Automatische A11y-Prüfungen in Unit/Integration Tests. |
+
+## 4.3 Testing-Patterns im Code
+
+```typescript
+// Integration Test — Vitest + React Testing Library
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { axe, toHaveNoViolations } from 'jest-axe';
+
+expect.extend(toHaveNoViolations);
+
+test('Nutzer kann sich einloggen', async () => {
+  const user = userEvent.setup();
+  render(<LoginForm />);
+
+  await user.type(screen.getByLabelText('E-Mail'), 'test@example.com');
+  await user.type(screen.getByLabelText('Passwort'), 'password123');
+  await user.click(screen.getByRole('button', { name: 'Anmelden' }));
+
+  expect(await screen.findByText('Dashboard')).toBeInTheDocument();
+});
+
+// Accessibility Test
+test('LoginForm hat keine A11y-Violations', async () => {
+  const { container } = render(<LoginForm />);
+  expect(await axe(container)).toHaveNoViolations();
+});
+```
+
+## 4.4 Die 6 goldenen Regeln
+
+1. **Verhalten testen, nicht Implementierung:** Kein Test auf internen State, CSS-Klassen oder private Funktionen.
+2. **Queries nach User-Perspektive:** `getByRole`, `getByLabelText`, `getByText` bevorzugen. Niemals `getByClassName`.
+3. **Kein 100% Coverage-Ziel:** 70–80% ist realistisch. 100% führt zu sinnlosen Tests.
+4. **API-Mocking auf Network-Ebene mit MSW:** Nicht einzelne Funktionen mocken. Tests sind realistischer.
+5. **E2E-Tests nur für kritische Flows:** Login, Checkout, Core-Feature. Zu viele E2E = langsame Pipeline.
+6. **Tests laufen bei jedem PR automatisch:** Unit + Integration bei jedem Commit. E2E auf Merge in main.
+
+---
+
+# 5. Performance Optimization
+
+2025 hat der React Compiler (React 19+) die Performance-Landschaft fundamental verändert. Trotzdem gilt: Der Compiler löst keine Architektur-Probleme. Erst die Struktur optimieren, dann den Compiler nutzen.
+
+## 5.1 React Compiler 1.0 (React 19+)
+
+Der React Compiler ist ein Build-Zeit-Tool, das automatische Memoization erzeugt. Er analysiert den Datenfluss von Komponenten und eliminiert unnötige Re-Renders.
+
+- **Gemessene Wirkung:** 20–30% weniger Render-Zeit bei Meta. LCP –10%, INP –15% bei Wakelet.
+- **Automatisch:** `useMemo`, `useCallback` und `React.memo` in ~90% der Fälle nicht mehr nötig.
+- **Grenzen:** Kann nicht aus schlechtem Component-Design heraus-kompilieren. Impure Components werden nicht optimiert.
+
+```typescript
+// Vorher (React 18) — manuell
+const value = useMemo(() => compute(x), [x]);
+const fn = useCallback(() => doThing(), []);
+
+// Nachher (React 19 + Compiler) — automatisch
+const value = compute(x);
+const fn = () => doThing();
+```
+
+## 5.2 Impact-Effort Matrix
+
+| Maßnahme | Impact | Aufwand |
+|----------|--------|---------|
+| React Compiler aktivieren | Hoch | Niedrig |
+| Code Splitting + React.lazy() | Hoch | Niedrig |
+| Bilder mit next/image optimieren | Hoch | Niedrig |
+| State lokal halten | Hoch | Niedrig |
+| TanStack Query statt fetch-in-useEffect | Hoch | Niedrig |
+| SSR / SSG mit Next.js | Hoch | Hoch |
+| Virtualisierung langer Listen (react-window) | Hoch | Hoch |
+| Web Workers für schwere Berechnungen | Mittel | Hoch |
+| useTransition / useDeferredValue | Mittel | Niedrig |
+
+## 5.3 Ziel-Metriken (Core Web Vitals 2025)
+
+| Metrik | Zielwert |
+|--------|---------|
+| Lighthouse Performance Score | ≥ 90 Punkte |
+| First Contentful Paint (FCP) | < 1.8 Sekunden |
+| Largest Contentful Paint (LCP) | < 2.5 Sekunden |
+| Interaction to Next Paint (INP) | < 200ms |
+| Cumulative Layout Shift (CLS) | < 0.1 |
+| Mobile Performance | Innerhalb 30% des Desktop-Werts |
+
+## 5.4 Wichtigste Techniken
+
+1. **Code Splitting + Lazy Loading:** Alles was beim initialen Laden nicht sichtbar ist, wird nicht geladen. `React.lazy(() => import('./Dashboard'))`
+2. **List Virtualization:** Bei 100+ Einträgen nur sichtbare Elemente rendern. `react-window` oder `TanStack Virtual`.
+3. **Server Components:** Statische Komponenten auf dem Server rendern. Weniger JS zum Client, schnellerer Load.
+4. **Bild-Optimierung:** `next/image` liefert automatisch WebP, korrektes Sizing, Lazy Loading und verhindert CLS.
+5. **Context-Scope eingrenzen:** Context-Provider so nah wie möglich platzieren. Häufig ändernde Werte aus Context raus → Zustand.
+
+---
+
+# 6. API Design & Data Fetching
+
+API-Calls direkt in Komponenten führen zu duplizierten URLs, doppeltem Error-Handling und engem Coupling. Der Industriestandard ist ein 3-schichtiger API-Layer.
+
+## 6.1 Das Anti-Pattern
+
+```typescript
+// Anti-Pattern ✗ — direkt in der Komponente
+function UserList() {
+  const [users, setUsers] = useState([]);
+  useEffect(() => {
+    fetch('/api/users').then(r => r.json()).then(setUsers);
+    // Kein Caching, kein Dedup, kein Retry, kein Error-Handling
+  }, []);
+}
+```
+
+## 6.2 Der 3-schichtige API-Layer
+
+| Schicht | Verantwortung |
+|---------|--------------|
+| **1. API Client (Axios-Instanz)** | Einmalige Konfiguration. Auth-Header, Interceptors, Timeout, Base-URL. Niemals wiederholen. |
+| **2. Repository (Funktionen pro Feature)** | Reine Funktionen. Kein State. Typisiert. Nur HTTP-Calls. Keine UI-Logik. |
+| **3. Custom Hooks (TanStack Query Wrapper)** | Komponenten rufen nur Hooks auf. Caching, Loading/Error States, Invalidierung inklusive. |
+
+```typescript
+// 1. API Client — einmalig konfigurieren
+const apiClient = axios.create({
+  baseURL: import.meta.env.VITE_API_URL,
+  timeout: 30_000,
+});
+apiClient.interceptors.request.use(config => {
+  config.headers.Authorization = `Bearer ${getToken()}`;
+  return config;
+});
+
+// 2. Repository — reine Funktionen
+export const usersRepo = {
+  getAll: (): Promise<User[]> =>
+    apiClient.get('/users').then(r => r.data),
+  getById: (id: string): Promise<User> =>
+    apiClient.get(`/users/${id}`).then(r => r.data),
+  create: (data: CreateUserDto) =>
+    apiClient.post('/users', data).then(r => r.data),
+};
+
+// 3. Query Keys — typisierte Konstanten
+export const userKeys = {
+  all: ['users'] as const,
+  detail: (id: string) => ['users', id] as const,
+};
+
+// 4. Custom Hooks — TanStack Query Wrapper
+export function useUsers() {
+  return useQuery({
+    queryKey: userKeys.all,
+    queryFn: usersRepo.getAll,
+    staleTime: 5 * 60 * 1000, // 5 Minuten
+  });
+}
+
+export function useCreateUser() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: usersRepo.create,
+    onSuccess: () => qc.invalidateQueries({ queryKey: userKeys.all }),
+  });
+}
+```
+
+## 6.3 TanStack Query Best Practices
+
+- **Query Keys als typisierte Konstanten:** `userKeys.all`, `userKeys.detail(id)`. Kein Tipp-Fehler, konsistente Invalidierung.
+- **staleTime bewusst setzen:** Ohne staleTime refetcht TanStack bei jedem Tab-Fokus. 5 min für stabile Daten, 0 für Echtzeit.
+- **Nach Mutations invalidieren:** `queryClient.invalidateQueries()` sorgt dafür dass alle Komponenten frische Daten bekommen.
+- **Optimistic Updates:** UI updaten bevor Server antwortet. Bei Fehler zurückrollen.
+- **select für Daten-Projektion:** Nur relevante Felder aus dem Cache verwenden. Verhindert unnötige Re-Renders.
+
+## 6.4 Die 6 goldenen Regeln
+
+1. **Niemals fetch() in Komponenten:** Immer über Repository → Hook. UI weiß nicht woher Daten kommen.
+2. **Query Keys als typisierte Konstanten:** Konsistente Invalidierung, keine Tipp-Fehler.
+3. **staleTime immer setzen:** Nicht auf 0 lassen, sonst Refetch bei jedem Tab-Fokus.
+4. **Nach Mutations invalidieren:** Nicht manuell updaten — `queryClient.invalidateQueries()`.
+5. **Einen Axios-Client:** Einmalig konfigurieren, nicht mehrere Instanzen.
+6. **API-Mocking mit MSW:** Nicht `jest.mock('axios')`. MSW fängt echte Netzwerk-Requests ab.
+
+---
+
+# 7. Component Design Patterns
+
+React-Design-Patterns sind wiederkehrende Lösungen für häufige Probleme in der Komponentenentwicklung. 2025 hat sich eine klare Hierarchie etabliert.
+
+## 7.1 Core Patterns (immer relevant)
+
+### Composition Pattern
+
+Das Fundament jeder modernen React-Architektur. Komplexe Komponenten über `children` flexibel zusammenbauen statt Props-Flut.
+
+```typescript
+// Prop Soup ✗
+<Card title="..." body="..." footer="..." imgSrc="..." />
+
+// Composition ✓
+<Card>
+  <Card.Image src="..." />
+  <Card.Body>Inhalt</Card.Body>
+  <Card.Footer>Footer</Card.Footer>
+</Card>
+```
+
+### Custom Hook Pattern
+
+Eines der wichtigsten React-Patterns. Logik aus Komponenten auslagern — in Custom Hooks. Wiederverwendbar, testbar, lesbar.
+
+```typescript
+// Logik in Komponente ✗ — 50 Zeilen Validation...
+
+// Custom Hook ✓
+function useForm(rules: ValidationRule[]) {
+  const [values, setValues] = useState({});
+  const [errors, setErrors] = useState({});
+  const validate = () => { /* Logik */ };
+  return { values, errors, validate, handleChange };
+}
+```
+
+## 7.2 Common Patterns
+
+### Compound Components
+
+Für UI wo Sub-Komponenten gemeinsamen State teilen: Tabs, Accordion, Select, Modal. Verhindert Prop-Drilling ohne globalen State.
+
+```typescript
+const TabsCtx = createContext(null);
+
+function Tabs({ children }) {
+  const [active, setActive] = useState(0);
+  return (
+    <TabsCtx.Provider value={{ active, setActive }}>
+      {children}
+    </TabsCtx.Provider>
+  );
+}
+Tabs.List = function TabList(props) { /* ... */ };
+Tabs.Tab  = function Tab(props)  { /* ... */ };
+Tabs.Panel = function Panel(props) { /* ... */ };
+
+// Verwendung — klar & flexibel
+<Tabs>
+  <Tabs.List>
+    <Tabs.Tab>Profil</Tabs.Tab>
+    <Tabs.Tab>Settings</Tabs.Tab>
+  </Tabs.List>
+  <Tabs.Panel>Profil-Inhalt</Tabs.Panel>
+  <Tabs.Panel>Settings-Inhalt</Tabs.Panel>
+</Tabs>
+```
+
+### Headless Components
+
+Komplexe Logik (Dropdown, DatePicker, Combobox) ohne Styling. Volle Kontrolle über das Aussehen. Genutzt von Radix UI, Ark UI.
+
+```typescript
+function useDropdown(items) {
+  const [open, setOpen] = useState(false);
+  const [selected, setSelected] = useState(null);
+  // Keyboard Navigation, ARIA etc.
+  return {
+    isOpen: open,
+    selected,
+    toggle: () => setOpen(o => !o),
+    getMenuProps: () => ({ role: 'listbox', 'aria-expanded': open }),
+  };
+}
+
+// Styling vollständig beim Nutzer
+function MyDropdown({ items }) {
+  const { isOpen, toggle, getMenuProps } = useDropdown(items);
+  return (
+    <div className="my-custom-style">
+      <button onClick={toggle}>Menü</button>
+      {isOpen && <ul {...getMenuProps()}>...</ul>}
+    </div>
+  );
+}
+```
+
+### HOC — Higher Order Component
+
+Cross-Cutting-Concerns wie Auth-Schutz, Logging, Feature-Flags. Heute meist durch Custom Hooks ersetzt — HOCs für dekorative Wrapping-Fälle noch valide.
+
+```typescript
+function withAuth(Component) {
+  return function Protected(props) {
+    const { user } = useAuth();
+    if (!user) return <Navigate to="/login" />;
+    return <Component {...props} user={user} />;
+  };
+}
+
+const ProtectedDashboard = withAuth(Dashboard);
+```
+
+## 7.3 Wann welches Pattern?
+
+| Problem | Lösung |
+|---------|--------|
+| Komponente hat viele Props | Composition / Compound Components |
+| Logik in mehreren Komponenten doppelt | Custom Hook |
+| Sub-Komponenten teilen State (Tabs, Accordion) | Compound Components |
+| Komplexe UI-Logik + eigenes Styling | Headless Component / Hook |
+| Auth, Logging, Feature-Flags global | HOC oder Custom Hook |
+| Daten tief durch den Tree reichen | Context + Provider Pattern |
+
+## 7.4 Die 5 goldenen Regeln
+
+1. **Composition vor Konfiguration:** children statt Props-Flut. Ab 5+ Props: Composition bevorzugen.
+2. **Custom Hooks ersetzen HOCs in 90%:** Lesbarer und einfacher zu testen.
+3. **Compound Components für State-teilende UI:** Tabs, Accordion, Modal, Select sind die Kandidaten. Dot-Notation (`Tabs.Panel`) macht die Zugehörigkeit klar.
+4. **Nicht über-abstrahieren:** Pattern nur wenn das Problem existiert. Kein Headless-Pattern für einfache Buttons.
+5. **Presentational Components bleiben rein:** Kein fetch(), kein State. Trivial zu testen — nur Props rein, JSX raus.
+
+---
+
+# 8. Authentication
+
+Authentication in React-Apps hat zwei kritische Dimensionen: Token-Sicherheit (wo werden Tokens gespeichert?) und Auth-Architektur (wie ist der Code organisiert?). Die meisten Auth-Sicherheitslücken entstehen durch falsche Token-Speicherung.
+
+## 8.1 Token-Speicherung — die kritischste Entscheidung
+
+| Methode | Empfehlung | Begründung |
+|---------|-----------|-----------|
+| **localStorage** | VERMEIDEN für Access Tokens | XSS-Angriff kann Token direkt lesen. OWASP empfiehlt explizit dagegen. |
+| **sessionStorage** | Besser, aber nicht ideal | Tab-spezifisch. Immer noch per JS lesbar (XSS-Risk). |
+| **Hybrid: Memory + HttpOnly Cookie** | GOLD STANDARD 2025 | Access Token im Memory (React State). Refresh Token als HttpOnly Cookie vom Server. |
+
+Das Hybrid-Pattern im Detail:
+
+- **Access Token:** Nur in React State (useState/Context). Verloren beim Reload → Silent Refresh via HttpOnly Cookie.
+- **Refresh Token:** Als HttpOnly Cookie vom Server gesetzt. JavaScript kann HttpOnly Cookies niemals lesen.
+- **Silent Refresh:** Beim App-Start automatisch neuen Access Token via /refresh holen. Browser sendet Cookie automatisch mit.
+
+## 8.2 Auth-Architektur
+
+```typescript
+// AuthContext — zentrale Auth-Logik
+const AuthContext = createContext(null);
+
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState(null);
+  const [accessToken, setToken] = useState(null);
+  const [isLoading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Silent Refresh beim App-Start
+    silentRefresh()
+      .then(({ token, user }) => {
+        setToken(token);
+        setUser(user);
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  const login = async (credentials) => {
+    const { token, user } = await authApi.login(credentials);
+    setToken(token); // Nur im Memory
+    setUser(user);
+  };
+
+  const logout = async () => {
+    await authApi.logout(); // HttpOnly Cookie löschen
+    setToken(null);
+    setUser(null);
+  };
+
+  return (
+    <AuthContext.Provider value={{
+      user, accessToken, isLoading,
+      login, logout,
+      isAuthenticated: !!user,
+    }}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+// useAuth Hook
+export function useAuth() {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error('useAuth must be inside AuthProvider');
+  return ctx;
+}
+
+// ProtectedRoute
+export function ProtectedRoute({ children, requiredRole }) {
+  const { user, isAuthenticated, isLoading } = useAuth();
+  const location = useLocation();
+
+  if (isLoading) return <Spinner />;
+  if (!isAuthenticated)
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  if (requiredRole && user?.role !== requiredRole)
+    return <Navigate to="/403" replace />;
+
+  return children;
+}
+```
+
+## 8.3 3 Route-Kategorien
+
+| Typ | Beschreibung |
+|-----|-------------|
+| **Public** | Alle können zugreifen. /about, /pricing, /blog |
+| **Protected** | Nur eingeloggt. Redirect zu /login wenn nicht authentifiziert. /dashboard, /profile |
+| **Restricted** | Nur für NICHT eingeloggte. Eingeloggte werden zu /dashboard weitergeleitet. /login, /register |
+
+## 8.4 Auth-Provider Vergleich
+
+| Lösung | Empfehlung & Einsatz |
+|--------|---------------------|
+| **Supabase Auth** | Empfohlen für Startups. Open Source, günstig, Email+Social+OAuth. |
+| **Clerk** | Empfohlen für Next.js. Beste DX, Prebuilt-UI, React-nativ. |
+| **Auth0** | Für Enterprise mit SSO, MFA, Audit Logs. Kosten skalieren. |
+| **Auth.js / Better Auth** | Open Source. Volle Kontrolle, kein Vendor Lock-in. Mehr Setup-Aufwand. |
+| **Custom JWT** | Volle Kontrolle. Aber: Sicherheit selbst verantworten — fehleranfällig. |
+
+## 8.5 Die 7 goldenen Regeln
+
+1. **Access Token nur im Memory:** Nie in localStorage oder sessionStorage.
+2. **Refresh Token als HttpOnly Cookie:** Secure + SameSite=Strict. Kein JavaScript-Zugriff möglich.
+3. **Auth-Logik zentral im AuthContext:** Nie in einzelnen Komponenten.
+4. **Axios-Interceptor für Token-Refresh:** Bei 401 automatisch Token erneuern und Request wiederholen.
+5. **Kurze Access-Token-Laufzeit:** 15 Minuten maximum. Refresh Token: 7–30 Tage.
+6. **3 Route-Kategorien klar trennen:** Public, Restricted, Protected.
+7. **Server-Side-Validation immer:** Client-seitige Checks sind nur UX. Echte Sicherheit kommt vom Backend.
+
+---
+
+# 9. TypeScript & Code Quality
+
+TypeScript hat eine Adoptionsrate von 78% in React-Projekten erreicht (State of JS 2025). Es ist der De-facto-Standard. Aber TypeScript schützt nur zur Build-Zeit. Für Laufzeit-Sicherheit braucht es zusätzlich Zod.
+
+## 9.1 tsconfig.json — strict: true ist Pflicht
+
+Das ist der größte Einzelhebel. Ohne strict verschenkt man ~50% des TypeScript-Nutzens:
+
+```json
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "baseUrl": ".",
+    "paths": { "@/*": ["./src/*"] },
+
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+
+    "skipLibCheck": true,
+    "isolatedModules": true
+  }
+}
+```
+
+## 9.2 Wichtigste Typing-Patterns
+
+### Discriminated Unions für State
+
+Statt Boolean-Flags die unmögliche Zustände erlauben:
+
+```typescript
+// Anti-Pattern ✗ — 8 unmögliche Kombinationen!
+interface FetchState {
+  isLoading: boolean;
+  data?: User[];
+  error?: string;
+}
+
+// Discriminated Union ✓
+type FetchState =
+  | { status: 'idle' }
+  | { status: 'loading' }
+  | { status: 'success'; data: User[] }
+  | { status: 'error'; message: string };
+
+// TypeScript kennt exakt welche Felder verfügbar sind
+function render(state: FetchState) {
+  switch (state.status) {
+    case 'success': return state.data; // ✓ sicher
+    case 'error':   return state.message; // ✓ sicher
+  }
+}
+```
+
+### Generic Components + ComponentProps
+
+```typescript
+// Generic Component ✓
+interface ListProps<T> {
+  items: T[];
+  renderItem: (item: T) => ReactNode;
+  keyExtractor: (item: T) => string;
+}
+
+function List<T>({ items, renderItem, keyExtractor }: ListProps<T>) {
+  return items.map(item => (
+    <div key={keyExtractor(item)}>{renderItem(item)}</div>
+  ));
+}
+
+// ComponentProps — Props aus Komponente ableiten statt duplizieren ✓
+import { ComponentProps } from 'react';
+type ButtonProps = ComponentProps<'button'> & {
+  variant: 'primary' | 'secondary';
+};
+```
+
+### Wichtigste Utility Types
+
+| Utility Type | Verwendung |
+|-------------|-----------|
+| `Partial<T>` | Alle Props optional. Für Update-Forms. |
+| `Required<T>` | Alle Props required. |
+| `Pick<T, K>` | Nur bestimmte Props. `Pick<User, 'id'\|'name'>` |
+| `Omit<T, K>` | Bestimmte Props weglassen. `Omit<User, 'password'>` |
+| `Record<K, V>` | Key-Value-Map typen. `Record<Role, Permission[]>` |
+| `ReturnType<F>` | Return-Typ ableiten. `ReturnType<typeof useAuth>` |
+| `NonNullable<T>` | null/undefined entfernen. |
+| `ComponentProps<T>` | Props aus Komponente ableiten. |
+
+## 9.3 Zod — Runtime Validation
+
+TypeScript schützt zur Build-Zeit. Zod validiert externe Daten zur Laufzeit. Beide zusammen = bulletproof.
+
+```typescript
+import { z } from 'zod';
+
+// Schema = Single Source of Truth
+const UserSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string().min(1),
+  email: z.string().email(),
+  role: z.enum(['admin', 'user']),
+  createdAt: z.coerce.date(),
+});
+
+// TypeScript-Typ automatisch abgeleitet
+type User = z.infer<typeof UserSchema>;
+
+// API-Response sicher validieren
+async function getUser(id: string): Promise<User> {
+  const res = await fetch(`/api/users/${id}`);
+  const raw = await res.json();
+  return UserSchema.parse(raw); // Wirft ZodError bei falscher Struktur
+}
+
+// React Hook Form + Zod
+import { zodResolver } from '@hookform/resolvers/zod';
+
+const { register, handleSubmit } = useForm({
+  resolver: zodResolver(UserSchema),
+});
+```
+
+## 9.4 Die 7 goldenen Regeln
+
+1. **strict: true in tsconfig:** Keine Kompromisse. Pflicht für jedes neue Projekt.
+2. **Niemals any:** `any` schaltet das Type-System aus. `unknown` mit Type Guard verwenden.
+3. **Discriminated Unions für komplexe State:** Unmögliche Zustände zur Compile-Zeit ausschließen.
+4. **Zod für externe Daten:** API-Responses, Forms, Env-Variablen. TypeScript vertraut `as User` — Zod prüft es.
+5. **ComponentProps<T> statt Props duplizieren:** Änderungen propagieren automatisch.
+6. **as const für Enum-ähnliche Arrays:** Union-Type automatisch ableiten, nie manuell pflegen.
+7. **Utility Types nutzen:** Nie Typen manuell duplizieren. Partial, Pick, Omit, ReturnType.
+
+---
+
+# 10. Error Handling
+
+Effektives Error Handling schützt die User-Experience und liefert wertvolle Debugging-Informationen. React 19 bringt neue Root-Level-Hooks für globales Error-Monitoring.
+
+## 10.1 Die 4 Fehlertypen
+
+| Fehlertyp | Behandlung |
+|-----------|-----------|
+| **Render-Fehler** | Exceptions im JSX-Rendering. → Error Boundary |
+| **Async-Fehler** | fetch(), useEffect-Fehler. → try/catch + State + re-throw |
+| **Event Handler** | onClick, onChange Fehler. → try/catch explizit (Boundaries sehen sie nicht!) |
+| **Network-Fehler** | API-Calls, Timeouts. → TanStack Query (automatisch) |
+
+## 10.2 Error Boundary Architektur
+
+Niemals die ganze App in eine Boundary wrappen. Granular auf Feature-Ebene wrappen.
+
+```typescript
+// Wiederverwendbare AppErrorBoundary
+import { ErrorBoundary } from 'react-error-boundary';
+import * as Sentry from '@sentry/react';
+
+function DefaultFallback({ error, resetErrorBoundary }) {
+  return (
+    <div role="alert">
+      <h3>Etwas ist schiefgelaufen</h3>
+      {process.env.NODE_ENV === 'development' && <pre>{error.message}</pre>}
+      <button onClick={resetErrorBoundary}>Erneut versuchen</button>
+      <a href="/support">Support kontaktieren</a>
+    </div>
+  );
+}
+
+export function AppErrorBoundary({ children, fallback, onReset }) {
+  return (
+    <ErrorBoundary
+      FallbackComponent={fallback ?? DefaultFallback}
+      onError={(error, info) => {
+        Sentry.captureException(error, {
+          extra: { componentStack: info.componentStack },
+        });
+      }}
+      onReset={onReset}
+    >
+      {children}
+    </ErrorBoundary>
+  );
+}
+
+// Verwendung — granular
+function Dashboard() {
+  return (
+    <div>
+      <Header />
+      <AppErrorBoundary fallback={ChartError} onReset={refetchChart}>
+        <RevenueChart />
+      </AppErrorBoundary>
+      <AppErrorBoundary fallback={TableError} onReset={refetchData}>
+        <DataTable />
+      </AppErrorBoundary>
+    </div>
+  );
+}
+```
+
+## 10.3 React 19: Root-Level Error Hooks
+
+React 19 führt `onCaughtError` und `onUncaughtError` direkt in `createRoot` ein:
+
+```typescript
+createRoot(container, {
+  onUncaughtError: Sentry.reactErrorHandler((error, info) => {
+    console.warn('Uncaught:', error, info.componentStack);
+  }),
+  onCaughtError: Sentry.reactErrorHandler(),
+  onRecoverableError: Sentry.reactErrorHandler(),
+}).render(<App />);
+```
+
+## 10.4 Async-Fehler korrekt behandeln
+
+```typescript
+// Async Fehler — State updaten + re-throw damit Boundary greift
+function DataComponent() {
+  const [error, setError] = useState(null);
+  
+  useEffect(() => {
+    fetchData()
+      .catch(err => {
+        setError(err);
+        throw err; // Boundary sieht es
+      });
+  }, []);
+  
+  if (error) throw error;
+}
+
+// Event Handler — try/catch + User-Feedback
+const handleSubmit = async () => {
+  try {
+    await submitForm(data);
+    toast.success('Gespeichert!');
+  } catch (err) {
+    toast.error('Fehler beim Speichern');
+    Sentry.captureException(err);
+  }
+};
+```
+
+## 10.5 Die 6 goldenen Regeln
+
+1. **Nie eine Root-Boundary für alles:** Feature-Level isolieren. Nur crashende Section zeigt Fallback.
+2. **React 19 Root-Hooks nutzen:** Globales Error-Reporting ohne manuelle Konfiguration jeder Boundary.
+3. **Async + Event Handler brauchen try/catch:** Boundaries sehen diese Fehler nicht.
+4. **TanStack Query für API-Fehler:** Automatische Retries, strukturierter Error-State.
+5. **Fallback-UI mit Kontext + Retry:** Kein "Something went wrong". Nutzer müssen wissen was und was sie tun können.
+6. **Production-Errors an Sentry:** Nie nur console.log. Sentry liefert Stack Trace, Component Tree, Session Replay.
+
+---
+
+# 11. CI/CD & DevOps
+
+Eine gute CI/CD-Pipeline fängt Bugs früh, ermöglicht schnelle und sichere Releases und eliminiert manuelle Deployment-Schritte vollständig.
+
+## 11.1 Pipeline-Stages
+
+| Stage | Inhalt |
+|-------|--------|
+| **1. Trigger** | Git-Event: Push auf Branch, PR öffnen, Merge in main. |
+| **2. Validate** | ESLint, TypeScript Type-Check, npm audit --audit-level=high. |
+| **3. Test** | Unit Tests (Vitest), Integration Tests, Coverage-Report. |
+| **4. Build** | npm ci (niemals npm install!), Production Build, Artifact hochladen. |
+| **5. Deploy** | Preview auf PR, Staging auf develop, Production auf main. |
+
+## 11.2 GitHub Actions Workflow
+
+```yaml
+name: CI Pipeline
+on:
+  push: { branches: [main, develop] }
+  pull_request: { branches: [main] }
+
+# Stale Runs abbrechen — spart Pipeline-Minuten
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'          # node_modules cachen!
+      - run: npm ci             # Immer npm ci, nie npm install!
+      - run: npm run lint
+      - run: npx tsc --noEmit
+      - run: npm audit --audit-level=high
+
+  test:
+    runs-on: ubuntu-latest
+    needs: validate
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm ci
+      - run: npm run test -- --coverage
+
+  build:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm ci
+      - run: npm run build
+        env:
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: dist/           # Artifact für CD-Job weitergeben
+```
+
+## 11.3 4-Umgebungen-Strategie
+
+| Umgebung | Trigger & Beschreibung |
+|----------|----------------------|
+| **Development** | localhost. .env.local für Secrets. Kein automatisches Deployment. |
+| **Preview ⭐** | Automatische URL pro PR. Designer, PO, QA können ohne Setup reviewen. |
+| **Staging** | Merge in develop. Spiegelkopie der Production. Letzter Check vor Live. |
+| **Production** | Merge in main. Nach bestandener CI. CDN-Cache nach Deploy invalidieren. |
+
+## 11.4 Deployment-Plattformen
+
+| Plattform | Empfehlung |
+|-----------|-----------|
+| **Vercel** | Empfohlen für Next.js und React SPAs. Automatische Preview-URLs pro PR. Minimaler Aufwand. |
+| **Netlify** | Empfohlen für Static Sites, JAMstack. Ähnlich wie Vercel. |
+| **AWS S3 + CloudFront** | Enterprise. Volle Kontrolle und Compliance. Hoher Aufwand. |
+| **GitHub Pages** | Open-Source-Projekte und Portfolios. Gratis, minimaler Aufwand. |
+| **Render** | Für Apps die auch Backend brauchen. Automatische Preview-Environments. |
+
+## 11.5 Die 7 goldenen Regeln
+
+1. **npm ci statt npm install:** Reproduzierbare Builds. Sauber und schnell.
+2. **Dependency-Caching aktivieren:** `actions/setup-node` mit `cache: 'npm'`. 50–80% schnellere Builds.
+3. **Artifact weitergeben:** CI baut, CD deployt dasselbe Artifact. Kein doppeltes Bauen.
+4. **Secrets nur in GitHub Secrets:** Nie im YAML-Code. Nie in CI-Logs sichtbar.
+5. **Preview Environments für jeden PR:** Kein "kann ich nicht testen" mehr.
+6. **concurrency: cancel-in-progress:** Stale Runs abbrechen. Nur neuester Run ist relevant.
+7. **CDN-Cache invalidieren:** Nach Production-Deploy. Sonst sehen Nutzer den alten Build.
+
+---
+
+# 12. CSS & Styling
+
+2025: CSS-in-JS verliert Marktanteile wegen React Server Components. Tailwind v4 und CSS Modules sind die klaren Gewinner des RSC-Zeitalters. CSS-in-JS hat Runtime-Overhead auf dem Server.
+
+## 12.1 Die 3 dominanten Ansätze
+
+| Ansatz | Empfehlung | Wichtigster Faktor |
+|--------|-----------|-------------------|
+| **Tailwind CSS v4** | Empfohlen | Zero Runtime, RSC-kompatibel, Design-Tokens im Config, Tree-Shaking automatisch |
+| **CSS Modules** | Solide Alternative | Echtes CSS, Auto-Scoping, kein Runtime, RSC-kompatibel |
+| **CSS-in-JS (Styled Components)** | Mit Vorsicht | Runtime-Overhead, NICHT RSC-kompatibel, erhöhter INP |
+
+## 12.2 Der moderne Stack 2025
+
+| Tool | Verwendungszweck |
+|------|-----------------|
+| **Tailwind CSS v4** | Design Tokens via @theme in CSS. Kein tailwind.config.js mehr nötig. OKLCH-Farbraum. |
+| **shadcn/ui** | Kopiert Code in das Projekt (kein npm-Package). Radix UI für A11y + Tailwind für Styling. Volle Kontrolle. |
+| **CVA (class-variance-authority)** | Varianten deklarativ definieren statt ternary-Chaos. TypeScript-Support inklusive. |
+| **cn() / tailwind-merge** | Merged Tailwind-Klassen intelligent. Verhindert Konflikte zwischen base und override. |
+
+## 12.3 CVA Pattern
+
+```typescript
+import { cva, type VariantProps } from 'class-variance-authority';
+import { cn } from '@/lib/utils';
+
+const buttonVariants = cva(
+  // Base-Styles (immer aktiv)
+  'inline-flex items-center justify-center font-medium transition-colors focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50',
+  {
+    variants: {
+      variant: {
+        primary:   'bg-primary text-white hover:bg-primary/90',
+        secondary: 'bg-secondary text-secondary-foreground',
+        outline:   'border border-input hover:bg-accent',
+        danger:    'bg-destructive text-white hover:bg-destructive/90',
+      },
+      size: {
+        sm: 'h-8 px-3 text-sm rounded-md',
+        md: 'h-10 px-4 rounded-md',
+        lg: 'h-12 px-6 text-lg rounded-lg',
+      },
+    },
+    defaultVariants: { variant: 'primary', size: 'md' },
+  }
+);
+
+interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof buttonVariants> {}
+
+export function Button({ variant, size, className, ...props }: ButtonProps) {
+  return (
+    <button
+      className={cn(buttonVariants({ variant, size }), className)}
+      {...props}
+    />
+  );
+}
+
+// Verwendung — clean + typsicher
+<Button variant="danger" size="lg">Löschen</Button>
+```
+
+## 12.4 Design Tokens
+
+```css
+/* globals.css — Tailwind v4 */
+@import "tailwindcss";
+
+@theme {
+  /* Tokens direkt in CSS — kein tailwind.config.js */
+  --color-primary: oklch(0.6 0.2 270);
+  --color-primary-foreground: oklch(0.98 0 0);
+  --color-secondary: oklch(0.9 0.01 0);
+  --color-destructive: oklch(0.55 0.22 25);
+  --color-background: oklch(1 0 0);
+  --color-foreground: oklch(0.15 0.02 270);
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+
+  --font-sans: 'Inter', system-ui, sans-serif;
+}
+
+/* Dark Mode */
+.dark {
+  --color-background: oklch(0.12 0.02 270);
+  --color-foreground: oklch(0.95 0 0);
+}
+```
+
+## 12.5 Entscheidungshilfe
+
+| Situation | Empfehlung | Begründung |
+|-----------|-----------|-----------|
+| Neues Next.js / React-Projekt | Tailwind v4 + shadcn/ui + CVA | Zero runtime, RSC-kompatibel, beste DX 2025 |
+| Bestehendes Projekt mit CSS Modules | CSS Modules behalten | Migration nur wenn klarer Vorteil |
+| Hochdynamisches Styling via Props | CSS Custom Properties + inline styles | Dynamische Werte in CSS-Variablen |
+| Legacy mit Styled Components | Nicht sofort migrieren | Migration hat Kosten — nur wenn Performance-Problem belegt |
+| Design System für mehrere Apps | Tailwind + CVA + Storybook + Tokens | Single Source of Truth |
+
+## 12.6 Die 6 goldenen Regeln
+
+1. **Einen Ansatz wählen:** Tailwind + Styled Components + CSS Modules gleichzeitig ist ein Wartungsalptraum.
+2. **Design Tokens zentral:** `bg-primary` statt `bg-blue-600`. Ein Token ändern, alle Komponenten updaten.
+3. **CVA für Varianten:** Kein ternary-Chaos im className. Deklarativ und typsicher.
+4. **Tailwind-Klassen nie dynamisch generieren:** `` `bg-${color}-500` `` wird nicht erkannt. Ganze Klassen oder nichts.
+5. **Dynamische Styles via CSS Custom Properties:** `style={{ '--my-var': value }}` — nicht via className-Generierung.
+6. **CSS-in-JS mit Server Components vermeiden:** Runtime CSS blockiert Streaming und erhöht INP.
+
+---
+
+# 13. Accessibility (A11y)
+
+Seit dem 28. Juni 2025 ist der EU Accessibility Act in allen EU-Mitgliedsstaaten verpflichtend. Er verpflichtet Unternehmen, kommerzielle Webangebote nach WCAG-Standards zugänglich zu machen — für Nutzer mit visuellen, motorischen, auditiven und kognitiven Einschränkungen.
+
+## 13.1 Die 4 Säulen barrierefreier React-Apps
+
+| Säule | Beschreibung |
+|-------|-------------|
+| **1. Semantisches HTML** | Native Elemente haben eingebaute Semantik, Keyboard-Support und ARIA-Rollen — kostenlos. `<button>`, `<nav>`, `<main>`, `<header>`, `<label htmlFor>`. |
+| **2. ARIA (nur wenn nötig)** | "No ARIA is better than bad ARIA." Erst semantisches HTML, ARIA nur für Custom Components. ARIA-State immer mit React-State synchron halten. |
+| **3. Focus Management** | Modals: Focus beim Öffnen setzen. Focus-Trap innerhalb Modal. Fokus zurück nach Schließen. Sichtbare Focus-Ringe NIEMALS entfernen. |
+| **4. Kontrast & Wahrnehmung** | 4.5:1 für Normaltext, 3:1 für großen Text. Farbe nie als einziges Unterscheidungsmerkmal. `prefers-reduced-motion` beachten. |
+
+## 13.2 Die goldene ARIA-Regel
+
+> **"No ARIA is better than bad ARIA."** Eine WebAIM-Studie von über 1 Million Homepages ergab: Seiten mit ARIA hatten im Schnitt 41% mehr erkannte Fehler als Seiten ohne ARIA.
+
+```typescript
+// Anti-Pattern ✗ — Div als Button
+<div onClick={handleClick} className="btn">Senden</div>
+
+// Best Practice ✓ — nativer Button
+<button onClick={handleClick} type="button">Senden</button>
+
+// Icon-Button mit aria-label ✓
+<button onClick={close} aria-label="Schließen" type="button">
+  <XIcon aria-hidden="true" />
+</button>
+
+// ARIA-State mit React-State synchron ✓
+function Dropdown({ children }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div>
+      <button
+        aria-expanded={open}       // Dynamisch, nicht statisch!
+        aria-haspopup="listbox"
+        onClick={() => setOpen(o => !o)}
+      >
+        Menü
+      </button>
+      {open && <div role="listbox">{children}</div>}
+    </div>
+  );
+}
+```
+
+## 13.3 Focus Management für Modals
+
+```typescript
+import FocusTrap from 'focus-trap-react';
+
+function Modal({ isOpen, onClose, children }) {
+  const closeRef = useRef(null);
+
+  useEffect(() => {
+    if (isOpen) closeRef.current?.focus();
+  }, [isOpen]);
+
+  if (!isOpen) return null;
+
+  return (
+    <FocusTrap>
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-title"
+      >
+        <h2 id="modal-title">Modal Titel</h2>
+        {children}
+        <button ref={closeRef} onClick={onClose} aria-label="Modal schließen">
+          Schließen
+        </button>
+      </div>
+    </FocusTrap>
+  );
+}
+```
+
+## 13.4 ARIA Live Regions
+
+```typescript
+// Formular-Fehler für Screen-Reader ankündigen
+function FormError({ error }) {
+  return (
+    // role="alert" = aria-live="assertive"
+    <div role="alert" aria-atomic="true">
+      {error && <p>{error}</p>}
+    </div>
+  );
+}
+
+// Sanfte Ankündigung
+function StatusMessage({ message }) {
+  return (
+    <div aria-live="polite" aria-atomic="true" className="sr-only">
+      {message}
+    </div>
+  );
+}
+
+// Wann welches:
+// aria-live="assertive" → Fehler, kritische Alerts
+// aria-live="polite"    → Erfolgsmeldungen, Ladefortschritt
+// role="status"         → kurze Status-Meldungen
+// role="alert"          → kritische Fehler
+```
+
+## 13.5 A11y Testing — dreischichtig
+
+| Tool | Beschreibung & Einsatz |
+|------|----------------------|
+| **eslint-plugin-jsx-a11y** | Static Analysis beim Tippen. Fehler direkt im JSX finden. Pflicht in jedem Projekt. |
+| **jest-axe / vitest-axe** | axe-core auf gerenderte Komponenten. Automatisch in jeden Component-Test einbauen. |
+| **@axe-core/react** | Runtime-Prüfung im Dev-Browser. Nie in Production. Zeigt Violations in der Konsole. |
+| **Lighthouse / axe DevTools** | Vollständiger A11y-Audit der gerenderten Seite. In CI-Pipeline integrierbar. |
+| **VoiceOver / NVDA** | Manuell mit Screen-Reader testen. Kein Tool ersetzt das. Besonders für Custom Components. |
+| **Keyboard Navigation** | Maus ausstecken, nur mit Tab/Enter/Leertaste navigieren. Schnellster Smoke-Test. |
+
+```typescript
+// jest-axe in jedem Component-Test ✓
+import { axe, toHaveNoViolations } from 'jest-axe';
+expect.extend(toHaveNoViolations);
+
+test('Button hat keine A11y-Violations', async () => {
+  const { container } = render(
+    <Button variant="primary">Speichern</Button>
+  );
+  expect(await axe(container)).toHaveNoViolations();
+});
+```
+
+## 13.6 WCAG 2.2 Ziel-Metriken
+
+| Metrik | Zielwert |
+|--------|---------|
+| WCAG Level | AA (Mindeststandard für EU-Pflicht) |
+| Kontrast Normaltext | 4.5:1 Mindest-Kontrastratio |
+| Kontrast großer Text / UI | 3:1 Mindest-Kontrastratio |
+| Touch Target Größe | Minimum 44×44px |
+| Text-Zoom | 200% ohne horizontales Scrollen |
+
+## 13.7 Die 7 goldenen Regeln
+
+1. **Semantisches HTML vor ARIA:** Nativer Button > `div role="button"`. Eingebaut und kostenlos.
+2. **"No ARIA is better than bad ARIA":** 41% mehr Fehler bei ARIA-Seiten laut WebAIM.
+3. **ARIA-State mit React-State synchron:** `aria-expanded={open}` — kein statischer Wert.
+4. **Modals: Focus-Trap + Fokus setzen + zurückgeben:** Ohne Focus-Trap kann der User unsichtbar im Hintergrund tabben.
+5. **eslint-plugin-jsx-a11y + jest-axe in jedem Projekt:** 3 Zeilen Code fangen 57% aller A11y-Fehler ab.
+6. **Focus-Outline nie entfernen:** Für Keyboard-Nutzer ist der Focus-Ring ihr Cursor.
+7. **Mit Keyboard und Screen-Reader testen:** In 10 Minuten findet man die schlimmsten Probleme.
+
+---
+
+# 14. Security
+
+React schützt nicht automatisch gegen alle Angriffe. JSX escaping hilft gegen einfaches XSS — aber das ist nur ein Bruchteil der nötigen Sicherheitsmaßnahmen. Frontend-Sicherheit ist "Defense in Depth", kein Ersatz für Backend-Sicherheit.
+
+## 14.1 Was React automatisch schützt
+
+- **JSX Escaping:** Alle Strings in `{}` werden automatisch escaped. Zeichen wie `<`, `>`, `&` werden zu HTML-Entities.
+- **Virtual DOM:** Verhindert direkte String-Injection ins DOM bei normaler JSX-Nutzung.
+- **Props kein ausführbarer Code:** Props werden nicht als JavaScript interpretiert.
+
+> **Achtung:** React schützt NICHT gegen: `dangerouslySetInnerHTML` mit unbereinigtem Input, `javascript:`-URLs in href, `eval()` und `innerHTML` via Refs, CSRF, unsichere HTTP-Headers.
+
+## 14.2 XSS — Cross-Site Scripting
+
+Die häufigsten Eintrittspunkte für XSS in React:
+
+```typescript
+// Anti-Pattern ✗ — ungefiltert
+function Bad({ html }) {
+  return <div dangerouslySetInnerHTML={{ __html: html }} />;
+}
+
+// Best Practice ✓ — mit DOMPurify
+import DOMPurify from 'dompurify';
+
+function Safe({ html }) {
+  const clean = DOMPurify.sanitize(html, {
+    ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'p'],
+    ALLOWED_ATTR: [],  // Keine Attribute erlaubt
+  });
+  return <div dangerouslySetInnerHTML={{ __html: clean }} />;
+}
+
+// URL-Protokoll validieren ✓
+// javascript:-URLs sind gültig und gefährlich!
+function SafeLink({ href }) {
+  const isSafe = (url: string) => {
+    try {
+      const { protocol } = new URL(url);
+      return ['http:', 'https:'].includes(protocol);
+    } catch { return false; }
+  };
+  return isSafe(href)
+    ? <a href={href} rel="noopener noreferrer">Link</a>
+    : <span>Ungültige URL</span>;
+}
+```
+
+## 14.3 CSRF — Cross-Site Request Forgery
+
+CSRF-Angriffe nutzen die Browser-Eigenschaft, Cookies automatisch mit Cross-Site-Requests zu senden:
+
+- **SameSite=Strict Cookie:** Cookies werden nicht mit Cross-Site-Requests gesendet. Serverseitig setzen.
+- **CSRF-Token:** Bei mutierenden Requests (POST, PUT, DELETE) CSRF-Token im Header mitschicken.
+- **Custom Headers:** `X-Requested-With: XMLHttpRequest`. Andere Domains können keine Custom Headers setzen.
+
+```typescript
+// CSRF-Token im Request mitschicken
+const [csrfToken, setCsrfToken] = useState('');
+
+useEffect(() => {
+  fetch('/api/csrf-token')
+    .then(r => r.json())
+    .then(({ csrfToken }) => setCsrfToken(csrfToken));
+}, []);
+
+await axios.post('/api/submit', formData, {
+  headers: { 'X-CSRF-Token': csrfToken },
+});
+
+// Server-seitig: Cookie mit SameSite=Strict
+// res.cookie('session', token, {
+//   httpOnly: true,
+//   secure: true,
+//   sameSite: 'strict',
+// });
+```
+
+## 14.4 Security HTTP-Headers
+
+| Header | Schutz & Beispielwert |
+|--------|----------------------|
+| **Content-Security-Policy** | XSS, Code-Injection. `default-src 'self'; script-src 'self'` |
+| **Strict-Transport-Security** | HTTPS Downgrade. `max-age=31536000; includeSubDomains` |
+| **X-Frame-Options** | Clickjacking. `DENY` |
+| **X-Content-Type-Options** | MIME-Sniffing. `nosniff` |
+| **Referrer-Policy** | URL-Leakage. `strict-origin-when-cross-origin` |
+| **Permissions-Policy** | Browser-Features einschränken. `camera=(), microphone=()` |
+
+```javascript
+// next.config.js — Security Headers
+module.exports = {
+  async headers() {
+    return [{
+      source: '/(.*)',
+      headers: [
+        { key: 'Content-Security-Policy',
+          value: "default-src 'self'; script-src 'self'" },
+        { key: 'Strict-Transport-Security',
+          value: 'max-age=31536000; includeSubDomains' },
+        { key: 'X-Frame-Options', value: 'DENY' },
+        { key: 'X-Content-Type-Options', value: 'nosniff' },
+        { key: 'Referrer-Policy',
+          value: 'strict-origin-when-cross-origin' },
+      ]
+    }];
+  }
+};
+```
+
+## 14.5 Secrets & Environment Variables
+
+```typescript
+// ✗ Secret direkt im Code — NIEMALS
+const API_KEY = 'sk-prod-abc123secret';
+
+// ✓ Environment Variable
+// ACHTUNG: VITE_/ REACT_APP_ Prefix = öffentlich im Bundle!
+const PUBLIC_URL = import.meta.env.VITE_API_URL; // OK (kein Geheimnis)
+
+// Was SICHER ist im Frontend:
+// - API-URLs (öffentlich)
+// - Feature-Flags (öffentlich)
+
+// Was NICHT sicher ist:
+// - VITE_DB_PASSWORD, VITE_JWT_SECRET etc.
+// → gehört nur auf den Server!
+
+// Source Maps in Production deaktivieren ✓
+// vite.config.ts:
+export default defineConfig({
+  build: {
+    sourcemap: false, // Kein Leak des Source-Codes
+  },
+});
+```
+
+## 14.6 Supply-Chain-Sicherheit 2025
+
+2025 markiert einen Wendepunkt: `npm install` ist jetzt klar ein Remote-Code-Execution-Primitive (Shai-Hulud-Angriff, September 2025 — kompromittierte Lifecycle-Scripts in populären npm-Paketen).
+
+- **npm audit:** `npm audit --audit-level=high` in der CI-Pipeline. Blockiert Deploys mit bekannten Schwachstellen.
+- **Snyk / Dependabot:** Automatische PRs wenn neue CVEs bekannt werden.
+- **package-lock.json committen:** Deterministische Builds. Nie ignorieren.
+- **Lifecycle-Scripts mit Vorsicht:** `postinstall`-Scripts können beliebigen Code ausführen.
+
+```yaml
+# CI-Pipeline: Dependency Audit
+- name: Security audit
+  run: npm audit --audit-level=high
+
+# Snyk integration
+- name: Run Snyk
+  uses: snyk/actions/node@master
+  env:
+    SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+```
+
+## 14.7 Die 8 goldenen Regeln
+
+1. **Frontend-Validierung ist nur UX:** Echte Sicherheit kommt vom Backend. Jeder Client-Check kann umgangen werden.
+2. **dangerouslySetInnerHTML nur mit DOMPurify:** Niemals roh. ALLOWED_TAGS Whitelist definieren.
+3. **URLs aus User-Input validieren:** `javascript:`-URLs sind gültig. Immer Protokoll prüfen.
+4. **Niemals Secrets im Frontend:** `VITE_`-Prefix = öffentlich im Bundle. Sensitive Keys nur auf dem Server.
+5. **Source Maps in Production deaktivieren:** `sourcemap: false` im Build. Kein Leak des Source-Codes.
+6. **Security HTTP-Headers setzen:** CSP, HSTS, X-Frame, X-Content-Type. Kein Aufwand, großer Schutz.
+7. **npm audit in der CI-Pipeline:** Blockiert Deploys mit High/Critical-Vulnerabilities.
+8. **Cookies: HttpOnly + Secure + SameSite=Strict:** Niemals Tokens in localStorage.
+
+---
+
+# 15. Quick Reference Checklist
+
+Schnellübersicht aller recherchierten Best Practices als Projekt-Checkliste.
+
+| Bereich | Best Practice | ✓ |
+|---------|--------------|---|
+| **Architecture** | Feature-based Ordnerstruktur | ☐ |
+| **Architecture** | 4-Schichten: UI → Hooks → Services → Data | ☐ |
+| **Architecture** | Next.js 15 als Standard-Framework | ☐ |
+| **Architecture** | TypeScript strict: true | ☐ |
+| **State** | TanStack Query für Server State | ☐ |
+| **State** | Zustand für globalen Client-State | ☐ |
+| **State** | URL-State für Filter/Pagination | ☐ |
+| **State** | Context nur für low-frequency updates | ☐ |
+| **Testing** | Testing Trophy (Integration > Unit) | ☐ |
+| **Testing** | Vitest + RTL für Unit/Integration | ☐ |
+| **Testing** | Playwright für E2E | ☐ |
+| **Testing** | MSW für API-Mocking | ☐ |
+| **Performance** | React Compiler aktivieren | ☐ |
+| **Performance** | Code Splitting + React.lazy() | ☐ |
+| **Performance** | next/image für Bilder | ☐ |
+| **Performance** | Core Web Vitals Ziele definiert | ☐ |
+| **API** | 3-schichtiger API-Layer | ☐ |
+| **API** | Axios-Instanz zentral (einmalig) | ☐ |
+| **API** | Query Keys als typisierte Konstanten | ☐ |
+| **API** | staleTime bewusst gesetzt | ☐ |
+| **Components** | Composition statt Props-Flut | ☐ |
+| **Components** | Custom Hooks für Logik | ☐ |
+| **Components** | Compound Components für State-Sharing | ☐ |
+| **Auth** | Hybrid Token: Memory + HttpOnly Cookie | ☐ |
+| **Auth** | AuthContext zentral | ☐ |
+| **Auth** | Silent Refresh beim App-Start | ☐ |
+| **Auth** | 3 Route-Typen: Public/Protected/Restricted | ☐ |
+| **TypeScript** | strict: true in tsconfig | ☐ |
+| **TypeScript** | Discriminated Unions für State | ☐ |
+| **TypeScript** | Zod für API-Responses validieren | ☐ |
+| **TypeScript** | Utility Types statt Duplizierung | ☐ |
+| **Error Handling** | Feature-Level Error Boundaries | ☐ |
+| **Error Handling** | React 19 Root-Level Error Hooks | ☐ |
+| **Error Handling** | Sentry für Production-Monitoring | ☐ |
+| **CI/CD** | npm ci in der Pipeline | ☐ |
+| **CI/CD** | Dependency-Caching aktiviert | ☐ |
+| **CI/CD** | Preview Environments pro PR | ☐ |
+| **CI/CD** | npm audit blockiert Vulnerabilities | ☐ |
+| **Styling** | Tailwind v4 + shadcn/ui + CVA | ☐ |
+| **Styling** | Design Tokens in CSS-Variablen | ☐ |
+| **Styling** | Kein CSS-in-JS mit Server Components | ☐ |
+| **A11y** | Semantisches HTML vor ARIA | ☐ |
+| **A11y** | eslint-plugin-jsx-a11y installiert | ☐ |
+| **A11y** | jest-axe in Component-Tests | ☐ |
+| **A11y** | WCAG 2.2 Level AA als Ziel | ☐ |
+| **A11y** | Focus Management für Modals | ☐ |
+| **Security** | DOMPurify für dangerouslySetInnerHTML | ☐ |
+| **Security** | URL-Protokoll-Validierung | ☐ |
+| **Security** | Security HTTP-Headers konfiguriert | ☐ |
+| **Security** | Keine Secrets im Frontend-Bundle | ☐ |
+| **Security** | Source Maps in Production deaktiviert | ☐ |
+
+---
+
+*Recherche-Datum: April 2026 | React 19 · Next.js 15 · TypeScript 5 · Tailwind v4*
