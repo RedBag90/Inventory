@@ -76,8 +76,31 @@ export async function getCumulativeReport(targetUserId?: string): Promise<Cumula
   const userId = await resolveUserId(targetUserId);
   const sales = await prisma.sale.findMany({ where: { item: { userId } }, include: SALE_INCLUDE });
   let revenue = 0, costs = 0, profit = 0, totalStorageDays = 0;
-  for (const sale of sales) { const m = computeSaleMetrics(sale); revenue += m.revenue; costs += m.costs; profit += m.profit; totalStorageDays += m.storageDays; }
-  return { revenue, costs, profit, itemsSold: sales.length, avgStorageDays: sales.length > 0 ? Math.round(totalStorageDays / sales.length) : 0 };
+  for (const sale of sales) {
+    const m = computeSaleMetrics(sale);
+    revenue += m.revenue; costs += m.costs; profit += m.profit; totalStorageDays += m.storageDays;
+  }
+
+  // IN_STOCK items — include their costs even though not yet sold
+  const unsold = await prisma.item.findMany({
+    where: { userId, status: 'IN_STOCK' },
+    include: { costs: true },
+  });
+  for (const item of unsold) {
+    const c =
+      item.purchasePrice.toNumber() +
+      item.shippingCostIn.toNumber() +
+      item.repairCost.toNumber() +
+      item.costs.reduce((s, cc) => s + cc.amount.toNumber(), 0);
+    costs += c;
+    profit -= c;
+  }
+
+  return {
+    revenue, costs, profit,
+    itemsSold: sales.length,
+    avgStorageDays: sales.length > 0 ? Math.round(totalStorageDays / sales.length) : 0,
+  };
 }
 
 export type SaleLineItem = { id: string; name: string; soldAt: Date; revenue: number; costs: number; profit: number; storageDays: number };
@@ -86,6 +109,8 @@ export async function getRangeReport(
   start: Date, end: Date, targetUserId?: string,
 ): Promise<{ revenue: number; costs: number; profit: number; itemsSold: number }> {
   const userId = await resolveUserId(targetUserId);
+
+  // Revenue + sold-item costs (items sold in this period)
   const sales = await prisma.sale.findMany({
     where: { soldAt: { gte: start, lt: end }, item: { userId } },
     include: SALE_INCLUDE,
@@ -95,6 +120,22 @@ export async function getRangeReport(
     const m = computeSaleMetrics(sale);
     revenue += m.revenue; costs += m.costs; profit += m.profit;
   }
+
+  // IN_STOCK items purchased in this period — add their costs
+  const unsold = await prisma.item.findMany({
+    where: { purchasedAt: { gte: start, lt: end }, userId, status: 'IN_STOCK' },
+    include: { costs: true },
+  });
+  for (const item of unsold) {
+    const c =
+      item.purchasePrice.toNumber() +
+      item.shippingCostIn.toNumber() +
+      item.repairCost.toNumber() +
+      item.costs.reduce((s, cc) => s + cc.amount.toNumber(), 0);
+    costs += c;
+    profit -= c;
+  }
+
   return { revenue, costs, profit, itemsSold: sales.length };
 }
 

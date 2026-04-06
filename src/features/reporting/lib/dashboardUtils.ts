@@ -64,13 +64,14 @@ export function generatePeriods(from: string, to: string, g: Granularity): strin
   return periods;
 }
 
-/** Unique items sorted by first sale date, each assigned a stable color. */
+/** Unique items sorted by first sale/purchase date, each assigned a stable color. */
 export function getItemsMeta(sales: DashboardSale[]): ItemMeta[] {
   const seen = new Map<string, { name: string; date: string }>();
   for (const s of sales) {
+    const date     = s.soldAt ?? s.purchasedAt;
     const existing = seen.get(s.itemId);
-    if (!existing || s.soldAt < existing.date) {
-      seen.set(s.itemId, { name: s.itemName, date: s.soldAt });
+    if (!existing || date < existing.date) {
+      seen.set(s.itemId, { name: s.itemName, date });
     }
   }
   return Array.from(seen.entries())
@@ -98,15 +99,17 @@ function buildBuckets(
   }
 
   for (const sale of sales) {
-    // Revenue → sale period
-    const revKey    = salePeriodKey(sale.soldAt, g);
-    const revPeriod = revBuckets.get(revKey);
-    if (revPeriod) {
-      const prev = revPeriod.get(sale.itemId) ?? { revenue: 0, costs: 0 };
-      revPeriod.set(sale.itemId, { revenue: prev.revenue + sale.revenue, costs: 0 });
+    // Revenue → sale period (only for sold items)
+    if (sale.soldAt !== null) {
+      const revKey    = salePeriodKey(sale.soldAt, g);
+      const revPeriod = revBuckets.get(revKey);
+      if (revPeriod) {
+        const prev = revPeriod.get(sale.itemId) ?? { revenue: 0, costs: 0 };
+        revPeriod.set(sale.itemId, { revenue: prev.revenue + sale.revenue, costs: 0 });
+      }
     }
 
-    // Costs → purchase period
+    // Costs → purchase period (all items, including IN_STOCK)
     const costKey    = salePeriodKey(sale.purchasedAt, g);
     const costPeriod = costBuckets.get(costKey);
     if (costPeriod) {

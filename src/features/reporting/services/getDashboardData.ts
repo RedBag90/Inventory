@@ -6,8 +6,8 @@ import { createClient } from '@/shared/lib/supabase/server';
 export type DashboardSale = {
   itemId:      string;
   itemName:    string;
-  soldAt:      string;      // ISO string — sale date, used for revenue bucketing
-  purchasedAt: string;      // ISO string — purchase date, used for cost bucketing
+  soldAt:      string | null; // null for IN_STOCK items — no revenue, costs only
+  purchasedAt: string;        // ISO string — purchase date, used for cost bucketing
   revenue:     number;
   costs:       number;
 };
@@ -59,7 +59,7 @@ export async function getDashboardData(
     orderBy: { soldAt: 'asc' },
   });
 
-  return sales.map((sale) => {
+  const soldEntries: DashboardSale[] = sales.map((sale) => {
     const revenue = sale.salePrice.toNumber();
     const costs =
       sale.item.purchasePrice.toNumber() +
@@ -76,4 +76,32 @@ export async function getDashboardData(
       costs,
     };
   });
+
+  // IN_STOCK items purchased in the date range — contribute costs but no revenue
+  const inStockItems = await prisma.item.findMany({
+    where: {
+      id:          { in: itemIds },
+      status:      'IN_STOCK',
+      purchasedAt: { gte: fromDate, lte: toDate },
+    },
+    include: { costs: true },
+  });
+
+  const unsoldEntries: DashboardSale[] = inStockItems.map((item) => {
+    const costs =
+      item.purchasePrice.toNumber() +
+      item.shippingCostIn.toNumber() +
+      item.repairCost.toNumber() +
+      item.costs.reduce((sum, c) => sum + c.amount.toNumber(), 0);
+    return {
+      itemId:      item.id,
+      itemName:    item.name,
+      soldAt:      null,
+      purchasedAt: item.purchasedAt.toISOString(),
+      revenue:     0,
+      costs,
+    };
+  });
+
+  return [...soldEntries, ...unsoldEntries];
 }
