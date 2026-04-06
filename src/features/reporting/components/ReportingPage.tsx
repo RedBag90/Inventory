@@ -59,16 +59,18 @@ function useFilters() {
 }
 
 function RangeView({ from, to, targetUser }: { from: string; to: string; targetUser?: string }) {
-  const fromDate = new Date(from);
-  const toDate   = new Date(to);
-  const endDate  = new Date(Date.UTC(toDate.getUTCFullYear(), toDate.getUTCMonth(), toDate.getUTCDate() + 1));
-  const year     = fromDate.getUTCFullYear();
+  const year = new Date(from).getUTCFullYear();
 
   const { data: report, isLoading } = useRangeReport(from, to, targetUser);
   const { data: allMonths }         = useAllMonthlyReports(year, targetUser);
   const { data: lineItems = [] }    = useQuery({
     queryKey: [...reportingKeys.all, 'line-items', from, to, targetUser ?? 'self'],
-    queryFn:  () => getSaleLineItems(fromDate, endDate, targetUser),
+    queryFn: () => {
+      const start  = new Date(from);
+      const toDate = new Date(to);
+      const end    = new Date(Date.UTC(toDate.getUTCFullYear(), toDate.getUTCMonth(), toDate.getUTCDate() + 1));
+      return getSaleLineItems(start, end, targetUser);
+    },
     staleTime: 5 * 60_000,
   });
 

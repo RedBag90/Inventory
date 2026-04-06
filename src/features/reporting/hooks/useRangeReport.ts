@@ -5,9 +5,8 @@ import { reportingKeys } from './reportingKeys';
 import { getRangeReport } from '../services/ReportingRepository';
 
 export function useRangeReport(from: string, to: string, targetUserId?: string) {
-  const userId = targetUserId ?? 'self';
   return useQuery({
-    queryKey: reportingKeys.range(from, to, userId),
+    queryKey: reportingKeys.range(from, to, targetUserId ?? 'self'),
     queryFn: () => {
       const start  = new Date(from);
       const toDate = new Date(to);
