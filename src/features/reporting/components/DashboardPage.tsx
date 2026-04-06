@@ -1,12 +1,14 @@
 'use client';
 
 import { useMemo } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
 import { useDashboardData }    from '../hooks/useDashboardData';
 import { useDashboardFilters } from '../hooks/useDashboardFilters';
 import { useCurrentDbUser }    from '@/features/auth/hooks/useCurrentDbUser';
 import { getReportableUsers }  from '../services/getReportableUsers';
+import { getEarliestItemDate } from '../services/getEarliestItemDate';
 import {
   generatePeriods, getItemsMeta,
   toBenefitVelocityData, toCostDistributionData, toRoiData,
@@ -39,9 +41,6 @@ function PanelSkeleton({ height = 260 }: { height?: number }) {
 }
 
 export function DashboardPage() {
-  const { filters, update } = useDashboardFilters();
-  const { granularity, from, to, targetUser } = filters;
-
   const { data: currentUser } = useCurrentDbUser();
   const isAdmin = currentUser?.role === 'ADMIN';
 
@@ -51,6 +50,21 @@ export function DashboardPage() {
     enabled:  isAdmin,
     staleTime: 60_000,
   });
+
+  // Read targetUser from URL before filters are fully initialised (needed for the earliest-date query)
+  const searchParams = useSearchParams();
+  const urlTargetUser = searchParams.get('userId') ?? undefined;
+
+  const { data: earliestDate } = useQuery({
+    queryKey: ['earliest-item-date', urlTargetUser ?? 'self'],
+    queryFn:  () => getEarliestItemDate(urlTargetUser),
+    staleTime: 5 * 60_000,
+    // Only fetch for admins once a target user is selected, or always for regular users
+    enabled: !isAdmin || !!urlTargetUser,
+  });
+
+  const { filters, update } = useDashboardFilters(earliestDate ?? undefined);
+  const { granularity, from, to, targetUser } = filters;
 
   const { data: sales = [], isLoading, isError } = useDashboardData(from, to, targetUser);
 
@@ -88,7 +102,7 @@ export function DashboardPage() {
             <span className="text-xs text-gray-500 font-medium">Viewing:</span>
             <select
               value={targetUser ?? ''}
-              onChange={(e) => update({ userId: e.target.value || undefined })}
+              onChange={(e) => update({ userId: e.target.value || undefined, from: null, to: null })}
               className="border rounded px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-black"
             >
               <option value="">— select user —</option>
