@@ -2,7 +2,7 @@
 
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
-  Legend, ResponsiveContainer,
+  ResponsiveContainer,
 } from 'recharts';
 import type { ChartRow, ItemMeta } from '../../lib/dashboardUtils';
 
@@ -20,7 +20,6 @@ export function CumulativeCostChart({ data, items }: Props) {
         <XAxis dataKey="period" tick={{ fontSize: 9, fill: '#6b7280' }} axisLine={false} tickLine={false} />
         <YAxis tickFormatter={(v: number) => `€${v}`} tick={{ fontSize: 9, fill: '#6b7280' }} axisLine={false} tickLine={false} width={52} />
         <Tooltip formatter={(v: number) => `€${v.toFixed(2)}`} />
-        <Legend wrapperStyle={{ fontSize: 10 }} />
         {items.map((item) => (
           <Bar key={item.id} dataKey={item.id} name={item.name} fill={item.color} stackId="a" radius={[1, 1, 0, 0]} />
         ))}

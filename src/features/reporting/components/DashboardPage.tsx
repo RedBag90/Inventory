@@ -161,70 +161,93 @@ export function DashboardPage() {
         </div>
       )}
 
-      {/* ── Charts ── */}
+      {/* ── Charts + Legend ── */}
       {showContent && (
-        <>
-          {/* Top row: 3 panels */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {isLoading ? (
-              <>
-                <PanelSkeleton />
-                <PanelSkeleton />
-                <PanelSkeleton />
-              </>
-            ) : (
-              <>
-                <ChartCard title="Benefit Velocity">
-                  <BenefitVelocityChart
-                    data={benefitVelocity.data}
-                    items={items}
-                    avgCostLine={benefitVelocity.avgCostLine}
-                  />
-                </ChartCard>
-                <ChartCard title="Cost Distribution">
-                  <CostDistributionChart
-                    data={costDistribution.data}
-                    items={items}
-                    avgCostLine={costDistribution.avgCostLine}
-                  />
-                </ChartCard>
-                <ChartCard title="ROI — Revenue vs Costs">
-                  <RoiChart data={roiData} />
-                </ChartCard>
-              </>
-            )}
+        <div className="flex gap-4 items-start">
+          {/* Charts */}
+          <div className="flex-1 min-w-0 space-y-6">
+            {/* Top row: 3 panels */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {isLoading ? (
+                <>
+                  <PanelSkeleton />
+                  <PanelSkeleton />
+                  <PanelSkeleton />
+                </>
+              ) : (
+                <>
+                  <ChartCard title="Benefit Velocity">
+                    <BenefitVelocityChart
+                      data={benefitVelocity.data}
+                      items={items}
+                      avgCostLine={benefitVelocity.avgCostLine}
+                    />
+                  </ChartCard>
+                  <ChartCard title="Cost Distribution">
+                    <CostDistributionChart
+                      data={costDistribution.data}
+                      items={items}
+                      avgCostLine={costDistribution.avgCostLine}
+                    />
+                  </ChartCard>
+                  <ChartCard title="ROI — Revenue vs Costs">
+                    <RoiChart data={roiData} />
+                  </ChartCard>
+                </>
+              )}
+            </div>
+
+            {/* Bottom row: 4 panels */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+              {isLoading ? (
+                <>
+                  <PanelSkeleton height={220} />
+                  <PanelSkeleton height={220} />
+                  <PanelSkeleton height={220} />
+                  <PanelSkeleton height={220} />
+                </>
+              ) : (
+                <>
+                  <ChartCard title="Gained Value Analysis">
+                    <GainedValueChart data={gainedValue} items={items} />
+                  </ChartCard>
+                  <ChartCard title="Cost Analysis">
+                    <CumulativeCostChart data={cumulativeCost} items={items} />
+                  </ChartCard>
+                  <ChartCard title="Cash Flow">
+                    <CashFlowChart data={cashFlow} />
+                  </ChartCard>
+                  <ChartCard title="Break-Even Analysis">
+                    <BreakEvenChart
+                      data={breakEven.data}
+                      breakEvenPeriod={breakEven.breakEvenPeriod}
+                    />
+                  </ChartCard>
+                </>
+              )}
+            </div>
           </div>
 
-          {/* Bottom row: 4 panels */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
-            {isLoading ? (
-              <>
-                <PanelSkeleton height={220} />
-                <PanelSkeleton height={220} />
-                <PanelSkeleton height={220} />
-                <PanelSkeleton height={220} />
-              </>
-            ) : (
-              <>
-                <ChartCard title="Gained Value Analysis">
-                  <GainedValueChart data={gainedValue} items={items} />
-                </ChartCard>
-                <ChartCard title="Cost Analysis">
-                  <CumulativeCostChart data={cumulativeCost} items={items} />
-                </ChartCard>
-                <ChartCard title="Cash Flow">
-                  <CashFlowChart data={cashFlow} />
-                </ChartCard>
-                <ChartCard title="Break-Even Analysis">
-                  <BreakEvenChart
-                    data={breakEven.data}
-                    breakEvenPeriod={breakEven.breakEvenPeriod}
-                  />
-                </ChartCard>
-              </>
-            )}
-          </div>
-        </>
+          {/* Shared legend sidebar */}
+          {!isLoading && items.length > 0 && (
+            <div className="w-40 shrink-0 sticky top-4">
+              <div className="bg-white rounded-lg border border-gray-200 p-4 max-h-[calc(100vh-10rem)] overflow-y-auto">
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Artikel</p>
+                <ul className="space-y-2.5">
+                  {items.map((item) => (
+                    <li key={item.id} className="flex items-center gap-2">
+                      <span
+                        className="w-2.5 h-2.5 rounded-sm flex-shrink-0"
+                        style={{ backgroundColor: item.color }}
+                      />
+                      <span className="text-xs text-gray-700 leading-tight break-words">{item.name}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          )}
+        </div>
       )}
     </div>
   );

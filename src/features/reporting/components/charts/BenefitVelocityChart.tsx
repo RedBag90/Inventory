@@ -2,7 +2,7 @@
 
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
-  Legend, ResponsiveContainer, ReferenceLine,
+  ResponsiveContainer, ReferenceLine,
 } from 'recharts';
 import type { ChartRow, ItemMeta } from '../../lib/dashboardUtils';
 
@@ -24,7 +24,6 @@ export function BenefitVelocityChart({ data, items, avgCostLine }: Props) {
         <XAxis dataKey="period" tick={{ fontSize: 10, fill: '#6b7280' }} axisLine={false} tickLine={false} />
         <YAxis tickFormatter={(v: number) => `€${v}`} tick={{ fontSize: 10, fill: '#6b7280' }} axisLine={false} tickLine={false} width={56} />
         <Tooltip formatter={(v: number) => `€${v.toFixed(2)}`} />
-        <Legend wrapperStyle={{ fontSize: 11 }} />
         <ReferenceLine
           y={avgCostLine}
           stroke="#ef4444"
