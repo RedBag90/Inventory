@@ -82,6 +82,22 @@ export async function getCumulativeReport(targetUserId?: string): Promise<Cumula
 
 export type SaleLineItem = { id: string; name: string; soldAt: Date; revenue: number; costs: number; profit: number; storageDays: number };
 
+export async function getRangeReport(
+  start: Date, end: Date, targetUserId?: string,
+): Promise<{ revenue: number; costs: number; profit: number; itemsSold: number }> {
+  const userId = await resolveUserId(targetUserId);
+  const sales = await prisma.sale.findMany({
+    where: { soldAt: { gte: start, lt: end }, item: { userId } },
+    include: SALE_INCLUDE,
+  });
+  let revenue = 0, costs = 0, profit = 0;
+  for (const sale of sales) {
+    const m = computeSaleMetrics(sale);
+    revenue += m.revenue; costs += m.costs; profit += m.profit;
+  }
+  return { revenue, costs, profit, itemsSold: sales.length };
+}
+
 export async function getSaleLineItems(start: Date, end: Date | null, targetUserId?: string): Promise<SaleLineItem[]> {
   const userId = await resolveUserId(targetUserId);
   const sales = await prisma.sale.findMany({

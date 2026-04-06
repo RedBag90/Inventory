@@ -5,8 +5,10 @@
 // and profit block for SOLD items.
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useItem } from '../hooks/useItem';
+import { useDeleteItem } from '../hooks/useDeleteItem';
 import { ItemManager } from '../services/ItemManager';
 import { CostEditor } from './CostEditor';
 import { ItemEditForm } from './ItemEditForm';
@@ -27,6 +29,15 @@ function Row({ label, value }: { label: string; value: string }) {
 export function ItemDetailPage({ id }: Props) {
   const { data: item, isLoading, isError } = useItem(id);
   const [showEdit, setShowEdit] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const { mutate: deleteItem, isPending: isDeleting } = useDeleteItem();
+  const router = useRouter();
+
+  function handleDelete() {
+    deleteItem(id, {
+      onSuccess: () => router.push('/dashboard/inventory'),
+    });
+  }
 
   if (isLoading) return <div className="text-sm text-gray-500 py-12 text-center">Loading…</div>;
   if (isError || !item) return <div className="text-sm text-red-600 py-12 text-center">Item not found.</div>;
@@ -125,6 +136,35 @@ export function ItemDetailPage({ id }: Props) {
           )}
         </section>
       )}
+
+      {/* Delete */}
+      <section className="bg-white rounded-lg border border-gray-200 p-5 mb-4">
+        {confirmDelete ? (
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-gray-700">Delete this item permanently?</span>
+            <button
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="px-3 py-1.5 text-sm font-medium rounded bg-red-600 text-white hover:bg-red-700 disabled:opacity-50"
+            >
+              {isDeleting ? 'Deleting…' : 'Yes, delete'}
+            </button>
+            <button
+              onClick={() => setConfirmDelete(false)}
+              className="text-sm text-gray-500 hover:text-gray-800"
+            >
+              Cancel
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={() => setConfirmDelete(true)}
+            className="text-sm text-red-600 hover:text-red-800 underline"
+          >
+            Delete item
+          </button>
+        )}
+      </section>
 
     </div>
   );

@@ -145,6 +145,20 @@ export async function updateItemCosts(
   return toPlain(item);
 }
 
+/** Delete an item owned by the current user, including its sale and costs. */
+export async function deleteItem(id: string): Promise<void> {
+  const userId = await getLocalUserId();
+
+  const existing = await prisma.item.findFirst({ where: { id, userId } });
+  if (!existing) throw new Error('Item not found');
+
+  await prisma.$transaction([
+    prisma.additionalCost.deleteMany({ where: { itemId: id } }),
+    prisma.sale.deleteMany({ where: { itemId: id } }),
+    prisma.item.delete({ where: { id } }),
+  ]);
+}
+
 /** US-030 — Update item metadata fields only (not costs, not status). */
 export async function updateItemMetadata(
   id: string,

@@ -19,12 +19,21 @@ export type SyncedUser = {
  * - Returns the resolved user record so the layout can pass role info downstream.
  */
 export async function syncUser(supabaseId: string, email: string): Promise<SyncedUser> {
-  const user = await prisma.user.upsert({
+  // First try by supabaseId. If no match, upsert by email so that pre-seeded
+  // records (which have no supabaseId yet) get linked on first login.
+  let user = await prisma.user.findUnique({
     where:  { supabaseId },
-    update: { email },
-    create: { supabaseId, email },
     select: { id: true, email: true, role: true, isActive: true },
   });
+
+  if (!user) {
+    user = await prisma.user.upsert({
+      where:  { email },
+      update: { supabaseId },
+      create: { supabaseId, email },
+      select: { id: true, email: true, role: true, isActive: true },
+    });
+  }
 
   if (!user.isActive) {
     redirect('/suspended');

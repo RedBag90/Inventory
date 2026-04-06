@@ -5,6 +5,8 @@ export const reportingKeys = {
   monthly:    (year: number, month: number)   => ['reporting', 'monthly', year, month] as const,
   quarterly:  (year: number, quarter: number) => ['reporting', 'quarterly', year, quarter] as const,
   cumulative: ()                              => ['reporting', 'cumulative'] as const,
+  range:      (from: string, to: string, userId: string) =>
+    ['reporting', 'range', from, to, userId] as const,
   dashboard:  (from: string, to: string, userId: string) =>
     ['reporting', 'dashboard', from, to, userId] as const,
 };
