@@ -3,8 +3,8 @@ import { Providers } from './providers';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Inventory Tracker',
-  description: 'Reseller inventory and profit tracker',
+  title: 'Flohmarkt-Olympiade',
+  description: 'Der große Kleinanzeigen-Wettbewerb — Inventar, Verkäufe und Rangliste.',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
