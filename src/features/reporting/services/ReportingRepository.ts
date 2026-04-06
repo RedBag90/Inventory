@@ -153,13 +153,41 @@ export async function getAllMonthlyReports(year: number, targetUserId?: string):
   const userId = await resolveUserId(targetUserId);
   const start = new Date(Date.UTC(year, 0, 1));
   const end   = new Date(Date.UTC(year + 1, 0, 1));
-  const sales = await prisma.sale.findMany({ where: { soldAt: { gte: start, lt: end }, item: { userId } }, include: SALE_INCLUDE });
+
   const buckets: Record<number, MonthlyReport> = {};
   for (let m = 1; m <= 12; m++) buckets[m] = { year, month: m, revenue: 0, costs: 0, profit: 0, itemsSold: 0 };
+
+  // Revenue: items sold this year, bucketed by soldAt
+  const sales = await prisma.sale.findMany({
+    where: { soldAt: { gte: start, lt: end }, item: { userId } },
+    include: SALE_INCLUDE,
+  });
   for (const sale of sales) {
     const month = sale.soldAt.getUTCMonth() + 1;
-    const m = computeSaleMetrics(sale);
-    buckets[month].revenue += m.revenue; buckets[month].costs += m.costs; buckets[month].profit += m.profit; buckets[month].itemsSold += 1;
+    buckets[month].revenue   += sale.salePrice.toNumber();
+    buckets[month].itemsSold += 1;
   }
+
+  // Costs: ALL items purchased this year (sold + in-stock), bucketed by purchasedAt
+  const items = await prisma.item.findMany({
+    where:   { purchasedAt: { gte: start, lt: end }, userId },
+    include: { costs: true, sale: true },
+  });
+  for (const item of items) {
+    const month = item.purchasedAt.getUTCMonth() + 1;
+    const c =
+      item.purchasePrice.toNumber() +
+      item.shippingCostIn.toNumber() +
+      item.repairCost.toNumber() +
+      item.costs.reduce((s, cc) => s + cc.amount.toNumber(), 0) +
+      (item.sale ? item.sale.shippingCostOut.toNumber() : 0);
+    buckets[month].costs += c;
+  }
+
+  // Profit = Revenue − Costs per month
+  for (let m = 1; m <= 12; m++) {
+    buckets[m].profit = buckets[m].revenue - buckets[m].costs;
+  }
+
   return Object.values(buckets);
 }
