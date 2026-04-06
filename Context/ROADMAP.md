@@ -1,9 +1,9 @@
 # Development Roadmap — Reseller Inventory & Profit Tracker
 
-**Version:** 1.1  
+**Version:** 1.2  
 **Last Updated:** April 2026  
-**Total Stories:** 30  
-**Total Story Points:** 87  
+**Total Stories:** 42  
+**Total Story Points:** 124  
 
 ---
 
@@ -41,6 +41,18 @@
 | [US-025](./06_observability/US-025_integration-tests.md) | Integration Tests — Core Feature Flows (RTL + MSW) | Observability | 5 | Must Have | 🔲 Todo |
 | [US-026](./06_observability/US-026_e2e-tests.md) | Playwright E2E Tests — Critical User Journeys | Observability | 5 | Should Have | 🔲 Todo |
 | [US-027](./06_observability/US-027_ci-cd-pipeline.md) | GitHub Actions CI/CD Pipeline | Observability | 3 | Should Have | 🔲 Todo |
+| [US-031](./07_enhanced_reporting/US-031_enhanced-reporting-layout.md) | Enhanced Reporting Dashboard Layout (7-Panel) | Enhanced Reporting | 5 | Must Have | 🔲 Todo |
+| [US-032](./07_enhanced_reporting/US-032_time-scale-toggle.md) | Time Scale Toggle — Quarterly / Monthly | Enhanced Reporting | 3 | Must Have | 🔲 Todo |
+| [US-033](./07_enhanced_reporting/US-033_date-range-filter.md) | Date Range Filter with Date Pickers | Enhanced Reporting | 3 | Must Have | 🔲 Todo |
+| [US-034](./07_enhanced_reporting/US-034_item-category-filter.md) | Item / Category Multi-Select Filter | Enhanced Reporting | 5 | Should Have | 🔲 Todo |
+| [US-035](./07_enhanced_reporting/US-035_benefit-velocity-chart.md) | Benefit Velocity Chart — Revenue per Period by Item | Enhanced Reporting | 5 | Must Have | 🔲 Todo |
+| [US-036](./07_enhanced_reporting/US-036_cost-distribution-chart.md) | Cost Distribution Chart — Costs per Period by Item | Enhanced Reporting | 3 | Must Have | 🔲 Todo |
+| [US-037](./07_enhanced_reporting/US-037_roi-comparison-chart.md) | ROI Comparison Chart — Revenue vs Costs per Period | Enhanced Reporting | 3 | Must Have | 🔲 Todo |
+| [US-038](./07_enhanced_reporting/US-038_gained-value-analysis.md) | Gained Value Analysis — Cumulative Revenue by Item | Enhanced Reporting | 3 | Must Have | 🔲 Todo |
+| [US-039](./07_enhanced_reporting/US-039_cumulative-cost-analysis.md) | Cumulative Cost Analysis — Accumulating Costs by Item | Enhanced Reporting | 3 | Must Have | 🔲 Todo |
+| [US-040](./07_enhanced_reporting/US-040_cash-flow-chart.md) | Cash Flow Chart — Positive and Negative per Period | Enhanced Reporting | 5 | Must Have | 🔲 Todo |
+| [US-041](./07_enhanced_reporting/US-041_break-even-analysis.md) | Break-Even Analysis — Cumulative Revenue vs. Costs | Enhanced Reporting | 5 | Must Have | 🔲 Todo |
+| [US-042](./07_enhanced_reporting/US-042_dashboard-navigation.md) | Dashboard Sub-Page Navigation Panel | Enhanced Reporting | 2 | Should Have | 🔲 Todo |
 
 ---
 
@@ -165,9 +177,9 @@ US-004 ─────────────────┘
 
 | Priority | Count | Points |
 |---|---|---|
-| Must Have | 22 | 65 |
-| Should Have | 8 | 22 |
-| **Total** | **30** | **87** |
+| Must Have | 31 | 94 |
+| Should Have | 11 | 30 |
+| **Total** | **42** | **124** |
 
 All Must Have stories must pass before the first production deployment.  
 Should Have stories must pass before the app is opened to additional users.

@@ -26,7 +26,7 @@ export default function SignInPage() {
       return;
     }
 
-    router.push('/dashboard/inventory');
+    router.push('/dashboard/leaderboard');
     router.refresh();
   }
 
@@ -83,6 +83,19 @@ export default function SignInPage() {
             Sign up
           </Link>
         </p>
+
+        <div className="border border-gray-200 rounded p-4 bg-gray-50 space-y-2 text-xs text-gray-600">
+          <p className="font-semibold text-gray-700">Test accounts</p>
+          <div>
+            <span className="font-medium">Admin:</span> admin@test.com / Admin1234!
+          </div>
+          <div>
+            <span className="font-medium">User 1:</span> user@test.com / User1234!
+          </div>
+          <div>
+            <span className="font-medium">User 2:</span> user2@test.com / User1234!
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { useItems } from '../hooks/useItems';
 import { ItemCard } from './ItemCard';
+import type { ItemWithCosts } from '../types/inventory.types';
 
 type FilterTab = 'ALL' | 'IN_STOCK' | 'SOLD';
 
@@ -15,7 +16,11 @@ const TABS: { label: string; value: FilterTab }[] = [
   { label: 'Sold',     value: 'SOLD' },
 ];
 
-export function ItemTable() {
+type Props = {
+  onRecordSale: (item: ItemWithCosts) => void;
+};
+
+export function ItemTable({ onRecordSale }: Props) {
   const { data: items, isLoading, isError } = useItems();
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -78,7 +83,7 @@ export function ItemTable() {
         <div className="divide-y divide-gray-100">
           {items.map(item => (
             <Link key={item.id} href={`/dashboard/inventory/${item.id}`} className="block">
-              <ItemCard item={item} />
+              <ItemCard item={item} onRecordSale={onRecordSale} />
             </Link>
           ))}
         </div>

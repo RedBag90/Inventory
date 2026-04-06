@@ -10,16 +10,10 @@ import { useItem } from '../hooks/useItem';
 import { ItemManager } from '../services/ItemManager';
 import { CostEditor } from './CostEditor';
 import { ItemEditForm } from './ItemEditForm';
+import { SaleManager } from '@/features/sales/services/SaleManager';
+import { formatCurrency, formatDate } from '@/shared/lib/utils';
 
 type Props = { id: string };
-
-function formatCurrency(amount: number) {
-  return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(amount);
-}
-
-function formatDate(date: Date | string) {
-  return new Intl.DateTimeFormat('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date(date));
-}
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
@@ -38,18 +32,20 @@ export function ItemDetailPage({ id }: Props) {
   if (isError || !item) return <div className="text-sm text-red-600 py-12 text-center">Item not found.</div>;
 
   const storageDays = ItemManager.calculateStorageDays(item);
-
-  // Compute total cost
   const totalCost =
     item.purchasePrice +
     item.shippingCostIn +
     item.repairCost +
     item.costs.reduce((sum, c) => sum + c.amount, 0);
 
-  // Compute profit for SOLD items
-  const profit = item.sale
-    ? item.sale.salePrice - totalCost - item.sale.shippingCostOut
-    : null;
+  const profit = SaleManager.calculateProfit(item);
+  const profitColor = profit === null
+    ? ''
+    : profit < 0
+    ? 'text-red-600'
+    : profit === 0
+    ? 'text-gray-500'
+    : 'text-green-700';
 
   return (
     <div className="max-w-2xl">
@@ -76,7 +72,7 @@ export function ItemDetailPage({ id }: Props) {
       <section className="bg-white rounded-lg border border-gray-200 p-5 mb-4">
         <h2 className="text-sm font-semibold text-gray-700 mb-3">Purchase details</h2>
         <Row label="Platform"       value={item.purchasePlatform.charAt(0) + item.purchasePlatform.slice(1).toLowerCase()} />
-        <Row label="Purchase date"  value={formatDate(item.purchasedAt)} />
+        <Row label="Purchase date"  value={formatDate(new Date(item.purchasedAt))} />
         <Row label="Purchase price" value={formatCurrency(item.purchasePrice)} />
         <Row label="Shipping in"    value={formatCurrency(item.shippingCostIn)} />
         <Row label="Repair cost"    value={formatCurrency(item.repairCost)} />
@@ -90,20 +86,18 @@ export function ItemDetailPage({ id }: Props) {
         </div>
       </section>
 
-      {/* Sale details (SOLD only) */}
+      {/* Sale details — SOLD items */}
       {item.status === 'SOLD' && item.sale && (
         <section className="bg-white rounded-lg border border-gray-200 p-5 mb-4">
           <h2 className="text-sm font-semibold text-gray-700 mb-3">Sale</h2>
-          <Row label="Platform"        value={item.sale.salePlatform.charAt(0) + item.sale.salePlatform.slice(1).toLowerCase()} />
-          <Row label="Sale date"       value={formatDate(item.sale.soldAt)} />
-          <Row label="Sale price"      value={formatCurrency(item.sale.salePrice)} />
-          <Row label="Shipping out"    value={formatCurrency(item.sale.shippingCostOut)} />
-          <div className={[
-            'flex justify-between pt-2 mt-1 border-t border-gray-200',
-          ].join(' ')}>
+          <Row label="Platform"     value={item.sale.salePlatform.charAt(0) + item.sale.salePlatform.slice(1).toLowerCase()} />
+          <Row label="Sale date"    value={formatDate(new Date(item.sale.soldAt))} />
+          <Row label="Sale price"   value={formatCurrency(item.sale.salePrice)} />
+          <Row label="Shipping out" value={formatCurrency(item.sale.shippingCostOut)} />
+          <div className="flex justify-between pt-2 mt-1 border-t border-gray-200">
             <span className="text-sm font-semibold text-gray-700">Profit</span>
-            <span className={`text-sm font-semibold ${profit! >= 0 ? 'text-green-700' : 'text-red-600'}`}>
-              {formatCurrency(profit!)}
+            <span className={`text-sm font-semibold ${profitColor}`}>
+              {profit !== null ? formatCurrency(profit) : '—'}
             </span>
           </div>
         </section>
@@ -131,6 +125,7 @@ export function ItemDetailPage({ id }: Props) {
           )}
         </section>
       )}
+
     </div>
   );
 }

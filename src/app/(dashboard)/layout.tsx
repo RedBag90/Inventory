@@ -12,11 +12,12 @@ export default async function DashboardLayout({ children }: { children: React.Re
   if (!user) redirect('/sign-in');
 
   // US-008 — ensure the authenticated user exists in the local DB
-  await syncUser(user.id, user.email!);
+  // syncUser redirects to /suspended if the account is deactivated
+  const syncedUser = await syncUser(user.id, user.email!);
 
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50">
-      <Sidebar />
+      <Sidebar role={syncedUser.role} />
       <div className="flex flex-col flex-1 overflow-hidden">
         {/* Header — US-029 */}
         <header className="h-14 shrink-0 border-b border-gray-200 bg-white flex items-center justify-end px-6">

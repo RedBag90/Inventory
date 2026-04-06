@@ -12,8 +12,9 @@ const supabase = createClient(
 const prisma = new PrismaClient();
 
 const TEST_ACCOUNTS = [
-  { email: 'admin@test.com', password: 'Admin1234!' },
-  { email: 'user@test.com',  password: 'User1234!'  },
+  { email: 'admin@test.com', password: 'Admin1234!', role: 'ADMIN' as const },
+  { email: 'user@test.com',  password: 'User1234!',  role: 'USER'  as const },
+  { email: 'user2@test.com', password: 'User1234!',  role: 'USER'  as const },
 ];
 
 async function main() {
@@ -25,21 +26,27 @@ async function main() {
       email_confirm: true, // skip confirmation email in local dev
     });
 
-    if (error && error.message !== 'User already registered') {
-      throw new Error(`Failed to create ${account.email}: ${error.message}`);
+    let supabaseId = data?.user?.id;
+
+    if (error) {
+      // User already exists — look them up
+      const { data: list } = await supabase.auth.admin.listUsers();
+      const existing = list?.users.find((u) => u.email === account.email);
+      if (!existing) throw new Error(`Failed to create ${account.email}: ${error.message}`);
+      supabaseId = existing.id;
+      console.log(`ℹ️  ${account.email} already exists — upserting DB record`);
     }
 
-    const supabaseId = data?.user?.id;
     if (!supabaseId) {
-      console.log(`⚠️  ${account.email} already exists — skipping DB upsert`);
+      console.log(`⚠️  ${account.email} — could not resolve ID, skipping`);
       continue;
     }
 
-    // Upsert the matching record in our app DB
+    // Upsert the matching record in our app DB, including role
     await prisma.user.upsert({
       where:  { supabaseId },
-      update: {},
-      create: { supabaseId, email: account.email },
+      update: { role: account.role },
+      create: { supabaseId, email: account.email, role: account.role },
     });
 
     console.log(`✓  ${account.email}`);

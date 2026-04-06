@@ -4,12 +4,16 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 const NAV_ITEMS = [
-  { label: 'Inventory', href: '/dashboard/inventory' },
-  { label: 'Sales', href: '/dashboard/sales' },
-  { label: 'Reporting', href: '/dashboard/reporting' },
+  { label: 'Leaderboard', href: '/dashboard/leaderboard' },
+  { label: 'Inventory',   href: '/dashboard/inventory'   },
+  { label: 'Reporting',   href: '/dashboard/reporting'   },
 ] as const;
 
-export function Sidebar() {
+type Props = {
+  role?: 'USER' | 'ADMIN';
+};
+
+export function Sidebar({ role }: Props) {
   const pathname = usePathname();
 
   return (
@@ -35,6 +39,25 @@ export function Sidebar() {
             </Link>
           );
         })}
+
+        {role === 'ADMIN' && (
+          <>
+            <div className="pt-3 pb-1 px-3">
+              <p className="text-xs font-medium text-gray-400 uppercase tracking-wide">Admin</p>
+            </div>
+            <Link
+              href="/dashboard/admin"
+              className={[
+                'flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors',
+                pathname.startsWith('/dashboard/admin')
+                  ? 'bg-purple-50 text-purple-900'
+                  : 'text-gray-500 hover:bg-gray-50 hover:text-gray-800',
+              ].join(' ')}
+            >
+              Users
+            </Link>
+          </>
+        )}
       </nav>
     </aside>
   );
