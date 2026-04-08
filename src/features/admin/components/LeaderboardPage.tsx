@@ -21,6 +21,36 @@ function profitColor(v: number) {
 
 // ── podium card ───────────────────────────────────────────────────────────────
 
+function RankChange({ value }: { value: number | null }) {
+  if (value === null) return (
+    <span className="inline-flex items-center text-[11px] font-medium text-gray-300 bg-gray-50 border border-gray-100 px-1.5 py-0.5 rounded-full tabular-nums">
+      —
+    </span>
+  );
+  if (value === 0) return (
+    <span className="inline-flex items-center text-[11px] font-medium text-gray-400 bg-gray-50 border border-gray-100 px-1.5 py-0.5 rounded-full">
+      <svg className="w-3 h-3" viewBox="0 0 20 20" fill="currentColor">
+        <path d="M4 10a.75.75 0 0 1 .75-.75h10.5a.75.75 0 0 1 0 1.5H4.75A.75.75 0 0 1 4 10Z" />
+      </svg>
+    </span>
+  );
+  return value > 0 ? (
+    <span className="inline-flex items-center gap-0.5 text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-100 px-1.5 py-0.5 rounded-full tabular-nums">
+      <svg className="w-3 h-3" viewBox="0 0 20 20" fill="currentColor">
+        <path fillRule="evenodd" d="M10 17a.75.75 0 0 1-.75-.75V5.612L5.29 9.77a.75.75 0 0 1-1.08-1.04l5.25-5.5a.75.75 0 0 1 1.08 0l5.25 5.5a.75.75 0 1 1-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0 1 10 17Z" clipRule="evenodd" />
+      </svg>
+      {value}
+    </span>
+  ) : (
+    <span className="inline-flex items-center gap-0.5 text-[11px] font-bold text-red-600 bg-red-50 border border-red-100 px-1.5 py-0.5 rounded-full tabular-nums">
+      <svg className="w-3 h-3" viewBox="0 0 20 20" fill="currentColor">
+        <path fillRule="evenodd" d="M10 3a.75.75 0 0 1 .75.75v10.638l3.96-4.158a.75.75 0 1 1 1.08 1.04l-5.25 5.5a.75.75 0 0 1-1.08 0l-5.25-5.5a.75.75 0 1 1 1.08-1.04l3.96 4.158V3.75A.75.75 0 0 1 10 3Z" clipRule="evenodd" />
+      </svg>
+      {Math.abs(value)}
+    </span>
+  );
+}
+
 type Entry = {
   id: string;
   email: string;
@@ -28,6 +58,7 @@ type Entry = {
   itemCount: number;
   soldCount: number;
   totalProfit: number;
+  rankChange: number | null;
 };
 
 const PODIUM_CONFIG = [
@@ -69,6 +100,7 @@ function PodiumCard({ user, config, isMe }: { user: Entry; config: typeof PODIUM
         <span>·</span>
         <span>{user.soldCount} verkauft</span>
       </div>
+      <RankChange value={user.rankChange} />
     </div>
   );
 }
@@ -92,7 +124,7 @@ export function LeaderboardPage() {
       <div className="flex items-end justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Rangliste</h1>
-          <p className="text-sm text-gray-500 mt-0.5">All-time Gewinn-Ranking</p>
+          <p className="text-sm text-gray-500 mt-0.5">All-time Gewinn-Ranking · Veränderung seit letztem Sonntag</p>
         </div>
         {ranked.length > 0 && (
           <span className="text-sm text-gray-400 font-medium">
@@ -181,6 +213,9 @@ export function LeaderboardPage() {
                       <span>{user.itemCount} Items</span>
                       <span>{user.soldCount} verkauft</span>
                     </div>
+
+                    {/* Rank change */}
+                    <RankChange value={user.rankChange} />
 
                     {/* Profit */}
                     <span className={['text-sm font-bold tabular-nums shrink-0', profitColor(user.totalProfit)].join(' ')}>
