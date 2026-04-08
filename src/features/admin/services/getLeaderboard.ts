@@ -10,8 +10,8 @@ export type LeaderboardEntry = {
   itemCount:   number;
   soldCount:   number;
   totalProfit: number;
-  /** Positions gained (+) or lost (−) vs last Sunday midnight. null = no previous sales to compare. */
-  rankChange:  number | null;
+  /** Positions gained (+) or lost (−) vs last Sunday midnight. 0 = unchanged. */
+  rankChange:  number;
 };
 
 /** Returns the most recent Sunday at 00:00 UTC */
@@ -70,7 +70,6 @@ export async function getLeaderboard(): Promise<LeaderboardEntry[]> {
       soldCount:      soldItems.length,
       totalProfit,
       snapshotProfit,
-      hadSnapshotData: snapshotItems.length > 0,
     };
   });
 
@@ -85,8 +84,8 @@ export async function getLeaderboard(): Promise<LeaderboardEntry[]> {
   return currentRanked.map((e) => {
     const cur  = currentRankOf.get(e.id)!;
     const prev = snapshotRankOf.get(e.id)!;
-    // rankChange > 0 = moved up, < 0 = moved down
-    const rankChange = e.hadSnapshotData ? prev - cur : null;
+    // rankChange > 0 = moved up, < 0 = moved down, 0 = no change
+    const rankChange = prev - cur;
 
     return {
       id:          e.id,
