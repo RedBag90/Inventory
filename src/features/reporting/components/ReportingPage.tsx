@@ -12,12 +12,13 @@ import { ProfitTable }          from './ProfitTable';
 import { formatCurrency }       from '@/shared/lib/utils';
 import { getSaleLineItems }     from '../services/ReportingRepository';
 import { getReportableUsers }   from '../services/getReportableUsers';
+import { getEarliestItemDate }  from '../services/getEarliestItemDate';
 import { reportingKeys }        from '../hooks/reportingKeys';
 import { useCurrentDbUser }     from '@/features/auth/hooks/useCurrentDbUser';
 
 type View = 'monthly' | 'quarterly' | 'cumulative';
 
-function useFilters() {
+function useFilters(earliestDate?: string | null) {
   const searchParams = useSearchParams();
   const router       = useRouter();
   const pathname     = usePathname();
@@ -27,18 +28,17 @@ function useFilters() {
   const view = (searchParams.get('view') as View) ?? 'monthly';
 
   function defaultFrom(v: View): string {
-    const y = now.getUTCFullYear();
-    const m = now.getUTCMonth();
-    if (v === 'monthly')   return new Date(Date.UTC(y, m, 1)).toISOString().split('T')[0];
-    if (v === 'quarterly') return new Date(Date.UTC(y, Math.floor(m / 3) * 3, 1)).toISOString().split('T')[0];
-    return '';
+    if (v === 'cumulative') return '';
+    // Use the user's earliest item date when available, otherwise start of last year
+    return earliestDate
+      ?? new Date(Date.UTC(now.getUTCFullYear() - 1, 0, 1)).toISOString().split('T')[0];
   }
 
   const from       = searchParams.get('from') ?? defaultFrom(view);
   const to         = searchParams.get('to')   ?? today;
   const targetUser = searchParams.get('userId') ?? undefined;
 
-  function update(updates: { view?: View; from?: string; to?: string; userId?: string | undefined }) {
+  function update(updates: { view?: View; from?: string | null; to?: string | null; userId?: string | undefined }) {
     const params = new URLSearchParams(searchParams.toString());
     if (updates.view !== undefined) {
       params.set('view', updates.view);
@@ -46,8 +46,10 @@ function useFilters() {
       params.delete('from');
       params.delete('to');
     }
-    if (updates.from !== undefined) params.set('from', updates.from);
-    if (updates.to   !== undefined) params.set('to',   updates.to);
+    if (updates.from === null)  params.delete('from');
+    else if (updates.from)      params.set('from', updates.from);
+    if (updates.to === null)    params.delete('to');
+    else if (updates.to)        params.set('to', updates.to);
     if ('userId' in updates) {
       if (updates.userId) params.set('userId', updates.userId);
       else                params.delete('userId');
@@ -138,7 +140,6 @@ function ReportingSkeleton({ count = 4 }: { count?: number }) {
 }
 
 export function ReportingPage() {
-  const { view, from, to, today, targetUser, update } = useFilters();
   const { data: currentUser } = useCurrentDbUser();
   const isAdmin = currentUser?.role === 'ADMIN';
 
@@ -148,6 +149,18 @@ export function ReportingPage() {
     enabled:  isAdmin,
     staleTime: 60_000,
   });
+
+  const searchParams   = useSearchParams();
+  const urlTargetUser  = searchParams.get('userId') ?? undefined;
+
+  const { data: earliestDate } = useQuery({
+    queryKey: ['earliest-item-date', urlTargetUser ?? 'self'],
+    queryFn:  () => getEarliestItemDate(urlTargetUser),
+    staleTime: 5 * 60_000,
+    enabled: !isAdmin || !!urlTargetUser,
+  });
+
+  const { view, from, to, today, targetUser, update } = useFilters(earliestDate ?? undefined);
 
   return (
     <div className="space-y-6">
@@ -167,7 +180,7 @@ export function ReportingPage() {
             <span className="text-xs text-gray-500 font-medium">Viewing:</span>
             <select
               value={targetUser ?? ''}
-              onChange={(e) => update({ userId: e.target.value || undefined })}
+              onChange={(e) => update({ userId: e.target.value || undefined, from: null, to: null })}
               className="border rounded px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-black"
             >
               <option value="">— select user —</option>
@@ -219,7 +232,6 @@ export function ReportingPage() {
                 type="date"
                 value={to}
                 min={from}
-                max={today}
                 onChange={(e) => update({ to: e.target.value })}
                 className="border rounded px-2 py-1 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-black"
               />
