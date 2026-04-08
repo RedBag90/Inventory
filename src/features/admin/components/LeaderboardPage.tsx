@@ -184,7 +184,7 @@ export function LeaderboardPage() {
                   <li
                     key={user.id}
                     className={[
-                      'grid items-center px-5 py-3.5 transition-colors',
+                      'grid items-center gap-x-3 px-5 py-3.5 transition-colors',
                       'grid-cols-[2rem_1.5rem_2rem_1fr_5rem_5rem_7rem]',
                       isMe ? 'bg-amber-50/60' : 'hover:bg-gray-50',
                     ].join(' ')}
