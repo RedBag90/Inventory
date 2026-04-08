@@ -6,7 +6,7 @@
 
 import { prisma } from '@/shared/lib/prisma';
 import { createClient } from '@/shared/lib/supabase/server';
-import type { RecordSaleInput } from '../types/sales.types';
+import type { RecordSaleInput, QuickSellInput } from '../types/sales.types';
 
 // ─── Auth helper ─────────────────────────────────────────────────────────────
 
@@ -55,4 +55,37 @@ export async function createSale(data: RecordSaleInput): Promise<void> {
       data:  { status: 'SOLD' },
     }),
   ]);
+}
+
+/**
+ * Quick sell — atomically creates a new item and its sale in one step.
+ * The item is created with purchasePrice=0, purchasedAt=soldAt, status=SOLD.
+ */
+export async function createQuickSale(data: QuickSellInput): Promise<void> {
+  const userId = await getLocalUserId();
+
+  await prisma.$transaction(async (tx) => {
+    const item = await tx.item.create({
+      data: {
+        userId,
+        name:             data.name,
+        purchasePrice:    0,
+        purchasePlatform: data.salePlatform,
+        purchasedAt:      data.soldAt,
+        shippingCostIn:   0,
+        repairCost:       0,
+        status:           'SOLD',
+      },
+    });
+
+    await tx.sale.create({
+      data: {
+        itemId:          item.id,
+        salePrice:       data.salePrice,
+        salePlatform:    data.salePlatform,
+        shippingCostOut: data.shippingCostOut ?? 0,
+        soldAt:          data.soldAt,
+      },
+    });
+  });
 }

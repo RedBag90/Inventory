@@ -11,3 +11,14 @@ export const RecordSaleSchema = z.object({
 });
 
 export type RecordSaleInput = z.infer<typeof RecordSaleSchema>;
+
+// Quick sell: creates item + sale in one step (no pre-existing item required)
+export const QuickSellSchema = z.object({
+  name:            z.string().min(1).max(200),
+  salePrice:       z.number().positive(),
+  salePlatform:    z.enum(['KLEINANZEIGEN', 'EBAY', 'FACEBOOK', 'OTHER']),
+  shippingCostOut: z.number().min(0).default(0),
+  soldAt:          z.coerce.date(),
+});
+
+export type QuickSellInput = z.infer<typeof QuickSellSchema>;

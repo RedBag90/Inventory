@@ -5,24 +5,34 @@
 import { useState, Suspense } from 'react';
 import { ItemTable } from './ItemTable';
 import { ItemForm } from './ItemForm';
-import { SaleModal } from '@/features/sales/components/SaleModal';
+import { SaleModal }      from '@/features/sales/components/SaleModal';
+import { QuickSellModal } from '@/features/sales/components/QuickSellModal';
 import type { ItemWithCosts } from '../types/inventory.types';
 
 export function InventoryPage() {
-  const [showAddForm, setShowAddForm] = useState(false);
-  const [sellingItem, setSellingItem] = useState<ItemWithCosts | null>(null);
+  const [showAddForm,    setShowAddForm]    = useState(false);
+  const [showQuickSell,  setShowQuickSell]  = useState(false);
+  const [sellingItem,    setSellingItem]    = useState<ItemWithCosts | null>(null);
 
   return (
     <div>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-lg font-semibold text-gray-900">Inventory</h1>
-        <button
-          onClick={() => setShowAddForm(true)}
-          className="bg-gray-900 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-700 transition-colors"
-        >
-          Add item
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowQuickSell(true)}
+            className="border border-gray-300 text-gray-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-50 transition-colors"
+          >
+            Schnell verkaufen
+          </button>
+          <button
+            onClick={() => setShowAddForm(true)}
+            className="bg-gray-900 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-700 transition-colors"
+          >
+            Add item
+          </button>
+        </div>
       </div>
 
       {/* List — wrapped in Suspense because useSearchParams suspends */}
@@ -52,6 +62,11 @@ export function InventoryPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Quick sell modal */}
+      {showQuickSell && (
+        <QuickSellModal onClose={() => setShowQuickSell(false)} />
       )}
 
       {/* Record sale modal */}
