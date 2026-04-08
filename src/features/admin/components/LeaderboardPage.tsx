@@ -60,16 +60,16 @@ type Entry = {
 };
 
 const PODIUM_CONFIG = [
-  { rank: 2, medal: '🥈', accent: 'bg-slate-100',  border: 'border-slate-300',  size: 'w-10 h-10 text-sm',   order: 'order-first', minH: 'min-h-[220px]' },
-  { rank: 1, medal: '🥇', accent: 'bg-amber-50',   border: 'border-amber-300',  size: 'w-12 h-12 text-base', order: 'order-none',  minH: 'min-h-[280px]' },
-  { rank: 3, medal: '🥉', accent: 'bg-orange-50',  border: 'border-orange-300', size: 'w-10 h-10 text-sm',   order: 'order-last',  minH: 'min-h-[180px]' },
+  { rank: 2, medal: '🥈', accent: 'bg-slate-100',  border: 'border-slate-300',  size: 'w-10 h-10 text-sm',   order: 'order-first', minH: 'h-[240px]' },
+  { rank: 1, medal: '🥇', accent: 'bg-amber-50',   border: 'border-amber-300',  size: 'w-12 h-12 text-base', order: 'order-none',  minH: 'h-[300px]' },
+  { rank: 3, medal: '🥉', accent: 'bg-orange-50',  border: 'border-orange-300', size: 'w-10 h-10 text-sm',   order: 'order-last',  minH: 'h-[196px]' },
 ] as const;
 
 function PodiumCard({ user, config, isMe }: { user: Entry; config: typeof PODIUM_CONFIG[number]; isMe: boolean }) {
   const label = user.displayName ?? user.email;
   return (
     <div className={[
-      'relative flex flex-col items-center gap-2 rounded-2xl border-2 px-5 py-5 text-center transition-shadow hover:shadow-md justify-end',
+      'relative flex flex-col items-center gap-2 rounded-2xl border-2 px-5 py-5 text-center transition-shadow hover:shadow-md justify-end overflow-hidden',
       config.accent, config.border, config.minH,
     ].join(' ')}>
       {isMe && (
