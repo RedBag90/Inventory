@@ -15,7 +15,7 @@ type FilterTab = 'ALL' | 'IN_STOCK' | 'SOLD';
 
 const TABS: { label: string; value: FilterTab }[] = [
   { label: 'Alle',     value: 'ALL' },
-  { label: 'Lagernd',  value: 'IN_STOCK' },
+  { label: 'Auf Lager', value: 'IN_STOCK' },
   { label: 'Verkauft', value: 'SOLD' },
 ];
 
@@ -64,7 +64,7 @@ export function ItemTable({ onRecordSale }: Props) {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
             { label: 'Artikel gesamt', value: String(stats.total) },
-            { label: 'Im Lager',       value: String(stats.inStock) },
+            { label: 'Auf Lager',      value: String(stats.inStock) },
             { label: 'Verkauft',       value: String(stats.sold) },
             {
               label: 'Realisierter Gewinn',

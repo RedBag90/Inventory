@@ -60,7 +60,7 @@ export function ItemCard({ item, onRecordSale }: Props) {
               'text-[11px] font-medium px-1.5 py-0.5 rounded',
               storageDays > 30 ? 'bg-amber-50 text-amber-700' : 'bg-gray-100 text-gray-500',
             ].join(' ')}>
-              {storageDays}d gelagert
+              {storageDays}d auf Lager
             </span>
           )}
         </div>
@@ -91,7 +91,7 @@ export function ItemCard({ item, onRecordSale }: Props) {
         ) : (
           <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-            Lagernd
+            Auf Lager
           </span>
         )}
 
