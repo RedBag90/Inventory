@@ -1,5 +1,13 @@
 // Reporting data shapes — derived from DB aggregations, never stored.
 
+export type DailyReport = {
+  date: string; // YYYY-MM-DD
+  revenue: number;
+  costs: number;
+  profit: number;
+  itemsSold: number;
+};
+
 export type MonthlyReport = {
   year: number;
   month: number;

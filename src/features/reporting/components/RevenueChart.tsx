@@ -4,31 +4,34 @@ import {
   ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid,
   Tooltip, Legend, ResponsiveContainer, ReferenceLine,
 } from 'recharts';
-import type { MonthlyReport } from '../types/reporting.types';
 
-type Props = { data: MonthlyReport[] };
+export type ChartEntry = { label: string; revenue: number; costs: number; profit: number };
 
-const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+type Props = { data: ChartEntry[] };
 
 export function RevenueChart({ data }: Props) {
-  // Build chart rows; accumulate profit for the running total line
+  // Negate costs so bars go downward; accumulate profit for the running total line
   let runningProfit = 0;
   const chartData = data.map((d) => {
     runningProfit += d.profit;
     return {
-      month:             MONTHS[d.month - 1],
-      Revenue:           parseFloat(d.revenue.toFixed(2)),
-      Costs:             -parseFloat(d.costs.toFixed(2)),   // negative → bars go down
-      'Kum. Gewinn':     parseFloat(runningProfit.toFixed(2)),
+      label:          d.label,
+      Revenue:        parseFloat(d.revenue.toFixed(2)),
+      Costs:          -parseFloat(d.costs.toFixed(2)),
+      'Kum. Gewinn':  parseFloat(runningProfit.toFixed(2)),
     };
   });
+
+  // Show ~12 x-axis labels max to prevent crowding on daily view
+  const tickInterval = data.length > 20 ? Math.ceil(data.length / 12) - 1 : 0;
 
   return (
     <ResponsiveContainer width="100%" height={300}>
       <ComposedChart data={chartData} margin={{ top: 4, right: 8, left: 8, bottom: 0 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
         <XAxis
-          dataKey="month"
+          dataKey="label"
+          interval={tickInterval}
           tick={{ fontSize: 12, fill: '#6b7280' }}
           axisLine={false}
           tickLine={false}

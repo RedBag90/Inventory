@@ -2,7 +2,7 @@
 
 import { prisma } from '@/shared/lib/prisma';
 import { createClient } from '@/shared/lib/supabase/server';
-import type { MonthlyReport, QuarterlyReport, CumulativeReport } from '../types/reporting.types';
+import type { DailyReport, MonthlyReport, QuarterlyReport, CumulativeReport } from '../types/reporting.types';
 
 async function resolveUserId(targetUserId?: string): Promise<string> {
   const supabase = await createClient();
@@ -147,6 +147,55 @@ export async function getSaleLineItems(start: Date, end: Date | null, targetUser
     orderBy: { soldAt: 'desc' },
   });
   return sales.map((sale) => { const m = computeSaleMetrics(sale); return { id: sale.item.id, name: sale.item.name, soldAt: sale.soldAt, ...m }; });
+}
+
+export async function getAllDailyReports(
+  from: Date, to: Date, targetUserId?: string,
+): Promise<DailyReport[]> {
+  const userId = await resolveUserId(targetUserId);
+
+  // Seed all days in range (inclusive from, exclusive to)
+  const buckets = new Map<string, { revenue: number; costs: number; profit: number; itemsSold: number }>();
+  const cur = new Date(from);
+  while (cur < to) {
+    buckets.set(cur.toISOString().split('T')[0], { revenue: 0, costs: 0, profit: 0, itemsSold: 0 });
+    cur.setUTCDate(cur.getUTCDate() + 1);
+  }
+
+  // Revenue: items sold in range, bucketed by soldAt
+  const sales = await prisma.sale.findMany({
+    where: { soldAt: { gte: from, lt: to }, item: { userId } },
+    include: SALE_INCLUDE,
+  });
+  for (const sale of sales) {
+    const key = sale.soldAt.toISOString().split('T')[0];
+    const b = buckets.get(key);
+    if (!b) continue;
+    b.revenue   += sale.salePrice.toNumber();
+    b.itemsSold += 1;
+  }
+
+  // Costs: ALL items purchased in range, bucketed by purchasedAt
+  const items = await prisma.item.findMany({
+    where:   { purchasedAt: { gte: from, lt: to }, userId },
+    include: { costs: true, sale: true },
+  });
+  for (const item of items) {
+    const key = item.purchasedAt.toISOString().split('T')[0];
+    const b = buckets.get(key);
+    if (!b) continue;
+    const c =
+      item.purchasePrice.toNumber() +
+      item.shippingCostIn.toNumber() +
+      item.repairCost.toNumber() +
+      item.costs.reduce((s, cc) => s + cc.amount.toNumber(), 0) +
+      (item.sale ? item.sale.shippingCostOut.toNumber() : 0);
+    b.costs += c;
+  }
+
+  return [...buckets.entries()]
+    .sort((a, b_) => a[0].localeCompare(b_[0]))
+    .map(([date, b]) => ({ date, ...b, profit: b.revenue - b.costs }));
 }
 
 export async function getAllMonthlyReports(year: number, targetUserId?: string): Promise<MonthlyReport[]> {
