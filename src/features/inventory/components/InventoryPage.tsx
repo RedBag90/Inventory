@@ -21,16 +21,16 @@ export function InventoryPage() {
         <h1 className="text-lg font-semibold text-gray-900">Inventory</h1>
         <div className="flex items-center gap-2">
           <button
-            onClick={() => setShowQuickSell(true)}
-            className="border border-gray-300 text-gray-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-50 transition-colors"
+            onClick={() => setShowAddForm(true)}
+            className="bg-gray-900 text-white px-6 py-2 rounded-md text-sm font-medium hover:bg-gray-700 transition-colors"
           >
-            Schnell verkaufen
+            Jetzt kaufen und später verkaufen
           </button>
           <button
-            onClick={() => setShowAddForm(true)}
-            className="bg-gray-900 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-700 transition-colors"
+            onClick={() => setShowQuickSell(true)}
+            className="border border-gray-300 text-gray-700 px-6 py-2 rounded-md text-sm font-medium hover:bg-gray-50 transition-colors"
           >
-            Add item
+            Schnell verkaufen
           </button>
         </div>
       </div>
