@@ -54,46 +54,54 @@ type Entry = {
   rankChange: number;
 };
 
+// height encodes rank — gold tallest, bronze shortest
 const PODIUM_CONFIG = [
-  { rank: 2, medal: '🥈', accent: 'bg-slate-100',  border: 'border-slate-300',  size: 'w-10 h-10 text-sm',   order: 'order-first', minH: 'h-[300px]' },
-  { rank: 1, medal: '🥇', accent: 'bg-amber-50',   border: 'border-amber-300',  size: 'w-12 h-12 text-base', order: 'order-none',  minH: 'h-[360px]' },
-  { rank: 3, medal: '🥉', accent: 'bg-orange-50',  border: 'border-orange-300', size: 'w-10 h-10 text-sm',   order: 'order-last',  minH: 'h-[260px]' },
+  { rank: 2, medal: '🥈', bar: 'bg-slate-300',  card: 'bg-slate-50  border-slate-200',  avatarSize: 'w-9 h-9 text-xs',  order: 'order-first', h: 'h-[200px]' },
+  { rank: 1, medal: '🥇', bar: 'bg-amber-400',  card: 'bg-amber-50  border-amber-300',  avatarSize: 'w-10 h-10 text-sm', order: 'order-none',  h: 'h-[250px]' },
+  { rank: 3, medal: '🥉', bar: 'bg-orange-300', card: 'bg-orange-50 border-orange-200', avatarSize: 'w-9 h-9 text-xs',  order: 'order-last',  h: 'h-[170px]' },
 ] as const;
 
 function PodiumCard({ user, config, isMe }: { user: Entry; config: typeof PODIUM_CONFIG[number]; isMe: boolean }) {
   const label = user.displayName ?? user.email;
   return (
     <div className={[
-      'relative flex flex-col items-center gap-2 rounded-2xl border-2 px-5 py-5 text-center transition-shadow hover:shadow-md justify-center',
-      config.accent, config.border, config.minH,
+      'relative flex flex-col items-center rounded-2xl border overflow-hidden',
+      config.card, config.h,
     ].join(' ')}>
+      {/* coloured top bar */}
+      <div className={['w-full h-1.5 shrink-0', config.bar].join(' ')} />
+
+      {/* "Du" badge — inside the card, above the bar */}
       {isMe && (
-        <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[10px] font-bold px-2 py-0.5 rounded-full tracking-wide">
+        <span className="absolute top-3 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[9px] font-bold px-2 py-0.5 rounded-full tracking-wide">
           Du
         </span>
       )}
-      <span className="text-2xl">{config.medal}</span>
-      <div className={[
-        'rounded-full bg-gray-800 text-white font-semibold flex items-center justify-center shrink-0',
-        config.size,
-      ].join(' ')}>
-        {initials(label)}
+
+      {/* content centered */}
+      <div className="flex flex-col items-center justify-center gap-1.5 flex-1 px-4 pb-3 text-center min-w-0 w-full">
+        <span className="text-xl leading-none">{config.medal}</span>
+
+        <div className={[
+          'rounded-full bg-gray-800 text-white font-semibold flex items-center justify-center shrink-0',
+          config.avatarSize,
+        ].join(' ')}>
+          {initials(label)}
+        </div>
+
+        <div className="min-w-0 w-full">
+          <p className="text-xs font-semibold text-gray-900 truncate">{label}</p>
+          {user.displayName && (
+            <p className="text-[10px] text-gray-400 truncate">{user.email}</p>
+          )}
+        </div>
+
+        <p className={['text-base font-bold tabular-nums', profitColor(user.totalProfit)].join(' ')}>
+          {formatCurrency(user.totalProfit)}
+        </p>
+
+        <RankChange value={user.rankChange} />
       </div>
-      <div className="min-w-0 w-full">
-        <p className="text-sm font-semibold text-gray-900 truncate">{label}</p>
-        {user.displayName && (
-          <p className="text-[11px] text-gray-400 truncate">{user.email}</p>
-        )}
-      </div>
-      <p className={['text-xl font-bold', profitColor(user.totalProfit)].join(' ')}>
-        {formatCurrency(user.totalProfit)}
-      </p>
-      <div className="flex gap-3 text-xs text-gray-400">
-        <span>{user.itemCount} Items</span>
-        <span>·</span>
-        <span>{user.soldCount} verkauft</span>
-      </div>
-      <RankChange value={user.rankChange} />
     </div>
   );
 }
