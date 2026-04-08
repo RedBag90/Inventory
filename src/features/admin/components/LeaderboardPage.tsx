@@ -21,12 +21,7 @@ function profitColor(v: number) {
 
 // ── podium card ───────────────────────────────────────────────────────────────
 
-function RankChange({ value }: { value: number | null }) {
-  if (value === null) return (
-    <span className="inline-flex items-center justify-center text-gray-300 bg-gray-50 border border-gray-100 w-6 h-6 rounded-full text-xs font-medium">
-      —
-    </span>
-  );
+function RankChange({ value }: { value: number }) {
   if (value === 0) return (
     <span className="inline-flex items-center justify-center text-gray-400 bg-gray-50 border border-gray-100 w-6 h-6 rounded-full">
       <svg className="w-3 h-3" viewBox="0 0 20 20" fill="currentColor">
@@ -56,20 +51,20 @@ type Entry = {
   itemCount: number;
   soldCount: number;
   totalProfit: number;
-  rankChange: number | null;
+  rankChange: number;
 };
 
 const PODIUM_CONFIG = [
-  { rank: 2, medal: '🥈', accent: 'bg-slate-100',  border: 'border-slate-300',  size: 'w-10 h-10 text-sm',   order: 'order-first', minH: 'h-[240px]' },
-  { rank: 1, medal: '🥇', accent: 'bg-amber-50',   border: 'border-amber-300',  size: 'w-12 h-12 text-base', order: 'order-none',  minH: 'h-[300px]' },
-  { rank: 3, medal: '🥉', accent: 'bg-orange-50',  border: 'border-orange-300', size: 'w-10 h-10 text-sm',   order: 'order-last',  minH: 'h-[196px]' },
+  { rank: 2, medal: '🥈', accent: 'bg-slate-100',  border: 'border-slate-300',  size: 'w-10 h-10 text-sm',   order: 'order-first', minH: 'h-[300px]' },
+  { rank: 1, medal: '🥇', accent: 'bg-amber-50',   border: 'border-amber-300',  size: 'w-12 h-12 text-base', order: 'order-none',  minH: 'h-[360px]' },
+  { rank: 3, medal: '🥉', accent: 'bg-orange-50',  border: 'border-orange-300', size: 'w-10 h-10 text-sm',   order: 'order-last',  minH: 'h-[260px]' },
 ] as const;
 
 function PodiumCard({ user, config, isMe }: { user: Entry; config: typeof PODIUM_CONFIG[number]; isMe: boolean }) {
   const label = user.displayName ?? user.email;
   return (
     <div className={[
-      'relative flex flex-col items-center gap-2 rounded-2xl border-2 px-5 py-5 text-center transition-shadow hover:shadow-md justify-end overflow-hidden',
+      'relative flex flex-col items-center gap-2 rounded-2xl border-2 px-5 py-5 text-center transition-shadow hover:shadow-md justify-center',
       config.accent, config.border, config.minH,
     ].join(' ')}>
       {isMe && (
