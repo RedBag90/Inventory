@@ -6,6 +6,7 @@ import { createClient } from '@/shared/lib/supabase/server';
 export type LeaderboardEntry = {
   id:          string;
   email:       string;
+  displayName: string | null;
   itemCount:   number;
   soldCount:   number;
   totalProfit: number;
@@ -46,6 +47,7 @@ export async function getLeaderboard(): Promise<LeaderboardEntry[]> {
     return {
       id:          u.id,
       email:       u.email,
+      displayName: u.displayName,
       itemCount:   u.items.length,
       soldCount:   soldItems.length,
       totalProfit,

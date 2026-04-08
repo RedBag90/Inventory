@@ -51,7 +51,7 @@ export function LeaderboardPage() {
                 <div className="text-2xl mb-1">
                   <RankBadge rank={i + 1} />
                 </div>
-                <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                <p className="text-xs text-gray-500 truncate">{user.displayName ?? user.email}</p>
                 <p className={[
                   'text-lg font-bold mt-1',
                   user.totalProfit > 0 ? 'text-green-700' : user.totalProfit < 0 ? 'text-red-600' : 'text-gray-500',
@@ -88,7 +88,10 @@ export function LeaderboardPage() {
                       <RankBadge rank={i + 1} />
                     </td>
                     <td className="py-3 pr-4">
-                      <p className="text-sm font-medium text-gray-900">{user.email}</p>
+                      <p className="text-sm font-medium text-gray-900">{user.displayName ?? user.email}</p>
+                      {user.displayName && (
+                        <p className="text-xs text-gray-400">{user.email}</p>
+                      )}
                     </td>
                     <td className="py-3 pr-4 text-sm text-gray-500 text-right">{user.itemCount}</td>
                     <td className="py-3 pr-4 text-sm text-gray-500 text-right">{user.soldCount}</td>
