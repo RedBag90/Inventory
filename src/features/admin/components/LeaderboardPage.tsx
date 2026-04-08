@@ -184,12 +184,13 @@ export function LeaderboardPage() {
                   <li
                     key={user.id}
                     className={[
-                      'flex items-center gap-4 px-5 py-3.5 transition-colors',
+                      'grid items-center px-5 py-3.5 transition-colors',
+                      'grid-cols-[2rem_1.5rem_2rem_1fr_5rem_5rem_7rem]',
                       isMe ? 'bg-amber-50/60' : 'hover:bg-gray-50',
                     ].join(' ')}
                   >
                     {/* Rank */}
-                    <span className="w-7 shrink-0 text-center">
+                    <span className="text-center">
                       {i === 0 ? <span className="text-lg">🥇</span>
                        : i === 1 ? <span className="text-lg">🥈</span>
                        : i === 2 ? <span className="text-lg">🥉</span>
@@ -197,15 +198,15 @@ export function LeaderboardPage() {
                     </span>
 
                     {/* Rank change */}
-                    <RankChange value={user.rankChange} />
+                    <span><RankChange value={user.rankChange} /></span>
 
                     {/* Avatar */}
-                    <span className="w-8 h-8 rounded-full bg-gray-800 text-white text-xs font-semibold flex items-center justify-center shrink-0">
+                    <span className="w-8 h-8 rounded-full bg-gray-800 text-white text-xs font-semibold flex items-center justify-center">
                       {initials(label)}
                     </span>
 
                     {/* Name */}
-                    <div className="flex-1 min-w-0">
+                    <div className="min-w-0 pl-3">
                       <div className="flex items-center gap-2">
                         <p className="text-sm font-medium text-gray-900 truncate">{label}</p>
                         {isMe && (
@@ -219,14 +220,14 @@ export function LeaderboardPage() {
                       )}
                     </div>
 
-                    {/* Stats */}
-                    <div className="hidden sm:flex items-center gap-6 text-sm text-gray-400 shrink-0">
-                      <span>{user.itemCount} Items</span>
-                      <span>{user.soldCount} verkauft</span>
-                    </div>
+                    {/* Items */}
+                    <span className="text-sm text-gray-400 tabular-nums text-right">{user.itemCount} Items</span>
+
+                    {/* Sold */}
+                    <span className="text-sm text-gray-400 tabular-nums text-right">{user.soldCount} verk.</span>
 
                     {/* Profit */}
-                    <span className={['text-sm font-bold tabular-nums shrink-0', profitColor(user.totalProfit)].join(' ')}>
+                    <span className={['text-sm font-bold tabular-nums text-right', profitColor(user.totalProfit)].join(' ')}>
                       {formatCurrency(user.totalProfit)}
                     </span>
                   </li>
