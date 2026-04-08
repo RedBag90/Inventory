@@ -4,6 +4,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, ReferenceLine,
 } from 'recharts';
+import { FilteredTooltip } from './FilteredTooltip';
 import type { ChartRow, ItemMeta } from '../../lib/dashboardUtils';
 
 type Props = {
@@ -23,7 +24,7 @@ export function CostDistributionChart({ data, items, avgCostLine }: Props) {
         <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
         <XAxis dataKey="period" tick={{ fontSize: 10, fill: '#6b7280' }} axisLine={false} tickLine={false} />
         <YAxis tickFormatter={(v: number) => `€${v}`} tick={{ fontSize: 10, fill: '#6b7280' }} axisLine={false} tickLine={false} width={56} />
-        <Tooltip formatter={(v: number) => `€${v.toFixed(2)}`} />
+        <Tooltip content={<FilteredTooltip />} />
         <ReferenceLine
           y={avgCostLine}
           stroke="#ef4444"

@@ -4,6 +4,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer,
 } from 'recharts';
+import { FilteredTooltip } from './FilteredTooltip';
 import type { ChartRow, ItemMeta } from '../../lib/dashboardUtils';
 
 type Props = { data: ChartRow[]; items: ItemMeta[] };
@@ -19,7 +20,7 @@ export function GainedValueChart({ data, items }: Props) {
         <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
         <XAxis dataKey="period" tick={{ fontSize: 9, fill: '#6b7280' }} axisLine={false} tickLine={false} />
         <YAxis tickFormatter={(v: number) => `€${v}`} tick={{ fontSize: 9, fill: '#6b7280' }} axisLine={false} tickLine={false} width={52} />
-        <Tooltip formatter={(v: number) => `€${v.toFixed(2)}`} />
+        <Tooltip content={<FilteredTooltip />} />
         {items.map((item) => (
           <Bar key={item.id} dataKey={item.id} name={item.name} fill={item.color} stackId="a" radius={[1, 1, 0, 0]} />
         ))}
