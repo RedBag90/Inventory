@@ -150,7 +150,6 @@ export function DashboardPage() {
             type="date"
             value={to}
             min={from}
-            max={today}
             onChange={(e) => update({ to: e.target.value })}
             className="border rounded px-2 py-1 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-black"
           />
