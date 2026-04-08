@@ -1,7 +1,5 @@
 'use client';
 
-// US-011, US-013, US-016 — Single inventory item card used in the list.
-
 import { ItemManager } from '../services/ItemManager';
 import { SaleManager } from '@/features/sales/services/SaleManager';
 import { formatCurrency, formatDate } from '@/shared/lib/utils';
@@ -12,57 +10,102 @@ type Props = {
   onRecordSale?: (item: ItemWithCosts) => void;
 };
 
-const STATUS_STYLES: Record<string, string> = {
-  IN_STOCK: 'bg-green-100 text-green-800',
-  SOLD:     'bg-gray-100 text-gray-600',
+const PLATFORM_LABEL: Record<string, string> = {
+  KLEINANZEIGEN: 'Kleinanzeigen',
+  EBAY:          'eBay',
+  FACEBOOK:      'Facebook',
+  OTHER:         'Sonstige',
+};
+
+const PLATFORM_STYLE: Record<string, string> = {
+  KLEINANZEIGEN: 'bg-teal-50 text-teal-700',
+  EBAY:          'bg-blue-50 text-blue-700',
+  FACEBOOK:      'bg-indigo-50 text-indigo-700',
+  OTHER:         'bg-gray-100 text-gray-500',
 };
 
 export function ItemCard({ item, onRecordSale }: Props) {
   const storageDays = ItemManager.calculateStorageDays(item);
-  const profit = SaleManager.calculateProfit(item);
+  const profit      = SaleManager.calculateProfit(item);
+  const isSold      = item.status === 'SOLD';
 
-  const profitColor = profit === null
-    ? ''
-    : profit < 0
-    ? 'text-red-600'
-    : profit === 0
-    ? 'text-gray-500'
-    : 'text-green-700';
+  const profitColor =
+    profit === null    ? '' :
+    profit < 0         ? 'text-red-500' :
+    profit === 0       ? 'text-gray-400' :
+                         'text-emerald-600';
+
+  const platformLabel = PLATFORM_LABEL[item.purchasePlatform] ?? item.purchasePlatform;
+  const platformStyle = PLATFORM_STYLE[item.purchasePlatform] ?? 'bg-gray-100 text-gray-500';
 
   return (
-    <div className="flex items-center justify-between py-3 px-4 hover:bg-gray-50 transition-colors rounded-md">
+    <div className="flex items-center gap-4 px-5 py-4 hover:bg-gray-50/80 transition-colors group">
+
+      {/* Status dot */}
+      <span className={[
+        'w-2 h-2 rounded-full shrink-0 mt-0.5',
+        isSold ? 'bg-gray-300' : 'bg-emerald-400',
+      ].join(' ')} />
+
+      {/* Name + meta */}
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-gray-900 truncate">{item.name}</p>
-        <p className="text-xs text-gray-500 mt-0.5">
-          {item.purchasePlatform.charAt(0) + item.purchasePlatform.slice(1).toLowerCase()} · {formatDate(new Date(item.purchasedAt))}
-        </p>
+        <p className="text-sm font-semibold text-gray-900 truncate">{item.name}</p>
+        <div className="flex items-center gap-2 mt-1 flex-wrap">
+          <span className={['text-[11px] font-medium px-1.5 py-0.5 rounded', platformStyle].join(' ')}>
+            {platformLabel}
+          </span>
+          <span className="text-xs text-gray-400">{formatDate(new Date(item.purchasedAt))}</span>
+          {!isSold && (
+            <span className={[
+              'text-[11px] font-medium px-1.5 py-0.5 rounded',
+              storageDays > 30 ? 'bg-amber-50 text-amber-700' : 'bg-gray-100 text-gray-500',
+            ].join(' ')}>
+              {storageDays}d gelagert
+            </span>
+          )}
+        </div>
       </div>
 
-      <div className="flex items-center gap-4 ml-4 shrink-0">
-        <span className="text-sm font-medium text-gray-900">{formatCurrency(item.purchasePrice)}</span>
+      {/* Financials */}
+      <div className="flex items-center gap-3 shrink-0">
+        <div className="text-right">
+          <span className="text-sm text-gray-500">{formatCurrency(item.purchasePrice)}</span>
+          {profit !== null && (
+            <>
+              <span className="mx-1.5 text-gray-200">→</span>
+              <span className={['text-sm font-semibold', profitColor].join(' ')}>
+                {profit > 0 ? '+' : ''}{formatCurrency(profit)}
+              </span>
+            </>
+          )}
+        </div>
 
-        {profit !== null ? (
-          <span className={`text-sm font-medium ${profitColor}`}>
-            {formatCurrency(profit)}
+        {/* Status badge */}
+        {isSold ? (
+          <span className="inline-flex items-center gap-1 text-xs font-medium text-gray-400 bg-gray-100 px-2.5 py-1 rounded-full">
+            <svg className="w-3 h-3" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clipRule="evenodd" />
+            </svg>
+            Verkauft
           </span>
         ) : (
-          <span className="text-xs text-gray-500">{storageDays}d</span>
+          <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+            Lagernd
+          </span>
         )}
 
-        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_STYLES[item.status] ?? 'bg-gray-100 text-gray-600'}`}>
-          {item.status === 'IN_STOCK' ? 'In stock' : 'Sold'}
-        </span>
-
-        {item.status === 'IN_STOCK' && onRecordSale && (
+        {/* Action button */}
+        {!isSold && onRecordSale && (
           <button
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
               onRecordSale(item);
             }}
-            className="text-xs font-medium text-white bg-gray-900 hover:bg-gray-700 px-3 py-1.5 rounded-md transition-colors shrink-0"
+            className="text-xs font-semibold text-white bg-gray-900 hover:bg-gray-700 px-3 py-1.5 rounded-lg transition-colors shrink-0 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto"
           >
-            Record sale
+            Verkaufen
           </button>
         )}
       </div>
