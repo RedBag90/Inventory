@@ -60,17 +60,17 @@ type Entry = {
 };
 
 const PODIUM_CONFIG = [
-  { rank: 2, medal: '🥈', accent: 'bg-slate-100',  border: 'border-slate-300',  size: 'w-10 h-10 text-sm',  order: 'order-first',  mt: 'mt-6'  },
-  { rank: 1, medal: '🥇', accent: 'bg-amber-50',   border: 'border-amber-300',  size: 'w-12 h-12 text-base', order: 'order-none',   mt: 'mt-0'  },
-  { rank: 3, medal: '🥉', accent: 'bg-orange-50',  border: 'border-orange-300', size: 'w-10 h-10 text-sm',  order: 'order-last',   mt: 'mt-6'  },
+  { rank: 2, medal: '🥈', accent: 'bg-slate-100',  border: 'border-slate-300',  size: 'w-10 h-10 text-sm',   order: 'order-first', minH: 'min-h-[220px]' },
+  { rank: 1, medal: '🥇', accent: 'bg-amber-50',   border: 'border-amber-300',  size: 'w-12 h-12 text-base', order: 'order-none',  minH: 'min-h-[280px]' },
+  { rank: 3, medal: '🥉', accent: 'bg-orange-50',  border: 'border-orange-300', size: 'w-10 h-10 text-sm',   order: 'order-last',  minH: 'min-h-[180px]' },
 ] as const;
 
 function PodiumCard({ user, config, isMe }: { user: Entry; config: typeof PODIUM_CONFIG[number]; isMe: boolean }) {
   const label = user.displayName ?? user.email;
   return (
     <div className={[
-      'relative flex flex-col items-center gap-2 rounded-2xl border-2 px-5 py-5 text-center transition-shadow hover:shadow-md',
-      config.accent, config.border, config.mt,
+      'relative flex flex-col items-center gap-2 rounded-2xl border-2 px-5 py-5 text-center transition-shadow hover:shadow-md justify-end',
+      config.accent, config.border, config.minH,
     ].join(' ')}>
       {isMe && (
         <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[10px] font-bold px-2 py-0.5 rounded-full tracking-wide">
