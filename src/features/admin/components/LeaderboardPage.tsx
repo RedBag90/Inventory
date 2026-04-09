@@ -61,7 +61,7 @@ const PODIUM_CONFIG = [
   { rank: 3, medal: '🥉', bar: 'bg-orange-300', card: 'bg-orange-50 border-orange-200', order: 'order-last',  h: 'h-[170px]' },
 ] as const;
 
-function PodiumCard({ user, config, isMe }: { user: Entry; config: typeof PODIUM_CONFIG[number]; isMe: boolean }) {
+function PodiumCard({ user, config }: { user: Entry; config: typeof PODIUM_CONFIG[number] }) {
   const label = user.displayName ?? user.email;
   return (
     <div className={[
@@ -71,12 +71,6 @@ function PodiumCard({ user, config, isMe }: { user: Entry; config: typeof PODIUM
       {/* coloured top bar */}
       <div className={['w-full h-1 shrink-0', config.bar].join(' ')} />
 
-      {/* "Du" badge */}
-      {isMe && (
-        <span className="absolute top-2 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[8px] font-bold px-1.5 py-px rounded-full tracking-wide leading-tight">
-          Du
-        </span>
-      )}
 
       {/* content */}
       <div className="flex flex-col items-center justify-center gap-1 flex-1 px-3 py-2 text-center min-w-0 w-full">
@@ -165,7 +159,6 @@ export function LeaderboardPage() {
                   key={user.id}
                   user={user}
                   config={config}
-                  isMe={user.id === me?.id}
                 />
               );
             })}
