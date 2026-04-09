@@ -126,7 +126,29 @@ export function LeaderboardPage() {
       <div className="flex items-end justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Rangliste</h1>
-          <p className="text-sm text-gray-500 mt-0.5">All-time Gewinn-Ranking · Veränderung seit letztem Sonntag</p>
+          <div className="flex items-center gap-3 mt-1 flex-wrap">
+            <p className="text-sm text-gray-500">All-time Gewinn-Ranking · Veränderung seit letztem Sonntag</p>
+            <div className="flex items-center gap-2.5">
+              <span className="flex items-center gap-1 text-xs text-gray-400">
+                <span className="inline-flex items-center justify-center text-emerald-700 bg-emerald-50 border border-emerald-100 w-5 h-5 rounded-full">
+                  <svg className="w-3 h-3" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 17a.75.75 0 0 1-.75-.75V5.612L5.29 9.77a.75.75 0 0 1-1.08-1.04l5.25-5.5a.75.75 0 0 1 1.08 0l5.25 5.5a.75.75 0 1 1-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0 1 10 17Z" clipRule="evenodd" /></svg>
+                </span>
+                Aufgestiegen
+              </span>
+              <span className="flex items-center gap-1 text-xs text-gray-400">
+                <span className="inline-flex items-center justify-center text-red-600 bg-red-50 border border-red-100 w-5 h-5 rounded-full">
+                  <svg className="w-3 h-3" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 3a.75.75 0 0 1 .75.75v10.638l3.96-4.158a.75.75 0 1 1 1.08 1.04l-5.25 5.5a.75.75 0 0 1-1.08 0l-5.25-5.5a.75.75 0 1 1 1.08-1.04l3.96 4.158V3.75A.75.75 0 0 1 10 3Z" clipRule="evenodd" /></svg>
+                </span>
+                Abgestiegen
+              </span>
+              <span className="flex items-center gap-1 text-xs text-gray-400">
+                <span className="inline-flex items-center justify-center text-gray-400 bg-gray-50 border border-gray-100 w-5 h-5 rounded-full">
+                  <svg className="w-2.5 h-2.5" viewBox="0 0 20 20" fill="currentColor"><path d="M4 10a.75.75 0 0 1 .75-.75h10.5a.75.75 0 0 1 0 1.5H4.75A.75.75 0 0 1 4 10Z" /></svg>
+                </span>
+                Unverändert
+              </span>
+            </div>
+          </div>
         </div>
         {ranked.length > 0 && (
           <span className="text-sm text-gray-400 font-medium">
