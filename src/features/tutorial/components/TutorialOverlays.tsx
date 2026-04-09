@@ -49,8 +49,9 @@ export function TutorialOverlays() {
         targetSelector="[data-tutorial='reporting-tabs']"
         title="Deine Zahlen im Überblick"
         description="Hier siehst du Umsatz, Kosten und Gewinn — täglich, monatlich, quartalsweise oder kumuliert. Die Karten oben zeigen dir die wichtigsten Kennzahlen auf einen Blick."
-        step={4}
+        step={5}
         totalSteps={TOTAL_STEPS}
+        nextLabel="Alles klar — ich lege los!"
         onNext={next}
         onSkip={skip}
       />
@@ -63,9 +64,8 @@ export function TutorialOverlays() {
         targetSelector="[data-tutorial='leaderboard-table']"
         title="Die Olympiade beginnt!"
         description="Hier siehst du, wie du im Vergleich zu allen anderen Teilnehmern abschneidest — sortiert nach Gesamtgewinn. Die Pfeile zeigen dir, ob du seit letztem Sonntag auf- oder abgestiegen bist."
-        step={5}
+        step={4}
         totalSteps={TOTAL_STEPS}
-        nextLabel="Alles klar — ich lege los!"
         onNext={next}
         onSkip={skip}
       />

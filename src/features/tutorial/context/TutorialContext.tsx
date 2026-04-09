@@ -27,8 +27,8 @@ const STEP_ORDER: TutorialStep[] = [
   'welcome',
   'inventory-sell',
   'inventory-add',
-  'reporting',
   'leaderboard',
+  'reporting',
   'done',
 ];
 
