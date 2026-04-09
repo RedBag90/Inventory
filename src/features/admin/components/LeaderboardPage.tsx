@@ -188,8 +188,14 @@ export function LeaderboardPage() {
 
           {/* ── Full rankings list ── */}
           <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-            <div className="px-5 py-4 border-b border-gray-100">
-              <p className="text-sm font-semibold text-gray-700">Alle Teilnehmer</p>
+            <div className="grid items-center gap-x-3 px-5 py-3 border-b border-gray-100 bg-gray-50 grid-cols-[2rem_1.5rem_2rem_1fr_5rem_5rem_7rem]">
+              <span />
+              <span />
+              <span />
+              <span className="text-xs font-medium text-gray-500 uppercase tracking-wide pl-3">Name</span>
+              <span className="text-xs font-medium text-gray-500 uppercase tracking-wide text-right">Items</span>
+              <span className="text-xs font-medium text-gray-500 uppercase tracking-wide text-right">Verkauft</span>
+              <span className="text-xs font-medium text-gray-500 uppercase tracking-wide text-right">Profit</span>
             </div>
             <ul className="divide-y divide-gray-100">
               {ranked.map((user, i) => {
