@@ -6,7 +6,7 @@ import { SpotlightOverlay } from './SpotlightOverlay';
 
 // ── Per-step overlay definitions ─────────────────────────────────────────────
 
-const TOTAL_STEPS = 4; // steps 2–5 (welcome is step 1 but separate)
+const TOTAL_STEPS = 5; // steps 2–6 (welcome is step 1 but separate)
 
 export function TutorialOverlays() {
   const { step, next, skip } = useTutorial();
@@ -51,7 +51,6 @@ export function TutorialOverlays() {
         description="Hier siehst du Umsatz, Kosten und Gewinn — täglich, monatlich, quartalsweise oder kumuliert. Die Karten oben zeigen dir die wichtigsten Kennzahlen auf einen Blick."
         step={5}
         totalSteps={TOTAL_STEPS}
-        nextLabel="Alles klar — ich lege los!"
         onNext={next}
         onSkip={skip}
       />
@@ -66,6 +65,21 @@ export function TutorialOverlays() {
         description="Hier siehst du, wie du im Vergleich zu allen anderen Teilnehmern abschneidest — sortiert nach Gesamtgewinn. Die Pfeile zeigen dir, ob du seit letztem Sonntag auf- oder abgestiegen bist."
         step={4}
         totalSteps={TOTAL_STEPS}
+        onNext={next}
+        onSkip={skip}
+      />
+    );
+  }
+
+  if (step === 'first-sale' && pathname.startsWith('/dashboard/inventory')) {
+    return (
+      <SpotlightOverlay
+        targetSelector="[data-tutorial='quick-sell-button']"
+        title="Bereit für deinen ersten Verkauf?"
+        description="Dokumentiere jetzt deinen ersten Verkauf — klick auf 'Schnell verkaufen' und trag Artikel, Preis und Plattform ein. In 30 Sekunden erledigt."
+        step={6}
+        totalSteps={TOTAL_STEPS}
+        nextLabel="Jetzt loslegen!"
         onNext={next}
         onSkip={skip}
       />

@@ -12,6 +12,7 @@ export type TutorialStep =
   | 'inventory-sell'
   | 'reporting'
   | 'leaderboard'
+  | 'first-sale'
   | 'done';
 
 type TutorialContextValue = {
@@ -29,6 +30,7 @@ const STEP_ORDER: TutorialStep[] = [
   'inventory-add',
   'leaderboard',
   'reporting',
+  'first-sale',
   'done',
 ];
 
@@ -38,6 +40,7 @@ const STEP_ROUTES: Record<TutorialStep, string | null> = {
   'inventory-add':  '/dashboard/inventory',
   'reporting':      '/dashboard/reporting',
   'leaderboard':    '/dashboard/leaderboard',
+  'first-sale':     '/dashboard/inventory',
   'done':           '/dashboard/inventory',
 };
 
