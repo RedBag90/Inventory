@@ -10,6 +10,8 @@ import { getItems } from '../services/ItemRepository';
 import { SaleManager } from '@/features/sales/services/SaleManager';
 import { formatCurrency } from '@/shared/lib/utils';
 import type { ItemWithCosts } from '../types/inventory.types';
+import { useTutorial } from '@/features/tutorial/context/TutorialContext';
+import { GhostItemCard } from '@/features/tutorial/components/GhostItemCard';
 
 type FilterTab = 'ALL' | 'IN_STOCK' | 'SOLD';
 
@@ -25,6 +27,7 @@ type Props = {
 
 export function ItemTable({ onRecordSale }: Props) {
   const { data: items, isLoading, isError } = useItems();
+  const { step: tutorialStep } = useTutorial();
   const searchParams = useSearchParams();
   const pathname     = usePathname();
   const router       = useRouter();
@@ -113,7 +116,7 @@ export function ItemTable({ onRecordSale }: Props) {
           <div className="py-12 text-center text-sm text-red-500">Inventar konnte nicht geladen werden.</div>
         )}
 
-        {!isLoading && !isError && (!items || items.length === 0) && (
+        {!isLoading && !isError && (!items || items.length === 0) && tutorialStep !== 'inventory-sell' && (
           <div className="py-16 text-center">
             <p className="text-sm text-gray-400">Keine Artikel gefunden.</p>
             {activeFilter !== 'ALL' && (
@@ -125,6 +128,13 @@ export function ItemTable({ onRecordSale }: Props) {
               </button>
             )}
           </div>
+        )}
+
+        {/* Ghost item for tutorial step 'inventory-sell' when list is empty */}
+        {tutorialStep === 'inventory-sell' && (!items || items.length === 0) && (
+          <ul className="divide-y divide-gray-100">
+            <GhostItemCard />
+          </ul>
         )}
 
         {items && items.length > 0 && (

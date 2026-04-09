@@ -7,6 +7,7 @@ import { createClient } from '@/shared/lib/supabase/client';
 import { useCurrentUser }    from '../hooks/useCurrentUser';
 import { useCurrentDbUser }  from '../hooks/useCurrentDbUser';
 import { updateDisplayName } from '../actions/updateDisplayName';
+import { useTutorial } from '@/features/tutorial/context/TutorialContext';
 
 function initials(email: string) {
   return email.slice(0, 2).toUpperCase();
@@ -21,6 +22,7 @@ export function UserMenu() {
   const { data: dbUser }      = useCurrentDbUser();
   const router                = useRouter();
   const queryClient           = useQueryClient();
+  const { restart: restartTutorial } = useTutorial();
   const [open, setOpen]       = useState(false);
   const [editing, setEditing] = useState(false);
   const [nameInput, setNameInput] = useState('');
@@ -196,7 +198,13 @@ export function UserMenu() {
           </div>
 
           {/* Footer */}
-          <div className="px-4 pb-4">
+          <div className="px-4 pb-4 space-y-2">
+            <button
+              onClick={() => { setOpen(false); restartTutorial(); }}
+              className="w-full text-sm text-gray-500 hover:text-gray-800 border border-gray-200 hover:border-gray-400 rounded-lg py-2 font-medium transition-colors"
+            >
+              Tutorial neu starten
+            </button>
             <button
               onClick={handleSignOut}
               className="w-full text-sm text-red-600 hover:text-red-800 border border-red-200 hover:border-red-400 rounded-lg py-2 font-medium transition-colors"

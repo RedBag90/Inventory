@@ -269,7 +269,7 @@ export function ReportingPage() {
       {(!isAdmin || targetUser) && (
         <>
           {/* ── View tabs ── */}
-          <div className="flex gap-1 border-b border-gray-200">
+          <div data-tutorial="reporting-tabs" className="flex gap-1 border-b border-gray-200">
             {(['daily', 'monthly', 'quarterly', 'cumulative'] as View[]).map((v) => (
               <button
                 key={v}

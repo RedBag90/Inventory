@@ -4,10 +4,11 @@ import { redirect } from 'next/navigation';
 import { prisma } from '@/shared/lib/prisma';
 
 export type SyncedUser = {
-  id:       string;
-  email:    string;
-  role:     'USER' | 'ADMIN';
-  isActive: boolean;
+  id:                   string;
+  email:                string;
+  role:                 'USER' | 'ADMIN';
+  isActive:             boolean;
+  tutorialCompletedAt:  Date | null;
 };
 
 /**
@@ -23,7 +24,7 @@ export async function syncUser(supabaseId: string, email: string): Promise<Synce
   // records (which have no supabaseId yet) get linked on first login.
   let user = await prisma.user.findUnique({
     where:  { supabaseId },
-    select: { id: true, email: true, role: true, isActive: true },
+    select: { id: true, email: true, role: true, isActive: true, tutorialCompletedAt: true },
   });
 
   if (!user) {
@@ -31,7 +32,7 @@ export async function syncUser(supabaseId: string, email: string): Promise<Synce
       where:  { email },
       update: { supabaseId },
       create: { supabaseId, email },
-      select: { id: true, email: true, role: true, isActive: true },
+      select: { id: true, email: true, role: true, isActive: true, tutorialCompletedAt: true },
     });
   }
 
@@ -40,9 +41,10 @@ export async function syncUser(supabaseId: string, email: string): Promise<Synce
   }
 
   return {
-    id:       user.id,
-    email:    user.email,
-    role:     user.role as 'USER' | 'ADMIN',
-    isActive: user.isActive,
+    id:                  user.id,
+    email:               user.email,
+    role:                user.role as 'USER' | 'ADMIN',
+    isActive:            user.isActive,
+    tutorialCompletedAt: user.tutorialCompletedAt,
   };
 }

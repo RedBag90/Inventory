@@ -187,7 +187,7 @@ export function LeaderboardPage() {
           </div>
 
           {/* ── Full rankings list ── */}
-          <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+          <div data-tutorial="leaderboard-table" className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
             <div className="grid items-center gap-x-3 px-5 py-3 border-b border-gray-100 bg-gray-50 grid-cols-[2rem_1.5rem_2rem_1fr_5rem_5rem_7rem]">
               <span />
               <span />
