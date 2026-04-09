@@ -15,12 +15,12 @@ export function TutorialOverlays() {
   if (!step || step === 'welcome' || step === 'done') return null;
 
   // Only render the spotlight for the step that matches the current route
-  if (step === 'inventory-add' && pathname.startsWith('/dashboard/inventory')) {
+  if (step === 'inventory-sell' && pathname.startsWith('/dashboard/inventory')) {
     return (
       <SpotlightOverlay
-        targetSelector="[data-tutorial='buy-button']"
-        title="Artikel kaufen"
-        description="Du hast etwas auf dem Flohmarkt gefunden? Trag es hier ein — Name, Kaufpreis, Plattform (eBay, Kleinanzeigen, ...) und alle anfallenden Kosten."
+        targetSelector="[data-tutorial='quick-sell-button']"
+        title="Schnell verkaufen"
+        description="Du räumst auf und verkaufst alte Sachen aus dem Keller? &apos;Schnell verkaufen&apos; ist dein direkter Weg."
         step={2}
         totalSteps={TOTAL_STEPS}
         onNext={next}
@@ -29,12 +29,12 @@ export function TutorialOverlays() {
     );
   }
 
-  if (step === 'inventory-sell' && pathname.startsWith('/dashboard/inventory')) {
+  if (step === 'inventory-add' && pathname.startsWith('/dashboard/inventory')) {
     return (
       <SpotlightOverlay
-        targetSelector="[data-tutorial='quick-sell-button']"
-        title="Verkauf eintragen"
-        description="Du räumst auf und verkaufst alte Sachen aus dem Keller? &apos;Schnell verkaufen&apos; ist dein direkter Weg."
+        targetSelector="[data-tutorial='buy-button']"
+        title="Artikel kaufen"
+        description="Du hast etwas auf dem Flohmarkt gefunden? Trag es hier ein — Name, Kaufpreis, Plattform (eBay, Kleinanzeigen, ...) und alle anfallenden Kosten."
         step={3}
         totalSteps={TOTAL_STEPS}
         onNext={next}

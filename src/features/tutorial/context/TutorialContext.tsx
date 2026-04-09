@@ -25,8 +25,8 @@ type TutorialContextValue = {
 
 const STEP_ORDER: TutorialStep[] = [
   'welcome',
-  'inventory-add',
   'inventory-sell',
+  'inventory-add',
   'reporting',
   'leaderboard',
   'done',
@@ -34,8 +34,8 @@ const STEP_ORDER: TutorialStep[] = [
 
 const STEP_ROUTES: Record<TutorialStep, string | null> = {
   'welcome':        null,
-  'inventory-add':  '/dashboard/inventory',
   'inventory-sell': '/dashboard/inventory',
+  'inventory-add':  '/dashboard/inventory',
   'reporting':      '/dashboard/reporting',
   'leaderboard':    '/dashboard/leaderboard',
   'done':           '/dashboard/inventory',
