@@ -34,7 +34,7 @@ export function TutorialOverlays() {
       <SpotlightOverlay
         targetSelector="[data-tutorial='quick-sell-button']"
         title="Verkauf eintragen"
-        description="Sobald du etwas verkauft hast, trägst du Verkaufspreis, Plattform und Versandkosten ein. Die App berechnet deinen Gewinn automatisch. Mit 'Schnell verkaufen' geht es ohne Inventareintrag."
+        description="Willst du ausmisten und Sachen verkaufen, die du nicht extra eingekauft hast? Mit 'Schnell verkaufen' dokumentierst du Verkäufe ohne vorherigen Inventareintrag — der einfachste Weg, unkompliziert Erlöse festzuhalten."
         step={3}
         totalSteps={TOTAL_STEPS}
         onNext={next}
