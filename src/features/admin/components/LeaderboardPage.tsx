@@ -1,7 +1,9 @@
 'use client';
 
+import { useState } from 'react';
 import { useLeaderboard } from '../hooks/useLeaderboard';
 import { useCurrentDbUser } from '@/features/auth/hooks/useCurrentDbUser';
+import { useOlympiads } from '@/features/olympiad/hooks/useOlympiads';
 import { formatCurrency } from '@/shared/lib/utils';
 
 // ── helpers ──────────────────────────────────────────────────────────────────
@@ -110,14 +112,20 @@ function PodiumCard({ user, config }: { user: Entry; config: typeof PODIUM_CONFI
 // ── main component ────────────────────────────────────────────────────────────
 
 export function LeaderboardPage() {
-  const { data: users, isLoading, isError } = useLeaderboard();
   const { data: me } = useCurrentDbUser();
+  const isAdmin = me?.role === 'ADMIN';
+  const [instanceOverride, setInstanceOverride] = useState<string | undefined>(undefined);
+  const { data: olympiads } = useOlympiads();
+  const { data: result, isLoading, isError } = useLeaderboard(instanceOverride);
 
-  const ranked = users
-    ? [...users].sort((a, b) => b.totalProfit - a.totalProfit)
-    : [];
-
+  const ranked = result?.entries ?? [];
   const top3 = ranked.slice(0, 3);
+
+  const subtitle = result?.instanceName
+    ? `${result.instanceName}${result.startsAt && result.endsAt
+        ? ` · ${new Date(result.startsAt).toLocaleDateString('de-DE', { day: '2-digit', month: 'short', year: 'numeric' })} – ${new Date(result.endsAt).toLocaleDateString('de-DE', { day: '2-digit', month: 'short', year: 'numeric' })}`
+        : ''}`
+    : 'Gewinn-Ranking · Veränderung seit letztem Sonntag';
 
   return (
     <div className="space-y-8">
@@ -127,7 +135,7 @@ export function LeaderboardPage() {
         <div>
           <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Rangliste</h1>
           <div className="flex items-center gap-3 mt-1 flex-wrap">
-            <p className="text-sm text-gray-500">All-time Gewinn-Ranking · Veränderung seit letztem Sonntag</p>
+            <p className="text-sm text-gray-500">{subtitle}</p>
             <div className="flex items-center gap-2.5">
               <span className="flex items-center gap-1 text-xs text-gray-400">
                 <span className="inline-flex items-center justify-center text-emerald-700 bg-emerald-50 border border-emerald-100 w-5 h-5 rounded-full">
@@ -150,11 +158,25 @@ export function LeaderboardPage() {
             </div>
           </div>
         </div>
-        {ranked.length > 0 && (
-          <span className="text-sm text-gray-400 font-medium">
-            {ranked.length} Teilnehmer
-          </span>
-        )}
+        <div className="flex items-center gap-3 shrink-0">
+          {isAdmin && olympiads && olympiads.length > 0 && (
+            <select
+              value={instanceOverride ?? ''}
+              onChange={e => setInstanceOverride(e.target.value || undefined)}
+              className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm text-gray-600 bg-white focus:outline-none focus:ring-2 focus:ring-gray-400"
+            >
+              <option value="">Meine Olympiade</option>
+              {olympiads.map(o => (
+                <option key={o.id} value={o.id}>{o.name}</option>
+              ))}
+            </select>
+          )}
+          {ranked.length > 0 && (
+            <span className="text-sm text-gray-400 font-medium">
+              {ranked.length} Teilnehmer
+            </span>
+          )}
+        </div>
       </div>
 
       {isLoading && (

@@ -3,9 +3,11 @@
 // Admin dashboard — user management.
 // Only accessible to ADMIN users (enforced at middleware + repository level).
 
+import { useState } from 'react';
 import { useAdminUsers, useSetUserRole, useSetUserActive } from '../hooks/useAdminUsers';
 import { formatCurrency, formatDate } from '@/shared/lib/utils';
 import type { AdminUserRecord } from '../types/admin.types';
+import { OlympiadPanel } from '@/features/olympiad/components/OlympiadPanel';
 
 function RoleBadge({ role }: { role: AdminUserRecord['role'] }) {
   return (
@@ -33,16 +35,38 @@ function StatusBadge({ isActive }: { isActive: boolean }) {
   );
 }
 
+type AdminTab = 'users' | 'olympiads';
+
 export function AdminPage() {
   const { data: users, isLoading, isError } = useAdminUsers();
+  const [tab, setTab] = useState<AdminTab>('olympiads');
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
+        <h1 className="text-lg font-semibold text-gray-900">Admin</h1>
+      </div>
+
+      {/* Tabs */}
+      <div className="flex gap-1 border-b border-gray-200">
+        {([['olympiads', 'Olympiaden'], ['users', 'Users']] as [AdminTab, string][]).map(([value, label]) => (
+          <button key={value} onClick={() => setTab(value)}
+            className={[
+              'px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors',
+              tab === value ? 'border-gray-900 text-gray-900' : 'border-transparent text-gray-400 hover:text-gray-600',
+            ].join(' ')}>
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {tab === 'olympiads' && <OlympiadPanel />}
+
+      {tab === 'users' && <div className="space-y-6">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-lg font-semibold text-gray-900">Admin — Users</h1>
           {users && (
-            <p className="text-sm text-gray-500 mt-0.5">
+            <p className="text-sm text-gray-500">
               {users.length} registered · {users.filter(u => u.isActive).length} active
             </p>
           )}
@@ -104,6 +128,7 @@ export function AdminPage() {
           </div>
         </div>
       )}
+      </div>}
     </div>
   );
 }

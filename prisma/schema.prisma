@@ -11,15 +11,44 @@ datasource db {
 // ─── Models ──────────────────────────────────────────────────────────────────
 
 model User {
-  id                   String    @id @default(cuid())
-  supabaseId           String    @unique
-  email                String    @unique
+  id                   String               @id @default(cuid())
+  supabaseId           String               @unique
+  email                String               @unique
   displayName          String?
-  role                 UserRole  @default(USER)
-  isActive             Boolean   @default(true)
-  createdAt            DateTime  @default(now())
+  role                 UserRole             @default(USER)
+  isActive             Boolean              @default(true)
+  createdAt            DateTime             @default(now())
   tutorialCompletedAt  DateTime?
   items                Item[]
+  membership           InstanceMembership?
+  createdOlympiads     OlympiadInstance[]
+}
+
+model OlympiadInstance {
+  id           String               @id @default(cuid())
+  name         String
+  description  String?
+  startsAt     DateTime
+  endsAt       DateTime
+  isActive     Boolean              @default(true)
+  createdAt    DateTime             @default(now())
+  createdById  String
+  inviteToken  String?              @unique
+  createdBy    User                 @relation(fields: [createdById], references: [id])
+  memberships  InstanceMembership[]
+
+  @@index([createdById])
+}
+
+model InstanceMembership {
+  id         String           @id @default(cuid())
+  userId     String           @unique
+  instanceId String
+  joinedAt   DateTime         @default(now())
+  user       User             @relation(fields: [userId], references: [id])
+  instance   OlympiadInstance @relation(fields: [instanceId], references: [id])
+
+  @@index([instanceId])
 }
 
 model Item {

@@ -14,37 +14,89 @@ export type LeaderboardEntry = {
   rankChange:  number;
 };
 
+export type LeaderboardResult = {
+  entries:      LeaderboardEntry[];
+  instanceName: string | null;
+  startsAt:     Date | null;
+  endsAt:       Date | null;
+};
+
 /** Returns the most recent Sunday at 00:00 UTC */
 function lastSundayMidnightUTC(): Date {
-  const now        = new Date();
-  const dayOfWeek  = now.getUTCDay(); // 0 = Sun
-  const daysBack   = dayOfWeek === 0 ? 7 : dayOfWeek;
+  const now       = new Date();
+  const dayOfWeek = now.getUTCDay();
+  const daysBack  = dayOfWeek === 0 ? 7 : dayOfWeek;
   return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - daysBack));
 }
 
-export async function getLeaderboard(): Promise<LeaderboardEntry[]> {
+export async function getLeaderboard(instanceIdOverride?: string): Promise<LeaderboardResult> {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('Unauthenticated');
+  const { data: { user: authUser } } = await supabase.auth.getUser();
+  if (!authUser) throw new Error('Unauthenticated');
 
-  const snapshot = lastSundayMidnightUTC();
-
-  const users = await prisma.user.findMany({
-    where:   { isActive: true },
-    orderBy: { email: 'asc' },
-    include: {
-      items: {
-        include: {
-          costs: true,
-          sale:  true,
+  const caller = await prisma.user.findUnique({
+    where:  { supabaseId: authUser.id },
+    select: {
+      id:   true,
+      role: true,
+      membership: {
+        select: {
+          instance: { select: { id: true, name: true, startsAt: true, endsAt: true } },
         },
       },
     },
   });
+  if (!caller) throw new Error('User not found');
 
-  // ── Compute profits (current + snapshot) for each user ──────────────
+  const isAdmin = caller.role === 'ADMIN';
+
+  // Resolve which instance to show
+  let instance: { id: string; name: string; startsAt: Date; endsAt: Date } | null = null;
+
+  if (instanceIdOverride && isAdmin) {
+    instance = await prisma.olympiadInstance.findUnique({
+      where:  { id: instanceIdOverride },
+      select: { id: true, name: true, startsAt: true, endsAt: true },
+    });
+  } else if (caller.membership?.instance) {
+    instance = caller.membership.instance;
+  }
+  // Admin with no membership and no override → show all users (legacy behaviour)
+
+  const snapshot = lastSundayMidnightUTC();
+
+  // Build user filter: instance members only (or all if admin with no instance)
+  const userWhere = instance
+    ? { isActive: true, membership: { instanceId: instance.id } }
+    : { isActive: true };
+
+  const users = await prisma.user.findMany({
+    where:   userWhere,
+    orderBy: { email: 'asc' },
+    include: {
+      items: {
+        include: { costs: true, sale: true },
+      },
+    },
+  });
+
+  // Restrict items/sales to instance time window if applicable
+  const winStart = instance?.startsAt ?? null;
+  const winEnd   = instance?.endsAt   ?? null;
+
+  function inWindow(date: Date): boolean {
+    if (!winStart || !winEnd) return true;
+    return date >= winStart && date <= winEnd;
+  }
+
   const computed = users.map((u) => {
-    const soldItems = u.items.filter((i) => i.status === 'SOLD' && i.sale);
+    // Items purchased within the window (for itemCount)
+    const windowItems = u.items.filter((i) => inWindow(i.purchasedAt));
+
+    // Sold items with sale within window
+    const soldItems = u.items.filter(
+      (i) => i.status === 'SOLD' && i.sale && inWindow(i.sale.soldAt),
+    );
 
     function profitOf(item: typeof soldItems[0]): number {
       const sale = item.sale!;
@@ -66,35 +118,33 @@ export async function getLeaderboard(): Promise<LeaderboardEntry[]> {
       id:             u.id,
       email:          u.email,
       displayName:    u.displayName,
-      itemCount:      u.items.length,
+      itemCount:      windowItems.length,
       soldCount:      soldItems.length,
       totalProfit,
       snapshotProfit,
     };
   });
 
-  // ── Build rank maps ──────────────────────────────────────────────────
   const currentRanked  = [...computed].sort((a, b) => b.totalProfit    - a.totalProfit);
   const snapshotRanked = [...computed].sort((a, b) => b.snapshotProfit - a.snapshotProfit);
 
   const currentRankOf  = new Map(currentRanked .map((e, i) => [e.id, i + 1]));
   const snapshotRankOf = new Map(snapshotRanked.map((e, i) => [e.id, i + 1]));
 
-  // ── Return sorted by current rank ────────────────────────────────────
-  return currentRanked.map((e) => {
-    const cur  = currentRankOf.get(e.id)!;
-    const prev = snapshotRankOf.get(e.id)!;
-    // rankChange > 0 = moved up, < 0 = moved down, 0 = no change
-    const rankChange = prev - cur;
+  const entries = currentRanked.map((e) => ({
+    id:          e.id,
+    email:       e.email,
+    displayName: e.displayName,
+    itemCount:   e.itemCount,
+    soldCount:   e.soldCount,
+    totalProfit: e.totalProfit,
+    rankChange:  (snapshotRankOf.get(e.id) ?? 0) - (currentRankOf.get(e.id) ?? 0),
+  }));
 
-    return {
-      id:          e.id,
-      email:       e.email,
-      displayName: e.displayName,
-      itemCount:   e.itemCount,
-      soldCount:   e.soldCount,
-      totalProfit: e.totalProfit,
-      rankChange,
-    };
-  });
+  return {
+    entries,
+    instanceName: instance?.name   ?? null,
+    startsAt:     instance?.startsAt ?? null,
+    endsAt:       instance?.endsAt   ?? null,
+  };
 }

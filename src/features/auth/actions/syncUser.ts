@@ -1,6 +1,7 @@
 'use server';
 
 import { redirect } from 'next/navigation';
+import { cookies } from 'next/headers';
 import { prisma } from '@/shared/lib/prisma';
 
 export type SyncedUser = {
@@ -9,6 +10,7 @@ export type SyncedUser = {
   role:                 'USER' | 'ADMIN';
   isActive:             boolean;
   tutorialCompletedAt:  Date | null;
+  instanceId:           string | null;
 };
 
 /**
@@ -17,14 +19,14 @@ export type SyncedUser = {
  *
  * - Creates the user record on first login (role defaults to USER).
  * - Redirects to /suspended if the account has been deactivated by an admin.
- * - Returns the resolved user record so the layout can pass role info downstream.
+ * - Redirects to /pending-assignment if USER has no OlympiadInstance membership.
+ * - Handles pending invite cookie: auto-joins instance after login via invite link.
  */
 export async function syncUser(supabaseId: string, email: string): Promise<SyncedUser> {
-  // First try by supabaseId. If no match, upsert by email so that pre-seeded
-  // records (which have no supabaseId yet) get linked on first login.
   let user = await prisma.user.findUnique({
     where:  { supabaseId },
-    select: { id: true, email: true, role: true, isActive: true, tutorialCompletedAt: true },
+    select: { id: true, email: true, role: true, isActive: true, tutorialCompletedAt: true,
+              membership: { select: { instanceId: true } } },
   });
 
   if (!user) {
@@ -32,12 +34,36 @@ export async function syncUser(supabaseId: string, email: string): Promise<Synce
       where:  { email },
       update: { supabaseId },
       create: { supabaseId, email },
-      select: { id: true, email: true, role: true, isActive: true, tutorialCompletedAt: true },
+      select: { id: true, email: true, role: true, isActive: true, tutorialCompletedAt: true,
+                membership: { select: { instanceId: true } } },
     });
   }
 
-  if (!user.isActive) {
-    redirect('/suspended');
+  if (!user.isActive) redirect('/suspended');
+
+  // Handle pending invite cookie (set by /join/[token] before login)
+  if (!user.membership) {
+    const cookieStore = await cookies();
+    const pendingToken = cookieStore.get('pending_invite_token')?.value;
+    if (pendingToken) {
+      const instance = await prisma.olympiadInstance.findUnique({
+        where: { inviteToken: pendingToken },
+        select: { id: true },
+      });
+      if (instance) {
+        await prisma.instanceMembership.create({
+          data: { userId: user.id, instanceId: instance.id },
+        });
+        cookieStore.delete('pending_invite_token');
+        // Re-fetch membership
+        user = { ...user, membership: { instanceId: instance.id } };
+      }
+    }
+  }
+
+  // Block non-admins without an instance membership
+  if (!user.membership && user.role !== 'ADMIN') {
+    redirect('/pending-assignment');
   }
 
   return {
@@ -46,5 +72,6 @@ export async function syncUser(supabaseId: string, email: string): Promise<Synce
     role:                user.role as 'USER' | 'ADMIN',
     isActive:            user.isActive,
     tutorialCompletedAt: user.tutorialCompletedAt,
+    instanceId:          user.membership?.instanceId ?? null,
   };
 }
