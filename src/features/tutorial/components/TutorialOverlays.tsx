@@ -20,7 +20,7 @@ export function TutorialOverlays() {
       <SpotlightOverlay
         targetSelector="[data-tutorial='buy-button']"
         title="Artikel kaufen"
-        description="Du hast etwas auf dem Flohmarkt gefunden? Trag es hier ein — Name, Kaufpreis, Plattform (eBay, Kleinanzeigen, ...) und optionale Kosten."
+        description="Du hast etwas auf dem Flohmarkt gefunden? Trag es hier ein — Name, Kaufpreis, Plattform (eBay, Kleinanzeigen, ...) und alle anfallenden Kosten."
         step={2}
         totalSteps={TOTAL_STEPS}
         onNext={next}
