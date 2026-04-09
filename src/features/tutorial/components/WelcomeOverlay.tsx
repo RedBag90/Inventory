@@ -80,7 +80,7 @@ export function WelcomeOverlay() {
             onClick={next}
             className="w-full bg-gray-900 text-white py-2.5 rounded-xl text-sm font-semibold hover:bg-gray-700 transition-colors"
           >
-            Los geht's →
+            Los geht&apos;s →
           </button>
           <button
             onClick={skip}

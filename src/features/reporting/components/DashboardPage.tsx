@@ -80,7 +80,6 @@ export function DashboardPage() {
   const cashFlow         = useMemo(() => toCashFlowData(sales, periods, granularity), [sales, periods, granularity]);
   const breakEven        = useMemo(() => toBreakEvenData(sales, periods, granularity), [sales, periods, granularity]);
 
-  const today = new Date().toISOString().split('T')[0];
   const showContent = !isAdmin || !!targetUser;
 
   return (
