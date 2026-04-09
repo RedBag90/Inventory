@@ -30,7 +30,6 @@ export function SpotlightOverlay({
   onSkip,
 }: Props) {
   const [rect, setRect] = useState<Rect | null>(null);
-  const [tooltipBelow, setTooltipBelow] = useState(true);
   const frameRef = useRef<number | null>(null);
 
   useEffect(() => {
@@ -42,14 +41,14 @@ export function SpotlightOverlay({
       }
       const r = el.getBoundingClientRect();
       setRect({ top: r.top, left: r.left, width: r.width, height: r.height });
-      // Show tooltip above if element is in the bottom half of the screen
-      setTooltipBelow(r.top < window.innerHeight * 0.55);
     }
 
     measure();
     window.addEventListener('resize', measure);
+    window.addEventListener('scroll', measure, true);
     return () => {
       window.removeEventListener('resize', measure);
+      window.removeEventListener('scroll', measure, true);
       if (frameRef.current) cancelAnimationFrame(frameRef.current);
     };
   }, [targetSelector]);
@@ -57,15 +56,25 @@ export function SpotlightOverlay({
   if (!rect) return null;
 
   const PAD = 8;
+  const TOOLTIP_H = 160; // approximate tooltip height
+  const TOOLTIP_W = 304;
   const spotTop    = rect.top    - PAD;
   const spotLeft   = rect.left   - PAD;
   const spotWidth  = rect.width  + PAD * 2;
   const spotHeight = rect.height + PAD * 2;
 
+  // Place tooltip above if not enough room below, clamped to viewport
+  const spaceBelow = window.innerHeight - (spotTop + spotHeight);
+  const tooltipBelow = spaceBelow >= TOOLTIP_H + 16;
+  const tooltipTop = tooltipBelow
+    ? spotTop + spotHeight + 12
+    : Math.max(8, spotTop - TOOLTIP_H - 12);
+  const tooltipLeft = Math.max(16, Math.min(spotLeft, window.innerWidth - TOOLTIP_W - 16));
+
   return (
     <div className="fixed inset-0 z-50 pointer-events-none">
-      {/* Dark overlay with cutout */}
-      <svg className="absolute inset-0 w-full h-full pointer-events-auto" onClick={undefined}>
+      {/* Dark overlay with cutout — no pointer-events so page stays scrollable */}
+      <svg className="absolute inset-0 w-full h-full">
         <defs>
           <mask id="spotlight-mask">
             <rect width="100%" height="100%" fill="white" />
@@ -93,15 +102,13 @@ export function SpotlightOverlay({
         style={{ top: spotTop, left: spotLeft, width: spotWidth, height: spotHeight }}
       />
 
-      {/* Tooltip card */}
+      {/* Tooltip card — clamped within viewport */}
       <div
         className="absolute pointer-events-auto"
         style={{
-          left: Math.max(16, Math.min(spotLeft, window.innerWidth - 320 - 16)),
-          ...(tooltipBelow
-            ? { top: spotTop + spotHeight + 12 }
-            : { bottom: window.innerHeight - spotTop + 12 }),
-          width: 304,
+          left: tooltipLeft,
+          top:  tooltipTop,
+          width: TOOLTIP_W,
         }}
       >
         <div className="bg-white rounded-2xl shadow-2xl p-5">
