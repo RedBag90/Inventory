@@ -34,7 +34,7 @@ export function TutorialOverlays() {
       <SpotlightOverlay
         targetSelector="[data-tutorial='quick-sell-button']"
         title="Verkauf eintragen"
-        description="Du räumst auf und verkaufst alte Sachen aus dem Keller? 'Schnell verkaufen' ist dein direkter Weg: kein Inventareintrag nötig, einfach Preis und Plattform eintragen — fertig."
+        description="Du räumst auf und verkaufst alte Sachen aus dem Keller? &apos;Schnell verkaufen&apos; ist dein direkter Weg."
         step={3}
         totalSteps={TOTAL_STEPS}
         onNext={next}
