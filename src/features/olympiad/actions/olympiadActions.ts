@@ -19,12 +19,12 @@ async function getCurrentUserId(): Promise<string> {
 }
 
 async function assertOwner(instanceId: string, userId: string) {
-  const instance = await prisma.olympiadInstance.findUnique({
-    where:  { id: instanceId },
-    select: { createdById: true },
-  });
+  const [instance, user] = await Promise.all([
+    prisma.olympiadInstance.findUnique({ where: { id: instanceId }, select: { createdById: true } }),
+    prisma.user.findUnique({ where: { id: userId }, select: { role: true } }),
+  ]);
   if (!instance) throw new Error('Instance not found');
-  if (instance.createdById !== userId) throw new Error('Unauthorized');
+  if (user?.role !== 'ADMIN' && instance.createdById !== userId) throw new Error('Unauthorized');
 }
 
 function revalidate() {
