@@ -103,11 +103,15 @@ export async function assignUserToOlympiad(email: string, instanceId: string) {
   });
   if (!target) throw new Error(`Kein User mit E-Mail "${email}" gefunden.`);
 
-  await prisma.instanceMembership.upsert({
+  const existing = await prisma.instanceMembership.findFirst({
     where:  { userId: target.id },
-    update: { instanceId, joinedAt: new Date() },
-    create: { userId: target.id, instanceId },
+    select: { id: true },
   });
+  if (existing) {
+    await prisma.instanceMembership.update({ where: { id: existing.id }, data: { instanceId, joinedAt: new Date() } });
+  } else {
+    await prisma.instanceMembership.create({ data: { userId: target.id, instanceId } });
+  }
   revalidate();
 
   return { replacedInstance: null };
