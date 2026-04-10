@@ -62,7 +62,7 @@ export async function getCurrentUserInstanceId(): Promise<string | null> {
   if (!user) return null;
   const dbUser = await prisma.user.findUnique({
     where:  { supabaseId: user.id },
-    select: { membership: { select: { instanceId: true } } },
+    select: { memberships: { select: { instanceId: true }, take: 1 } },
   });
-  return dbUser?.membership?.instanceId ?? null;
+  return dbUser?.memberships[0]?.instanceId ?? null;
 }

@@ -20,7 +20,7 @@ model User {
   createdAt            DateTime             @default(now())
   tutorialCompletedAt  DateTime?
   items                Item[]
-  membership           InstanceMembership?
+  memberships          InstanceMembership[]
   createdOlympiads     OlympiadInstance[]
 }
 
@@ -42,12 +42,13 @@ model OlympiadInstance {
 
 model InstanceMembership {
   id         String           @id @default(cuid())
-  userId     String           @unique
+  userId     String
   instanceId String
   joinedAt   DateTime         @default(now())
   user       User             @relation(fields: [userId], references: [id])
   instance   OlympiadInstance @relation(fields: [instanceId], references: [id])
 
+  @@unique([userId, instanceId])
   @@index([instanceId])
 }
 

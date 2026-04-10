@@ -99,21 +99,22 @@ export async function assignUserToOlympiad(email: string, instanceId: string) {
 
   const target = await prisma.user.findUnique({
     where:  { email },
-    select: { id: true, membership: { select: { instanceId: true, instance: { select: { name: true } } } } },
+    select: { id: true },
   });
   if (!target) throw new Error(`Kein User mit E-Mail "${email}" gefunden.`);
 
-  // Upsert — replaces existing membership
-  await prisma.instanceMembership.upsert({
-    where:  { userId: target.id },
-    update: { instanceId, joinedAt: new Date() },
-    create: { userId: target.id, instanceId },
+  const existing = await prisma.instanceMembership.findFirst({
+    where: { userId: target.id, instanceId },
+    select: { id: true },
   });
+  if (existing) {
+    await prisma.instanceMembership.update({ where: { id: existing.id }, data: { joinedAt: new Date() } });
+  } else {
+    await prisma.instanceMembership.create({ data: { userId: target.id, instanceId } });
+  }
   revalidate();
 
-  return {
-    replacedInstance: target.membership?.instance?.name ?? null,
-  };
+  return { replacedInstance: null };
 }
 
 export async function removeUserFromOlympiad(userId: string, instanceId: string) {
@@ -156,19 +157,13 @@ export async function joinViaToken(token: string, userId: string) {
   });
   if (!instance) throw new Error('Ungültiger Einladungslink.');
 
-  const existing = await prisma.instanceMembership.findUnique({
-    where:  { userId },
-    select: { instanceId: true },
+  const existing = await prisma.instanceMembership.findFirst({
+    where: { userId, instanceId: instance.id },
+    select: { id: true },
   });
-  if (existing && existing.instanceId !== instance.id) {
-    throw new Error(`Du bist bereits Teilnehmer einer anderen Olympiade.`);
+  if (!existing) {
+    await prisma.instanceMembership.create({ data: { userId, instanceId: instance.id } });
   }
-
-  await prisma.instanceMembership.upsert({
-    where:  { userId },
-    update: { instanceId: instance.id, joinedAt: new Date() },
-    create: { userId, instanceId: instance.id },
-  });
   revalidate();
   return instance.name;
 }

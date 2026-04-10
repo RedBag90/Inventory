@@ -10,7 +10,6 @@ export type SyncedUser = {
   role:                 'USER' | 'ADMIN';
   isActive:             boolean;
   tutorialCompletedAt:  Date | null;
-  instanceId:           string | null;
 };
 
 /**
@@ -26,7 +25,7 @@ export async function syncUser(supabaseId: string, email: string): Promise<Synce
   let user = await prisma.user.findUnique({
     where:  { supabaseId },
     select: { id: true, email: true, role: true, isActive: true, tutorialCompletedAt: true,
-              membership: { select: { instanceId: true } } },
+              memberships: { select: { instanceId: true } } },
   });
 
   if (!user) {
@@ -35,34 +34,34 @@ export async function syncUser(supabaseId: string, email: string): Promise<Synce
       update: { supabaseId },
       create: { supabaseId, email },
       select: { id: true, email: true, role: true, isActive: true, tutorialCompletedAt: true,
-                membership: { select: { instanceId: true } } },
+                memberships: { select: { instanceId: true } } },
     });
   }
 
   if (!user.isActive) redirect('/suspended');
 
   // Handle pending invite cookie (set by /join/[token] before login)
-  if (!user.membership) {
-    const cookieStore = await cookies();
-    const pendingToken = cookieStore.get('pending_invite_token')?.value;
-    if (pendingToken) {
-      const instance = await prisma.olympiadInstance.findUnique({
-        where: { inviteToken: pendingToken },
-        select: { id: true },
-      });
-      if (instance) {
+  const cookieStore = await cookies();
+  const pendingToken = cookieStore.get('pending_invite_token')?.value;
+  if (pendingToken) {
+    const instance = await prisma.olympiadInstance.findUnique({
+      where: { inviteToken: pendingToken },
+      select: { id: true },
+    });
+    if (instance) {
+      const alreadyMember = user.memberships.some(m => m.instanceId === instance.id);
+      if (!alreadyMember) {
         await prisma.instanceMembership.create({
           data: { userId: user.id, instanceId: instance.id },
         });
-        cookieStore.delete('pending_invite_token');
-        // Re-fetch membership
-        user = { ...user, membership: { instanceId: instance.id } };
+        user = { ...user, memberships: [...user.memberships, { instanceId: instance.id }] };
       }
+      cookieStore.delete('pending_invite_token');
     }
   }
 
-  // Block non-admins without an instance membership
-  if (!user.membership && user.role !== 'ADMIN') {
+  // Block non-admins without any instance membership
+  if (user.memberships.length === 0 && user.role !== 'ADMIN') {
     redirect('/pending-assignment');
   }
 
@@ -72,6 +71,5 @@ export async function syncUser(supabaseId: string, email: string): Promise<Synce
     role:                user.role as 'USER' | 'ADMIN',
     isActive:            user.isActive,
     tutorialCompletedAt: user.tutorialCompletedAt,
-    instanceId:          user.membership?.instanceId ?? null,
   };
 }

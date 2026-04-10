@@ -5,7 +5,6 @@ import { useCurrentDbUser } from '@/features/auth/hooks/useCurrentDbUser';
 import {
   useOlympiads,
   useCreateOlympiad,
-  useUpdateOlympiad,
   useArchiveOlympiad,
   useReactivateOlympiad,
   useDeleteOlympiad,

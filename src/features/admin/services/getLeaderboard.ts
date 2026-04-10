@@ -39,7 +39,7 @@ export async function getLeaderboard(instanceIdOverride?: string): Promise<Leade
     select: {
       id:   true,
       role: true,
-      membership: {
+      memberships: {
         select: {
           instance: { select: { id: true, name: true, startsAt: true, endsAt: true } },
         },
@@ -58,8 +58,9 @@ export async function getLeaderboard(instanceIdOverride?: string): Promise<Leade
       where:  { id: instanceIdOverride },
       select: { id: true, name: true, startsAt: true, endsAt: true },
     });
-  } else if (caller.membership?.instance) {
-    instance = caller.membership.instance;
+  } else if (caller.memberships.length > 0) {
+    // Default: use the caller's first (most recently joined) instance
+    instance = caller.memberships[0].instance;
   }
   // Admin with no membership and no override → show all users (legacy behaviour)
 
@@ -67,7 +68,7 @@ export async function getLeaderboard(instanceIdOverride?: string): Promise<Leade
 
   // Build user filter: instance members only (or all if admin with no instance)
   const userWhere = instance
-    ? { isActive: true, membership: { instanceId: instance.id } }
+    ? { isActive: true, memberships: { some: { instanceId: instance.id } } }
     : { isActive: true };
 
   const users = await prisma.user.findMany({

@@ -50,15 +50,14 @@ export default async function JoinPage({ params }: { params: Promise<{ token: st
     // Already logged in — look up the DB user and join immediately
     const dbUser = await prisma.user.findUnique({
       where:  { supabaseId: authUser.id },
-      select: { id: true, membership: { select: { instanceId: true } } },
+      select: { id: true, memberships: { select: { instanceId: true } } },
     });
 
     if (dbUser) {
-      if (!dbUser.membership || dbUser.membership.instanceId !== instance.id) {
-        await prisma.instanceMembership.upsert({
-          where:  { userId: dbUser.id },
-          update: { instanceId: instance.id, joinedAt: new Date() },
-          create: { userId: dbUser.id, instanceId: instance.id },
+      const alreadyMember = dbUser.memberships.some(m => m.instanceId === instance.id);
+      if (!alreadyMember) {
+        await prisma.instanceMembership.create({
+          data: { userId: dbUser.id, instanceId: instance.id },
         });
       }
       redirect('/dashboard');

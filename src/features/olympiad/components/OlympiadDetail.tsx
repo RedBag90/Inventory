@@ -138,20 +138,15 @@ function MembersSection({ instance, isOwner }: { instance: OlympiadRecord; isOwn
   const { mutate: assign, isPending: assigning, error: assignError, reset } = useAssignUser();
   const { mutate: remove } = useRemoveUser();
   const [email, setEmail] = useState('');
-  const [warning, setWarning] = useState<string | null>(null);
 
   function handleAssign(e: React.FormEvent) {
     e.preventDefault();
-    setWarning(null);
     assign(
       { email, instanceId: instance.id },
       {
-        onSuccess: (data) => {
+        onSuccess: () => {
           setEmail('');
           reset();
-          if (data.replacedInstance) {
-            setWarning(`${email} wurde aus "${data.replacedInstance}" verschoben.`);
-          }
         },
       },
     );
@@ -180,11 +175,7 @@ function MembersSection({ instance, isOwner }: { instance: OlympiadRecord; isOwn
       {assignError && (
         <p className="text-xs text-red-600">{(assignError as Error).message}</p>
       )}
-      {warning && (
-        <p className="text-xs text-amber-600">{warning}</p>
-      )}
-
-      {isLoading && <p className="text-sm text-gray-400">Laden…</p>}
+{isLoading && <p className="text-sm text-gray-400">Laden…</p>}
 
       {members && members.length === 0 && (
         <p className="text-sm text-gray-400">Noch keine Teilnehmer.</p>
