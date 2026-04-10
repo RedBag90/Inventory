@@ -121,11 +121,13 @@ export function UserMenu() {
                 <p className="text-xs text-gray-400 truncate">{email}</p>
               )}
               <span className={`inline-block mt-0.5 text-xs font-medium px-2 py-0.5 rounded-full ${
-                role === 'ADMIN'
-                  ? 'bg-amber-100 text-amber-800'
-                  : 'bg-gray-100 text-gray-600'
+                role === 'MASTER_ADMIN'
+                  ? 'bg-purple-100 text-purple-800'
+                  : role === 'ADMIN'
+                    ? 'bg-amber-100 text-amber-800'
+                    : 'bg-gray-100 text-gray-600'
               }`}>
-                {role === 'ADMIN' ? 'Admin' : 'Mitglied'}
+                {role === 'MASTER_ADMIN' ? 'Master Admin' : role === 'ADMIN' ? 'Admin' : 'Mitglied'}
               </span>
             </div>
           </div>

@@ -151,7 +151,7 @@ export function OlympiadPanel() {
     return (
       <OlympiadDetail
         instance={selected}
-        isOwner={currentUser?.role === 'ADMIN' || selected.createdById === currentUser?.id}
+        isOwner={currentUser?.role === 'MASTER_ADMIN' || (currentUser?.role === 'ADMIN' && selected.createdById === currentUser?.id)}
         onBack={() => setSelected(null)}
       />
     );
@@ -205,7 +205,7 @@ export function OlympiadPanel() {
                 <OlympiadRow
                   key={o.id}
                   instance={o}
-                  isOwner={currentUser?.role === 'ADMIN' || o.createdById === currentUser?.id}
+                  isOwner={currentUser?.role === 'MASTER_ADMIN' || (currentUser?.role === 'ADMIN' && o.createdById === currentUser?.id)}
                   onSelect={() => setSelected(o)}
                 />
               ))}

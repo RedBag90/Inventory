@@ -23,8 +23,26 @@ export type OlympiadMember = {
   joinedAt:    Date;
 };
 
+/**
+ * Returns olympiads visible to the current user:
+ * - MASTER_ADMIN: all instances
+ * - ADMIN: only instances they created
+ */
 export async function getOlympiads(): Promise<OlympiadRecord[]> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return [];
+
+  const dbUser = await prisma.user.findUnique({
+    where:  { supabaseId: user.id },
+    select: { id: true, role: true },
+  });
+  if (!dbUser) return [];
+
+  const where = dbUser.role === 'MASTER_ADMIN' ? {} : { createdById: dbUser.id };
+
   const instances = await prisma.olympiadInstance.findMany({
+    where,
     orderBy: { createdAt: 'desc' },
     include: { _count: { select: { memberships: true } } },
   });

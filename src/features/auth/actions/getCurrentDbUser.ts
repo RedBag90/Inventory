@@ -7,7 +7,7 @@ export type CurrentDbUser = {
   id:                   string;
   email:                string;
   displayName:          string | null;
-  role:                 'USER' | 'ADMIN';
+  role:                 'USER' | 'ADMIN' | 'MASTER_ADMIN';
   tutorialCompletedAt:  Date | null;
 };
 
@@ -27,7 +27,7 @@ export async function getCurrentDbUser(): Promise<CurrentDbUser | null> {
     id:                  dbUser.id,
     email:               dbUser.email,
     displayName:         dbUser.displayName,
-    role:                dbUser.role as 'USER' | 'ADMIN',
+    role:                dbUser.role as 'USER' | 'ADMIN' | 'MASTER_ADMIN',
     tutorialCompletedAt: dbUser.tutorialCompletedAt,
   };
 }

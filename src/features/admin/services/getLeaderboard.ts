@@ -48,12 +48,12 @@ export async function getLeaderboard(instanceIdOverride?: string): Promise<Leade
   });
   if (!caller) throw new Error('User not found');
 
-  const isAdmin = caller.role === 'ADMIN';
+  const isMasterAdmin = caller.role === 'MASTER_ADMIN';
 
   // Resolve which instance to show
   let instance: { id: string; name: string; startsAt: Date; endsAt: Date } | null = null;
 
-  if (instanceIdOverride && isAdmin) {
+  if (instanceIdOverride && isMasterAdmin) {
     instance = await prisma.olympiadInstance.findUnique({
       where:  { id: instanceIdOverride },
       select: { id: true, name: true, startsAt: true, endsAt: true },

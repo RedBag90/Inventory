@@ -64,7 +64,7 @@ const NAV_ITEMS = [
 
 // ── component ─────────────────────────────────────────────────────────────────
 
-type Props = { role?: 'USER' | 'ADMIN' };
+type Props = { role?: 'USER' | 'ADMIN' | 'MASTER_ADMIN' };
 
 export function Sidebar({ role }: Props) {
   const pathname    = usePathname();
@@ -131,17 +131,19 @@ export function Sidebar({ role }: Props) {
           );
         })}
 
-        {role === 'ADMIN' && (
+        {(role === 'ADMIN' || role === 'MASTER_ADMIN') && (
           <>
             {!collapsed && (
               <div className="pt-3 pb-1 px-2.5">
-                <p className="text-xs font-medium text-gray-400 uppercase tracking-wide">Admin</p>
+                <p className="text-xs font-medium text-gray-400 uppercase tracking-wide">
+                  {role === 'MASTER_ADMIN' ? 'Master Admin' : 'Admin'}
+                </p>
               </div>
             )}
             {collapsed && <div className="pt-2" />}
             <Link
               href="/dashboard/admin"
-              title={collapsed ? 'Users' : undefined}
+              title={collapsed ? 'Admin' : undefined}
               className={[
                 'flex items-center gap-3 px-2.5 py-2 rounded-lg text-sm font-medium transition-colors',
                 collapsed ? 'justify-center' : '',
@@ -151,7 +153,7 @@ export function Sidebar({ role }: Props) {
               ].join(' ')}
             >
               <IconUsers />
-              {!collapsed && <span>Users</span>}
+              {!collapsed && <span>Admin</span>}
             </Link>
           </>
         )}

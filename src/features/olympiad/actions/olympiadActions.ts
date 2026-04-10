@@ -6,7 +6,7 @@ import { revalidatePath } from 'next/cache';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-async function getCurrentUserId(): Promise<string> {
+async function getCurrentUser(): Promise<{ id: string; role: string }> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error('Not authenticated');
@@ -15,7 +15,17 @@ async function getCurrentUserId(): Promise<string> {
     select: { id: true, role: true },
   });
   if (!dbUser) throw new Error('User not found');
-  return dbUser.id;
+  return dbUser;
+}
+
+async function getCurrentUserId(): Promise<string> {
+  return (await getCurrentUser()).id;
+}
+
+async function requireAdminRole(): Promise<string> {
+  const user = await getCurrentUser();
+  if (user.role !== 'ADMIN' && user.role !== 'MASTER_ADMIN') throw new Error('Forbidden');
+  return user.id;
 }
 
 async function assertOwner(instanceId: string, userId: string) {
@@ -24,7 +34,9 @@ async function assertOwner(instanceId: string, userId: string) {
     prisma.user.findUnique({ where: { id: userId }, select: { role: true } }),
   ]);
   if (!instance) throw new Error('Instance not found');
-  if (user?.role !== 'ADMIN' && instance.createdById !== userId) throw new Error('Unauthorized');
+  // MASTER_ADMIN can manage all instances; ADMIN only their own
+  if (user?.role === 'MASTER_ADMIN') return;
+  if (instance.createdById !== userId) throw new Error('Unauthorized');
 }
 
 function revalidate() {
@@ -40,7 +52,7 @@ export async function createOlympiad(data: {
   startsAt: Date;
   endsAt: Date;
 }) {
-  const userId = await getCurrentUserId();
+  const userId = await requireAdminRole();
   await prisma.olympiadInstance.create({
     data: { ...data, createdById: userId },
   });

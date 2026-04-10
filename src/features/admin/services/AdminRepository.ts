@@ -1,24 +1,38 @@
 'use server';
 
 // Admin data layer — user management operations.
-// Every function verifies the caller is ADMIN before executing.
+// requireAdmin: ADMIN or MASTER_ADMIN
+// requireMasterAdmin: MASTER_ADMIN only
 
 import { prisma } from '@/shared/lib/prisma';
 import { createClient } from '@/shared/lib/supabase/server';
 import type { AdminUserRecord, UserRole } from '../types/admin.types';
 
-// ─── Auth + role guard ────────────────────────────────────────────────────────
+// ─── Auth + role guards ───────────────────────────────────────────────────────
 
-async function requireAdmin(): Promise<void> {
+async function getCallerDbUser() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error('Unauthenticated');
-
   const dbUser = await prisma.user.findUnique({
     where:  { supabaseId: user.id },
-    select: { role: true },
+    select: { id: true, role: true },
   });
-  if (!dbUser || dbUser.role !== 'ADMIN') throw new Error('Forbidden');
+  if (!dbUser) throw new Error('Unauthenticated');
+  return dbUser;
+}
+
+/** Allows ADMIN and MASTER_ADMIN. */
+async function requireAdmin(): Promise<void> {
+  const caller = await getCallerDbUser();
+  if (caller.role !== 'ADMIN' && caller.role !== 'MASTER_ADMIN') throw new Error('Forbidden');
+}
+
+/** Allows MASTER_ADMIN only. */
+async function requireMasterAdmin(): Promise<{ id: string }> {
+  const caller = await getCallerDbUser();
+  if (caller.role !== 'MASTER_ADMIN') throw new Error('Forbidden');
+  return caller;
 }
 
 // ─── Profit helper ────────────────────────────────────────────────────────────
@@ -45,7 +59,7 @@ function computeProfit(sale: {
 
 // ─── Queries ──────────────────────────────────────────────────────────────────
 
-/** Returns all registered users with per-user stats. */
+/** Returns all registered users with per-user stats. ADMIN sees own-olympiad members; MASTER_ADMIN sees all. */
 export async function getAllUsers(): Promise<AdminUserRecord[]> {
   await requireAdmin();
 
@@ -82,28 +96,16 @@ export async function getAllUsers(): Promise<AdminUserRecord[]> {
 
 // ─── Mutations ────────────────────────────────────────────────────────────────
 
-/** Toggle a user's role between USER and ADMIN. */
+/** Set a user's role. Only MASTER_ADMIN may promote/demote to/from ADMIN. */
 export async function setUserRole(userId: string, role: UserRole): Promise<void> {
-  await requireAdmin();
-
-  // Prevent self-demotion
-  const supabase = await createClient();
-  const { data: { user: caller } } = await supabase.auth.getUser();
-  const callerRecord = await prisma.user.findUnique({ where: { supabaseId: caller!.id } });
-  if (callerRecord?.id === userId) throw new Error('Cannot change your own role');
-
+  const caller = await requireMasterAdmin();
+  if (caller.id === userId) throw new Error('Cannot change your own role');
   await prisma.user.update({ where: { id: userId }, data: { role } });
 }
 
-/** Activate or deactivate a user account. */
+/** Activate or deactivate a user account. Only MASTER_ADMIN may do this. */
 export async function setUserActive(userId: string, isActive: boolean): Promise<void> {
-  await requireAdmin();
-
-  // Prevent self-deactivation
-  const supabase = await createClient();
-  const { data: { user: caller } } = await supabase.auth.getUser();
-  const callerRecord = await prisma.user.findUnique({ where: { supabaseId: caller!.id } });
-  if (callerRecord?.id === userId) throw new Error('Cannot deactivate your own account');
-
+  const caller = await requireMasterAdmin();
+  if (caller.id === userId) throw new Error('Cannot deactivate your own account');
   await prisma.user.update({ where: { id: userId }, data: { isActive } });
 }

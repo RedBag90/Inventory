@@ -113,7 +113,8 @@ function PodiumCard({ user, config }: { user: Entry; config: typeof PODIUM_CONFI
 
 export function LeaderboardPage() {
   const { data: me } = useCurrentDbUser();
-  const isAdmin = me?.role === 'ADMIN';
+  const isAdmin = me?.role === 'ADMIN' || me?.role === 'MASTER_ADMIN';
+  const isMasterAdmin = me?.role === 'MASTER_ADMIN';
   const [instanceOverride, setInstanceOverride] = useState<string | undefined>(undefined);
   const { data: olympiads } = useOlympiads();
   const { data: result, isLoading, isError } = useLeaderboard(instanceOverride);
@@ -159,7 +160,7 @@ export function LeaderboardPage() {
           </div>
         </div>
         <div className="flex items-center gap-3 shrink-0">
-          {isAdmin && olympiads && olympiads.length > 0 && (
+          {isMasterAdmin && olympiads && olympiads.length > 0 && (
             <select
               value={instanceOverride ?? ''}
               onChange={e => setInstanceOverride(e.target.value || undefined)}

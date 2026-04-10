@@ -7,7 +7,7 @@ import { prisma } from '@/shared/lib/prisma';
 export type SyncedUser = {
   id:                   string;
   email:                string;
-  role:                 'USER' | 'ADMIN';
+  role:                 'USER' | 'ADMIN' | 'MASTER_ADMIN';
   isActive:             boolean;
   tutorialCompletedAt:  Date | null;
 };
@@ -61,14 +61,14 @@ export async function syncUser(supabaseId: string, email: string): Promise<Synce
   }
 
   // Block non-admins without any instance membership
-  if (user.memberships.length === 0 && user.role !== 'ADMIN') {
+  if (user.memberships.length === 0 && user.role === 'USER') {
     redirect('/pending-assignment');
   }
 
   return {
     id:                  user.id,
     email:               user.email,
-    role:                user.role as 'USER' | 'ADMIN',
+    role:                user.role as 'USER' | 'ADMIN' | 'MASTER_ADMIN',
     isActive:            user.isActive,
     tutorialCompletedAt: user.tutorialCompletedAt,
   };
