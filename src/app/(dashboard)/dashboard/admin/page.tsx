@@ -3,6 +3,8 @@ import { createClient } from '@/shared/lib/supabase/server';
 import { prisma } from '@/shared/lib/prisma';
 import { AdminPage } from '@/features/admin';
 
+export const dynamic = 'force-dynamic';
+
 // Server-side role guard — non-admins are redirected before any client code runs.
 export default async function AdminRoute() {
   const supabase = await createClient();
@@ -13,7 +15,8 @@ export default async function AdminRoute() {
     where:  { supabaseId: user.id },
     select: { role: true },
   });
-  if (!dbUser || dbUser.role !== 'ADMIN') redirect('/dashboard/inventory');
+  const role = dbUser?.role as string | undefined;
+  if (!role || (role !== 'ADMIN' && role !== 'MASTER_ADMIN')) redirect('/dashboard/inventory');
 
   return <AdminPage />;
 }
