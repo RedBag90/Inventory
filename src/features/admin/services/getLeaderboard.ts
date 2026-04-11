@@ -40,8 +40,9 @@ export async function getLeaderboard(instanceIdOverride?: string): Promise<Leade
       id:   true,
       role: true,
       memberships: {
+        orderBy: { joinedAt: 'desc' },
         select: {
-          instance: { select: { id: true, name: true, startsAt: true, endsAt: true } },
+          instance: { select: { id: true, name: true, startsAt: true, endsAt: true, isActive: true } },
         },
       },
     },
@@ -53,14 +54,22 @@ export async function getLeaderboard(instanceIdOverride?: string): Promise<Leade
   // Resolve which instance to show
   let instance: { id: string; name: string; startsAt: Date; endsAt: Date } | null = null;
 
-  if (instanceIdOverride && isMasterAdmin) {
-    instance = await prisma.olympiadInstance.findUnique({
-      where:  { id: instanceIdOverride },
-      select: { id: true, name: true, startsAt: true, endsAt: true },
-    });
+  if (instanceIdOverride) {
+    if (isMasterAdmin) {
+      // MASTER_ADMIN may view any instance
+      instance = await prisma.olympiadInstance.findUnique({
+        where:  { id: instanceIdOverride },
+        select: { id: true, name: true, startsAt: true, endsAt: true },
+      });
+    } else {
+      // Regular users / admins may only view instances they belong to
+      const membership = caller.memberships.find(m => m.instance.id === instanceIdOverride);
+      instance = membership?.instance ?? null;
+    }
   } else if (caller.memberships.length > 0) {
-    // Default: use the caller's first (most recently joined) instance
-    instance = caller.memberships[0].instance;
+    // Default: most recently joined active instance, else most recently joined overall
+    const active = caller.memberships.find(m => m.instance.isActive) ?? caller.memberships[0];
+    instance = active.instance;
   }
   // Admin with no membership and no override → show all users (legacy behaviour)
 

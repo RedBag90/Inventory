@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { usePendingJoinRequestCount } from '@/features/admin/hooks/useJoinRequests';
+import { useActiveOlympiad } from '@/features/olympiad/hooks/useActiveOlympiad';
 
 // ── icons ─────────────────────────────────────────────────────────────────────
 
@@ -72,6 +73,8 @@ export function Sidebar({ role }: Props) {
   const [collapsed, setCollapsed] = useState(false);
   const isAdmin = role === 'ADMIN' || role === 'MASTER_ADMIN';
   const { data: pendingCount } = usePendingJoinRequestCount(isAdmin);
+  const { active, all: memberships, setActive } = useActiveOlympiad();
+  const showSwitcher = !collapsed && memberships.length > 1;
 
   return (
     <aside className={[
@@ -133,6 +136,24 @@ export function Sidebar({ role }: Props) {
             </Link>
           );
         })}
+
+        {/* Olympiade-Switcher — only when user is in multiple olympiads */}
+        {showSwitcher && (
+          <div className="pt-3 pb-1 px-2.5 space-y-1.5">
+            <p className="text-xs font-medium text-gray-400 uppercase tracking-wide">Olympiade</p>
+            <select
+              value={active?.instanceId ?? ''}
+              onChange={e => setActive(e.target.value)}
+              className="w-full border border-gray-200 rounded-lg px-2.5 py-1.5 text-xs text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-gray-400 truncate"
+            >
+              {memberships.map(m => (
+                <option key={m.instanceId} value={m.instanceId}>
+                  {m.instanceName}{!m.isActive ? ' (archiviert)' : ''}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
 
         {isAdmin && (
           <>

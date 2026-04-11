@@ -20,6 +20,7 @@ import {
   updateAutoAccept,
   submitJoinRequest,
   getMyJoinRequests,
+  getMyMemberships,
 } from '../actions/olympiadActions';
 
 export const olympiadKeys = {
@@ -132,6 +133,14 @@ export function useMyJoinRequests() {
   return useQuery({
     queryKey: ['joinRequests', 'mine'],
     queryFn:  getMyJoinRequests,
+    staleTime: 30_000,
+  });
+}
+
+export function useMyMemberships() {
+  return useQuery({
+    queryKey: ['memberships', 'mine'],
+    queryFn:  getMyMemberships,
     staleTime: 30_000,
   });
 }

@@ -116,18 +116,13 @@ export async function assignUserToOlympiad(email: string, instanceId: string) {
   });
   if (!target) throw new Error(`Kein User mit E-Mail "${email}" gefunden.`);
 
-  const existing = await prisma.instanceMembership.findFirst({
-    where:  { userId: target.id },
-    select: { id: true },
+  const alreadyMember = await prisma.instanceMembership.findUnique({
+    where: { userId_instanceId: { userId: target.id, instanceId } },
   });
-  if (existing) {
-    await prisma.instanceMembership.update({ where: { id: existing.id }, data: { instanceId, joinedAt: new Date() } });
-  } else {
-    await prisma.instanceMembership.create({ data: { userId: target.id, instanceId } });
-  }
-  revalidate();
+  if (alreadyMember) throw new Error(`${email} ist bereits Mitglied dieser Olympiade.`);
 
-  return { replacedInstance: null };
+  await prisma.instanceMembership.create({ data: { userId: target.id, instanceId } });
+  revalidate();
 }
 
 export async function removeUserFromOlympiad(userId: string, instanceId: string) {
@@ -226,20 +221,11 @@ export async function submitJoinRequest(joinCode: string): Promise<{ autoAccepte
   if (pendingRequest) throw new Error('Du hast bereits eine offene Anfrage für diese Olympiade.');
 
   if (instance.autoAccept) {
-    const existingMembership = await prisma.instanceMembership.findFirst({
-      where: { userId: dbUser.id },
-      select: { id: true },
+    await prisma.instanceMembership.upsert({
+      where:  { userId_instanceId: { userId: dbUser.id, instanceId: instance.id } },
+      update: { joinedAt: new Date() },
+      create: { userId: dbUser.id, instanceId: instance.id },
     });
-    if (existingMembership) {
-      await prisma.instanceMembership.update({
-        where: { id: existingMembership.id },
-        data:  { instanceId: instance.id, joinedAt: new Date() },
-      });
-    } else {
-      await prisma.instanceMembership.create({
-        data: { userId: dbUser.id, instanceId: instance.id },
-      });
-    }
     revalidate();
     return { autoAccepted: true, instanceName: instance.name };
   }
@@ -262,6 +248,38 @@ export async function submitJoinRequest(joinCode: string): Promise<{ autoAccepte
 
   revalidate();
   return { autoAccepted: false, instanceName: instance.name };
+}
+
+export type MyMembership = {
+  instanceId:   string;
+  instanceName: string;
+  isActive:     boolean;
+  joinedAt:     Date;
+};
+
+/** Returns all olympiad memberships of the current user, sorted by joinedAt desc. */
+export async function getMyMemberships(): Promise<MyMembership[]> {
+  const supabase = await createClient();
+  const { data: { user: authUser } } = await supabase.auth.getUser();
+  if (!authUser) return [];
+
+  const dbUser = await prisma.user.findUnique({
+    where:  { supabaseId: authUser.id },
+    select: {
+      memberships: {
+        orderBy: { joinedAt: 'desc' },
+        include: { instance: { select: { name: true, isActive: true } } },
+      },
+    },
+  });
+  if (!dbUser) return [];
+
+  return dbUser.memberships.map(m => ({
+    instanceId:   m.instanceId,
+    instanceName: m.instance.name,
+    isActive:     m.instance.isActive,
+    joinedAt:     m.joinedAt,
+  }));
 }
 
 /** Returns true if the current user has an active olympiad membership. */
@@ -306,13 +324,11 @@ export async function joinViaToken(token: string, userId: string) {
   });
   if (!instance) throw new Error('Ungültiger Einladungslink.');
 
-  const existing = await prisma.instanceMembership.findFirst({
-    where: { userId, instanceId: instance.id },
-    select: { id: true },
+  await prisma.instanceMembership.upsert({
+    where:  { userId_instanceId: { userId, instanceId: instance.id } },
+    update: {},
+    create: { userId, instanceId: instance.id },
   });
-  if (!existing) {
-    await prisma.instanceMembership.create({ data: { userId, instanceId: instance.id } });
-  }
   revalidate();
   return instance.name;
 }

@@ -49,11 +49,13 @@ export async function syncUser(supabaseId: string, email: string): Promise<Synce
       select: { id: true },
     });
     if (instance) {
+      await prisma.instanceMembership.upsert({
+        where:  { userId_instanceId: { userId: user.id, instanceId: instance.id } },
+        update: {},
+        create: { userId: user.id, instanceId: instance.id },
+      });
       const alreadyMember = user.memberships.some(m => m.instanceId === instance.id);
       if (!alreadyMember) {
-        await prisma.instanceMembership.create({
-          data: { userId: user.id, instanceId: instance.id },
-        });
         user = { ...user, memberships: [...user.memberships, { instanceId: instance.id }] };
       }
       cookieStore.delete('pending_invite_token');

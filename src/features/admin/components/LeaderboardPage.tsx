@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useLeaderboard } from '../hooks/useLeaderboard';
 import { useCurrentDbUser } from '@/features/auth/hooks/useCurrentDbUser';
 import { useOlympiads } from '@/features/olympiad/hooks/useOlympiads';
+import { useActiveOlympiad } from '@/features/olympiad/hooks/useActiveOlympiad';
 import { formatCurrency } from '@/shared/lib/utils';
 
 // ── helpers ──────────────────────────────────────────────────────────────────
@@ -114,8 +115,15 @@ function PodiumCard({ user, config }: { user: Entry; config: typeof PODIUM_CONFI
 export function LeaderboardPage() {
   const { data: me } = useCurrentDbUser();
   const isMasterAdmin = me?.role === 'MASTER_ADMIN';
-  const [instanceOverride, setInstanceOverride] = useState<string | undefined>(undefined);
+
+  // MASTER_ADMIN can override to any olympiad via their own dropdown
+  const [masterOverride, setMasterOverride] = useState<string | undefined>(undefined);
   const { data: olympiads } = useOlympiads();
+
+  // Regular users/admins use the active olympiad from the sidebar switcher
+  const { active } = useActiveOlympiad();
+  const instanceOverride = isMasterAdmin ? masterOverride : (active?.instanceId ?? undefined);
+
   const { data: result, isLoading, isError } = useLeaderboard(instanceOverride);
 
   const ranked = result?.entries ?? [];
@@ -161,8 +169,8 @@ export function LeaderboardPage() {
         <div className="flex items-center gap-3 shrink-0">
           {isMasterAdmin && olympiads && olympiads.length > 0 && (
             <select
-              value={instanceOverride ?? ''}
-              onChange={e => setInstanceOverride(e.target.value || undefined)}
+              value={masterOverride ?? ''}
+              onChange={e => setMasterOverride(e.target.value || undefined)}
               className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm text-gray-600 bg-white focus:outline-none focus:ring-2 focus:ring-gray-400"
             >
               <option value="">Meine Olympiade</option>

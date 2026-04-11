@@ -70,14 +70,7 @@ Ein `activeInstanceId`-Feld im User-Modell würde eine Migration erfordern und m
 
 ### F-1: Item-Zuordnung — Datum oder explizite Olympiade?
 
-**Aktuell:** Items werden anhand von `purchasedAt`/`soldAt` dem Zeitfenster einer Olympiade zugeordnet. Ein Item, das während Olympiade A und B eingekauft wurde (überlappende Zeitfenster), würde in **beiden** Ranglisten auftauchen.
-
-**Fragen:**
-- Sollen Items explizit einer Olympiade zugeordnet werden (neues Feld `instanceId` auf `Item`)?
-- Oder reicht die bestehende Datums-Fenster-Logik aus?
-- Was passiert bei überlappenden Olympiaden (gleicher Zeitraum, zwei verschiedene Gruppen)?
-
-> **Empfehlung**: Solange sich Olympiaden zeitlich nicht überlappen, reicht die Datumsfenster-Logik. Bei überlappenden Olympiaden wird ein explizites `instanceId`-Feld auf `Item` notwendig. Diese Entscheidung beeinflusst den Migrationsaufwand erheblich.
+**Entschieden ✅**: Datumsfenster-Logik bleibt. Items gehören zur globalen Historie des Users. Jede Olympiade wertet unabhängig aus: „Welche Items dieses Users fallen in meinen Zeitraum?" Bei überlappenden Olympiaden zählt dasselbe Item in beiden Ranglisten — das ist gewollt. Kein Schema-Change nötig, Phase 3 entfällt.
 
 ---
 
@@ -122,13 +115,7 @@ Mit Multi-Membership bleibt diese Logik korrekt — der User braucht mindestens 
 
 ### F-6: Leaderboard-Default bei mehreren Mitgliedschaften
 
-**Fragen:**
-- Welche Olympiade soll standardmäßig angezeigt werden?
-  - Zuletzt beigetretene?
-  - Aktive (nach `isActive`-Flag)?
-  - Die zuletzt vom User manuell gewählte?
-
-> **Empfehlung**: Default = aktive Olympiade (`isActive: true`), falls mehrere aktiv sind dann die zuletzt beigetretene. Der User kann jederzeit über einen Switcher wechseln.
+**Entschieden ✅**: Default = die zuletzt beigetretene **aktive** Olympiade (`isActive: true`, sortiert nach `joinedAt desc`). Der User kann über einen Switcher manuell wechseln; die Auswahl wird im `localStorage` gespeichert.
 
 ---
 
@@ -199,24 +186,16 @@ Admins sehen alle Mitgliedschaften korrekt; Zuweisung ist additiv.
 
 ---
 
-### Phase 3 — Item-Zuordnung (optional, abhängig von F-1) 🏷️
-
-**Aufwand: ~4h | Nur wenn überlappende Olympiaden relevant werden**
-
-1. Migration: `instanceId String?` auf `Item`-Modell
-2. Beim Erstellen eines Items: aktive Olympiade als Default
-3. Rangliste und Berichte: filtern nach `instanceId` statt Datumsfenster
-
-> **Empfehlung**: Phase 3 erst angehen wenn F-1 geklärt ist und tatsächlich überlappende Olympiaden benötigt werden.
+~~Phase 3 — Item-Zuordnung~~ **entfällt** (F-1 geklärt: Datumsfenster-Logik reicht)
 
 ---
 
 ## Abhängigkeiten zwischen Phasen
 
 ```
-Phase 1 (Bugfix) ──▶ Phase 2 (Switcher) ──▶ Phase 3 (Item-Zuordnung, optional)
+Phase 1 (Bugfix) ──▶ Phase 2 (Switcher)
      ↑                      ↑
-  sofort                F-2, F-6 klären
+  sofort               F-2, F-6 ✅ geklärt
   umsetzbar
 ```
 
