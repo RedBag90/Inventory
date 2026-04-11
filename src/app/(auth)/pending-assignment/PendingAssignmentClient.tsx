@@ -25,7 +25,7 @@ export function PendingAssignmentClient({ email }: { email: string }) {
     submit(code.trim(), {
       onSuccess: (result) => {
         if (result.autoAccepted) {
-          router.push('/dashboard');
+          router.push('/dashboard/inventory');
         } else {
           setSuccess(`Anfrage für „${result.instanceName}" gesendet – warte auf Freigabe.`);
           setCode('');
