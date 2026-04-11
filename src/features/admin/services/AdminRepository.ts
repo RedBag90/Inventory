@@ -6,6 +6,7 @@
 
 import { prisma } from '@/shared/lib/prisma';
 import { createClient } from '@/shared/lib/supabase/server';
+import { sendMail } from '@/shared/lib/mailer';
 import type { AdminUserRecord, UserRole } from '../types/admin.types';
 
 // ─── Auth + role guards ───────────────────────────────────────────────────────
@@ -108,4 +109,127 @@ export async function setUserActive(userId: string, isActive: boolean): Promise<
   const caller = await requireMasterAdmin();
   if (caller.id === userId) throw new Error('Cannot deactivate your own account');
   await prisma.user.update({ where: { id: userId }, data: { isActive } });
+}
+
+// ─── Join requests ────────────────────────────────────────────────────────────
+
+export type JoinRequestRecord = {
+  id:           string;
+  userId:       string;
+  userEmail:    string;
+  instanceId:   string;
+  instanceName: string;
+  status:       'PENDING' | 'ACCEPTED' | 'REJECTED';
+  createdAt:    Date;
+};
+
+/**
+ * Returns join requests visible to the caller:
+ * - ADMIN: only requests for their own olympiads
+ * - MASTER_ADMIN: all requests
+ */
+export async function getJoinRequests(statusFilter: 'PENDING' | 'ALL' = 'PENDING'): Promise<JoinRequestRecord[]> {
+  const caller = await getCallerDbUser();
+  if (caller.role !== 'ADMIN' && caller.role !== 'MASTER_ADMIN') throw new Error('Forbidden');
+
+  const where: Record<string, unknown> = {};
+  if (statusFilter === 'PENDING') where.status = 'PENDING';
+  if (caller.role === 'ADMIN') {
+    where.instance = { createdById: caller.id };
+  }
+
+  const requests = await prisma.joinRequest.findMany({
+    where,
+    orderBy: { createdAt: 'desc' },
+    include: {
+      user:     { select: { email: true } },
+      instance: { select: { name: true } },
+    },
+  });
+
+  return requests.map(r => ({
+    id:           r.id,
+    userId:       r.userId,
+    userEmail:    r.user.email,
+    instanceId:   r.instanceId,
+    instanceName: r.instance.name,
+    status:       r.status as 'PENDING' | 'ACCEPTED' | 'REJECTED',
+    createdAt:    r.createdAt,
+  }));
+}
+
+export async function getPendingJoinRequestCount(): Promise<number> {
+  const caller = await getCallerDbUser();
+  if (caller.role !== 'ADMIN' && caller.role !== 'MASTER_ADMIN') return 0;
+
+  const where: Record<string, unknown> = { status: 'PENDING' };
+  if (caller.role === 'ADMIN') where.instance = { createdById: caller.id };
+
+  return prisma.joinRequest.count({ where });
+}
+
+export async function resolveJoinRequest(
+  requestId: string,
+  decision: 'ACCEPTED' | 'REJECTED',
+): Promise<void> {
+  const caller = await getCallerDbUser();
+  if (caller.role !== 'ADMIN' && caller.role !== 'MASTER_ADMIN') throw new Error('Forbidden');
+
+  const request = await prisma.joinRequest.findUnique({
+    where:   { id: requestId },
+    include: {
+      instance: { select: { createdById: true, name: true } },
+      user:     { select: { email: true } },
+    },
+  });
+  if (!request) throw new Error('Request not found');
+  if (caller.role === 'ADMIN' && request.instance.createdById !== caller.id) throw new Error('Forbidden');
+
+  await prisma.joinRequest.update({
+    where: { id: requestId },
+    data:  { status: decision, resolvedAt: new Date(), resolvedById: caller.id },
+  });
+
+  // Notify the user of the decision (fire-and-forget)
+  if (decision === 'ACCEPTED') {
+    sendMail({
+      to:      request.user.email,
+      subject: `Du wurdest zu „${request.instance.name}" zugelassen`,
+      html: `
+        <p>Hallo,</p>
+        <p>Deine Beitrittsanfrage für <strong>${request.instance.name}</strong> wurde <strong>akzeptiert</strong>. 🎉</p>
+        <p>Du kannst dich jetzt einloggen und loslegen.</p>
+      `,
+      text: `Deine Anfrage für „${request.instance.name}" wurde akzeptiert. Du kannst dich jetzt einloggen.`,
+    }).catch(err => console.error('[mailer] Failed to send acceptance email:', err));
+  } else {
+    sendMail({
+      to:      request.user.email,
+      subject: `Beitrittsanfrage für „${request.instance.name}" abgelehnt`,
+      html: `
+        <p>Hallo,</p>
+        <p>Deine Beitrittsanfrage für <strong>${request.instance.name}</strong> wurde leider <strong>abgelehnt</strong>.</p>
+        <p>Du kannst mit einem anderen Code eine neue Anfrage stellen.</p>
+      `,
+      text: `Deine Anfrage für „${request.instance.name}" wurde abgelehnt.`,
+    }).catch(err => console.error('[mailer] Failed to send rejection email:', err));
+  }
+
+  if (decision === 'ACCEPTED') {
+    // Move user's existing membership or create new one
+    const existing = await prisma.instanceMembership.findFirst({
+      where: { userId: request.userId },
+      select: { id: true },
+    });
+    if (existing) {
+      await prisma.instanceMembership.update({
+        where: { id: existing.id },
+        data:  { instanceId: request.instanceId, joinedAt: new Date() },
+      });
+    } else {
+      await prisma.instanceMembership.create({
+        data: { userId: request.userId, instanceId: request.instanceId },
+      });
+    }
+  }
 }

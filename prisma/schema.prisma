@@ -22,6 +22,8 @@ model User {
   items                Item[]
   memberships          InstanceMembership[]
   createdOlympiads     OlympiadInstance[]
+  joinRequests         JoinRequest[]        @relation("JoinRequests")
+  resolvedRequests     JoinRequest[]        @relation("ResolvedRequests")
 }
 
 model OlympiadInstance {
@@ -34,10 +36,29 @@ model OlympiadInstance {
   createdAt    DateTime             @default(now())
   createdById  String
   inviteToken  String?              @unique
+  joinCode     String?              @unique
+  autoAccept   Boolean              @default(true)
   createdBy    User                 @relation(fields: [createdById], references: [id])
   memberships  InstanceMembership[]
+  joinRequests JoinRequest[]
 
   @@index([createdById])
+}
+
+model JoinRequest {
+  id           String            @id @default(cuid())
+  userId       String
+  instanceId   String
+  status       JoinRequestStatus @default(PENDING)
+  createdAt    DateTime          @default(now())
+  resolvedAt   DateTime?
+  resolvedById String?
+  user         User              @relation("JoinRequests", fields: [userId], references: [id])
+  instance     OlympiadInstance  @relation(fields: [instanceId], references: [id])
+  resolvedBy   User?             @relation("ResolvedRequests", fields: [resolvedById], references: [id])
+
+  @@index([instanceId, status])
+  @@index([userId])
 }
 
 model InstanceMembership {
@@ -101,6 +122,12 @@ enum UserRole {
   USER
   ADMIN
   MASTER_ADMIN
+}
+
+enum JoinRequestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
 }
 
 enum ItemStatus {
