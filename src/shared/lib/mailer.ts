@@ -1,13 +1,12 @@
 // Email sending via SMTP (Supabase SMTP relay or any SMTP provider).
-// Configure via env vars: SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM
+// Configure via SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM in env.
 
 import nodemailer from 'nodemailer';
+import { env } from '@/shared/config/env';
 
 function createTransport() {
-  const host = process.env.SMTP_HOST;
-  const port = parseInt(process.env.SMTP_PORT ?? '587', 10);
-  const user = process.env.SMTP_USER;
-  const pass = process.env.SMTP_PASS;
+  const { SMTP_HOST: host, SMTP_USER: user, SMTP_PASS: pass } = env;
+  const port = parseInt(env.SMTP_PORT ?? '587', 10);
 
   if (!host || !user || !pass) {
     // Dev: log to console instead of sending
@@ -33,7 +32,7 @@ export async function sendMail({
   html: string;
   text?: string;
 }) {
-  const from = process.env.SMTP_FROM ?? process.env.SMTP_USER ?? 'noreply@example.com';
+  const from = env.SMTP_FROM ?? env.SMTP_USER ?? 'noreply@example.com';
   const transport = createTransport();
 
   if (!transport) {

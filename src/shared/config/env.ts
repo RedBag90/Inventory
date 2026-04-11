@@ -12,6 +12,13 @@ const EnvSchema = z.object({
   NEXT_PUBLIC_SUPABASE_URL:      z.string().url(),
   NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1),
 
+  // SMTP (join-request email notifications — optional, logs to console if absent)
+  SMTP_HOST: z.string().min(1).optional(),
+  SMTP_PORT: z.string().optional(),
+  SMTP_USER: z.string().min(1).optional(),
+  SMTP_PASS: z.string().min(1).optional(),
+  SMTP_FROM: z.string().optional(),
+
   // Sentry (optional — app boots without it)
   SENTRY_DSN: z.string().url().optional(),
 
