@@ -3,6 +3,7 @@
 import { prisma } from '@/shared/lib/prisma';
 import { createClient } from '@/shared/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { sendMail } from '@/shared/lib/mailer';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -206,13 +207,13 @@ export async function submitJoinRequest(joinCode: string): Promise<{ autoAccepte
 
   const dbUser = await prisma.user.findUnique({
     where:  { supabaseId: authUser.id },
-    select: { id: true, memberships: { select: { instanceId: true } } },
+    select: { id: true, email: true, memberships: { select: { instanceId: true } } },
   });
   if (!dbUser) throw new Error('Benutzer nicht gefunden');
 
   const instance = await prisma.olympiadInstance.findFirst({
-    where: { joinCode: { equals: joinCode.toUpperCase() } },
-    select: { id: true, name: true, autoAccept: true },
+    where:   { joinCode: { equals: joinCode.toUpperCase() } },
+    select:  { id: true, name: true, autoAccept: true, createdBy: { select: { email: true } } },
   });
   if (!instance) throw new Error('Ungültiger Code. Bitte überprüfe die Eingabe.');
 
@@ -246,6 +247,19 @@ export async function submitJoinRequest(joinCode: string): Promise<{ autoAccepte
   await prisma.joinRequest.create({
     data: { userId: dbUser.id, instanceId: instance.id },
   });
+
+  // Notify the admin of the olympiad about the new join request (fire-and-forget)
+  sendMail({
+    to:      instance.createdBy.email,
+    subject: `Neue Beitrittsanfrage für „${instance.name}"`,
+    html: `
+      <p>Hallo,</p>
+      <p><strong>${dbUser.email}</strong> möchte der Olympiade <strong>${instance.name}</strong> beitreten.</p>
+      <p>Bitte melde dich im Admin-Bereich an, um die Anfrage zu bearbeiten.</p>
+    `,
+    text: `${dbUser.email} möchte „${instance.name}" beitreten. Bitte öffne den Admin-Bereich.`,
+  }).catch(err => console.error('[mailer] Failed to send join-request notification:', err));
+
   revalidate();
   return { autoAccepted: false, instanceName: instance.name };
 }

@@ -6,6 +6,7 @@
 
 import { prisma } from '@/shared/lib/prisma';
 import { createClient } from '@/shared/lib/supabase/server';
+import { sendMail } from '@/shared/lib/mailer';
 import type { AdminUserRecord, UserRole } from '../types/admin.types';
 
 // ─── Auth + role guards ───────────────────────────────────────────────────────
@@ -176,7 +177,10 @@ export async function resolveJoinRequest(
 
   const request = await prisma.joinRequest.findUnique({
     where:   { id: requestId },
-    include: { instance: { select: { createdById: true } } },
+    include: {
+      instance: { select: { createdById: true, name: true } },
+      user:     { select: { email: true } },
+    },
   });
   if (!request) throw new Error('Request not found');
   if (caller.role === 'ADMIN' && request.instance.createdById !== caller.id) throw new Error('Forbidden');
@@ -185,6 +189,31 @@ export async function resolveJoinRequest(
     where: { id: requestId },
     data:  { status: decision, resolvedAt: new Date(), resolvedById: caller.id },
   });
+
+  // Notify the user of the decision (fire-and-forget)
+  if (decision === 'ACCEPTED') {
+    sendMail({
+      to:      request.user.email,
+      subject: `Du wurdest zu „${request.instance.name}" zugelassen`,
+      html: `
+        <p>Hallo,</p>
+        <p>Deine Beitrittsanfrage für <strong>${request.instance.name}</strong> wurde <strong>akzeptiert</strong>. 🎉</p>
+        <p>Du kannst dich jetzt einloggen und loslegen.</p>
+      `,
+      text: `Deine Anfrage für „${request.instance.name}" wurde akzeptiert. Du kannst dich jetzt einloggen.`,
+    }).catch(err => console.error('[mailer] Failed to send acceptance email:', err));
+  } else {
+    sendMail({
+      to:      request.user.email,
+      subject: `Beitrittsanfrage für „${request.instance.name}" abgelehnt`,
+      html: `
+        <p>Hallo,</p>
+        <p>Deine Beitrittsanfrage für <strong>${request.instance.name}</strong> wurde leider <strong>abgelehnt</strong>.</p>
+        <p>Du kannst mit einem anderen Code eine neue Anfrage stellen.</p>
+      `,
+      text: `Deine Anfrage für „${request.instance.name}" wurde abgelehnt.`,
+    }).catch(err => console.error('[mailer] Failed to send rejection email:', err));
+  }
 
   if (decision === 'ACCEPTED') {
     // Move user's existing membership or create new one
