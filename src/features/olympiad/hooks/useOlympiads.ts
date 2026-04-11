@@ -15,6 +15,11 @@ import {
   removeUserFromOlympiad,
   generateInviteToken,
   revokeInviteToken,
+  generateJoinCode,
+  revokeJoinCode,
+  updateAutoAccept,
+  submitJoinRequest,
+  getMyJoinRequests,
 } from '../actions/olympiadActions';
 
 export const olympiadKeys = {
@@ -98,4 +103,35 @@ export function useGenerateInviteToken() {
 export function useRevokeInviteToken() {
   const invalidate = useInvalidate();
   return useMutation({ mutationFn: revokeInviteToken, onSuccess: invalidate });
+}
+
+export function useGenerateJoinCode() {
+  const invalidate = useInvalidate();
+  return useMutation({ mutationFn: generateJoinCode, onSuccess: invalidate });
+}
+
+export function useRevokeJoinCode() {
+  const invalidate = useInvalidate();
+  return useMutation({ mutationFn: revokeJoinCode, onSuccess: invalidate });
+}
+
+export function useUpdateAutoAccept() {
+  const invalidate = useInvalidate();
+  return useMutation({
+    mutationFn: ({ instanceId, autoAccept }: { instanceId: string; autoAccept: boolean }) =>
+      updateAutoAccept(instanceId, autoAccept),
+    onSuccess: invalidate,
+  });
+}
+
+export function useSubmitJoinRequest() {
+  return useMutation({ mutationFn: submitJoinRequest });
+}
+
+export function useMyJoinRequests() {
+  return useQuery({
+    queryKey: ['joinRequests', 'mine'],
+    queryFn:  getMyJoinRequests,
+    staleTime: 30_000,
+  });
 }

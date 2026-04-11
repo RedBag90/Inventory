@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
+import { usePendingJoinRequestCount } from '@/features/admin/hooks/useJoinRequests';
 
 // ── icons ─────────────────────────────────────────────────────────────────────
 
@@ -69,6 +70,8 @@ type Props = { role?: 'USER' | 'ADMIN' | 'MASTER_ADMIN' };
 export function Sidebar({ role }: Props) {
   const pathname    = usePathname();
   const [collapsed, setCollapsed] = useState(false);
+  const isAdmin = role === 'ADMIN' || role === 'MASTER_ADMIN';
+  const { data: pendingCount } = usePendingJoinRequestCount(isAdmin);
 
   return (
     <aside className={[
@@ -131,7 +134,7 @@ export function Sidebar({ role }: Props) {
           );
         })}
 
-        {(role === 'ADMIN' || role === 'MASTER_ADMIN') && (
+        {isAdmin && (
           <>
             {!collapsed && (
               <div className="pt-3 pb-1 px-2.5">
@@ -145,15 +148,29 @@ export function Sidebar({ role }: Props) {
               href="/dashboard/admin"
               title={collapsed ? 'Admin' : undefined}
               className={[
-                'flex items-center gap-3 px-2.5 py-2 rounded-lg text-sm font-medium transition-colors',
+                'relative flex items-center gap-3 px-2.5 py-2 rounded-lg text-sm font-medium transition-colors',
                 collapsed ? 'justify-center' : '',
                 pathname.startsWith('/dashboard/admin')
                   ? 'bg-purple-50 text-purple-900'
                   : 'text-gray-500 hover:bg-gray-50 hover:text-gray-800',
               ].join(' ')}
             >
-              <IconUsers />
-              {!collapsed && <span>Admin</span>}
+              <span className="relative shrink-0">
+                <IconUsers />
+                {pendingCount != null && pendingCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full" />
+                )}
+              </span>
+              {!collapsed && (
+                <span className="flex-1 flex items-center justify-between">
+                  Admin
+                  {pendingCount != null && pendingCount > 0 && (
+                    <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-red-500 text-white text-[10px] font-bold leading-none">
+                      {pendingCount > 9 ? '9+' : pendingCount}
+                    </span>
+                  )}
+                </span>
+              )}
             </Link>
           </>
         )}

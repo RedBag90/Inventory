@@ -8,6 +8,9 @@ import {
   useRemoveUser,
   useGenerateInviteToken,
   useRevokeInviteToken,
+  useGenerateJoinCode,
+  useRevokeJoinCode,
+  useUpdateAutoAccept,
 } from '../hooks/useOlympiads';
 import type { OlympiadRecord } from '../services/olympiadRepository';
 
@@ -123,6 +126,75 @@ function InviteLinkSection({ instance, isOwner }: { instance: OlympiadRecord; is
             <button onClick={() => generate(instance.id)} disabled={generating}
               className="text-xs bg-gray-900 text-white px-3 py-1.5 rounded-lg font-medium hover:bg-gray-700 disabled:opacity-50 transition-colors">
               {generating ? 'Generieren…' : 'Link generieren'}
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Join code section ─────────────────────────────────────────────────────────
+
+function JoinCodeSection({ instance, isOwner }: { instance: OlympiadRecord; isOwner: boolean }) {
+  const { mutate: generate, isPending: generating } = useGenerateJoinCode();
+  const { mutate: revoke,   isPending: revoking   } = useRevokeJoinCode();
+  const { mutate: setAutoAccept } = useUpdateAutoAccept();
+  const [copied, setCopied] = useState(false);
+
+  function copy() {
+    if (instance.joinCode) {
+      navigator.clipboard.writeText(instance.joinCode);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  }
+
+  return (
+    <div className="border border-gray-200 rounded-xl p-4 space-y-3">
+      <p className="text-xs font-semibold text-gray-700 uppercase tracking-wide">Beitrittscode</p>
+      {instance.joinCode ? (
+        <>
+          <div className="flex gap-2 items-center">
+            <span className="flex-1 border border-gray-200 rounded-lg px-3 py-1.5 text-sm font-mono font-semibold text-gray-800 bg-gray-50 tracking-widest">
+              {instance.joinCode}
+            </span>
+            <button onClick={copy}
+              className="shrink-0 border border-gray-200 px-3 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-gray-50 transition-colors">
+              {copied ? '✓ Kopiert' : 'Kopieren'}
+            </button>
+          </div>
+          {isOwner && (
+            <>
+              <label className="flex items-center gap-2.5 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={instance.autoAccept}
+                  onChange={e => setAutoAccept({ instanceId: instance.id, autoAccept: e.target.checked })}
+                  className="w-4 h-4 rounded border-gray-300 text-gray-900 focus:ring-gray-400"
+                />
+                <span className="text-xs text-gray-600">Anfragen automatisch akzeptieren</span>
+              </label>
+              <div className="flex gap-3">
+                <button onClick={() => generate(instance.id)} disabled={generating}
+                  className="text-xs text-gray-400 hover:text-gray-700 underline disabled:opacity-40 transition-colors">
+                  Neu generieren
+                </button>
+                <button onClick={() => { if (confirm('Code deaktivieren?')) revoke(instance.id); }} disabled={revoking}
+                  className="text-xs text-red-500 hover:text-red-700 underline disabled:opacity-40 transition-colors">
+                  Deaktivieren
+                </button>
+              </div>
+            </>
+          )}
+        </>
+      ) : (
+        <div className="space-y-2">
+          <p className="text-xs text-gray-400">Kein aktiver Beitrittscode.</p>
+          {isOwner && (
+            <button onClick={() => generate(instance.id)} disabled={generating}
+              className="text-xs bg-gray-900 text-white px-3 py-1.5 rounded-lg font-medium hover:bg-gray-700 disabled:opacity-50 transition-colors">
+              {generating ? 'Generieren…' : 'Code generieren'}
             </button>
           )}
         </div>
@@ -265,6 +337,9 @@ export function OlympiadDetail({
 
       {/* Invite link */}
       <InviteLinkSection instance={instance} isOwner={isOwner} />
+
+      {/* Join code */}
+      <JoinCodeSection instance={instance} isOwner={isOwner} />
 
       {/* Members */}
       <MembersSection instance={instance} isOwner={isOwner} />
