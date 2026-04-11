@@ -1,8 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
 import { useSubmitJoinRequest, useMyJoinRequests } from '@/features/olympiad/hooks/useOlympiads';
+import { checkHasMembership } from '@/features/olympiad/actions/olympiadActions';
 import { createClient } from '@/shared/lib/supabase/client';
 
 export function PendingAssignmentClient({ email }: { email: string }) {
@@ -11,6 +13,24 @@ export function PendingAssignmentClient({ email }: { email: string }) {
   const [success, setSuccess] = useState<string | null>(null);
   const { mutate: submit, isPending, error, reset } = useSubmitJoinRequest();
   const { data: myRequests } = useMyJoinRequests();
+
+  const pendingRequests = myRequests?.filter(r => r.status === 'PENDING') ?? [];
+
+  // Poll for membership approval when there are pending requests.
+  // When an admin accepts, redirect to dashboard — tutorial auto-triggers there.
+  const { data: hasMembership } = useQuery({
+    queryKey:        ['hasMembership'],
+    queryFn:         checkHasMembership,
+    enabled:         pendingRequests.length > 0,
+    refetchInterval: 10_000,
+    staleTime:       0,
+  });
+
+  useEffect(() => {
+    if (hasMembership) {
+      router.push('/dashboard/inventory');
+    }
+  }, [hasMembership, router]);
 
   async function signOut() {
     const sb = createClient();
@@ -34,7 +54,6 @@ export function PendingAssignmentClient({ email }: { email: string }) {
     });
   }
 
-  const pendingRequests = myRequests?.filter(r => r.status === 'PENDING') ?? [];
   const rejectedRequests = myRequests?.filter(r => r.status === 'REJECTED') ?? [];
 
   return (

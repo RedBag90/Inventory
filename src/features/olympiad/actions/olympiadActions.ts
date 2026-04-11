@@ -264,6 +264,19 @@ export async function submitJoinRequest(joinCode: string): Promise<{ autoAccepte
   return { autoAccepted: false, instanceName: instance.name };
 }
 
+/** Returns true if the current user has an active olympiad membership. */
+export async function checkHasMembership(): Promise<boolean> {
+  const supabase = await createClient();
+  const { data: { user: authUser } } = await supabase.auth.getUser();
+  if (!authUser) return false;
+
+  const dbUser = await prisma.user.findUnique({
+    where:  { supabaseId: authUser.id },
+    select: { memberships: { select: { instanceId: true }, take: 1 } },
+  });
+  return (dbUser?.memberships.length ?? 0) > 0;
+}
+
 export async function getMyJoinRequests() {
   const supabase = await createClient();
   const { data: { user: authUser } } = await supabase.auth.getUser();
