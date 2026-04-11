@@ -216,20 +216,10 @@ export async function resolveJoinRequest(
   }
 
   if (decision === 'ACCEPTED') {
-    // Move user's existing membership or create new one
-    const existing = await prisma.instanceMembership.findFirst({
-      where: { userId: request.userId },
-      select: { id: true },
+    await prisma.instanceMembership.upsert({
+      where:  { userId_instanceId: { userId: request.userId, instanceId: request.instanceId } },
+      update: { joinedAt: new Date() },
+      create: { userId: request.userId, instanceId: request.instanceId },
     });
-    if (existing) {
-      await prisma.instanceMembership.update({
-        where: { id: existing.id },
-        data:  { instanceId: request.instanceId, joinedAt: new Date() },
-      });
-    } else {
-      await prisma.instanceMembership.create({
-        data: { userId: request.userId, instanceId: request.instanceId },
-      });
-    }
   }
 }
