@@ -152,15 +152,16 @@ export function OlympiadPanel() {
 
   const selected = selectedId ? (olympiads?.find(o => o.id === selectedId) ?? null) : null;
 
-  const isOwnerOf = (instanceId: string) =>
+  const isOwnerOf = (o: { id: string; createdById: string }) =>
     currentUser?.role === 'MASTER_ADMIN' ||
-    myMemberships.some(m => m.instanceId === instanceId && m.memberRole === 'ADMIN');
+    o.createdById === currentUser?.id ||
+    myMemberships.some(m => m.instanceId === o.id && m.memberRole === 'ADMIN');
 
   if (selected) {
     return (
       <OlympiadDetail
         instance={selected}
-        isOwner={isOwnerOf(selected.id)}
+        isOwner={isOwnerOf(selected)}
         onBack={() => setSelectedId(null)}
       />
     );
@@ -214,7 +215,7 @@ export function OlympiadPanel() {
                 <OlympiadRow
                   key={o.id}
                   instance={o}
-                  isOwner={isOwnerOf(o.id)}
+                  isOwner={isOwnerOf(o)}
                   onSelect={() => setSelectedId(o.id)}
                 />
               ))}
