@@ -139,8 +139,7 @@ export function Sidebar({ role }: Props) {
 
               {/* Olympiade-Switcher — between Rangliste (0) and Inventar (1), expanded only */}
               {index === 0 && showSwitcher && (
-                <div className="mt-1 mb-0.5 px-2.5 space-y-1">
-                  <p className="text-xs font-medium text-gray-400 uppercase tracking-wide pt-2 pb-0.5">Olympiade</p>
+                <div className="mt-1 mb-0.5 px-2.5">
                   <select
                     value={active?.instanceId ?? ''}
                     onChange={e => setActive(e.target.value)}
