@@ -57,7 +57,7 @@ export default async function JoinPage({ params }: { params: Promise<{ token: st
           data: { userId: dbUser.id, instanceId: instance.id },
         });
       }
-      redirect('/dashboard');
+      redirect('/dashboard/leaderboard');
     }
   }
 
