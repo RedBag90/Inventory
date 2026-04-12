@@ -314,6 +314,9 @@ export function OlympiadDetail({
           <p className="text-sm text-gray-400 mt-0.5">
             {fmtDisplay(instance.startsAt)} – {fmtDisplay(instance.endsAt)}
           </p>
+          <p className="text-xs text-gray-400 mt-1">
+            Inhaber: <span className="font-medium text-gray-600">{instance.createdByEmail}</span>
+          </p>
         </div>
         <span className={[
           'inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium shrink-0',

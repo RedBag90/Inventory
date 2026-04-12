@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useSubmitJoinRequest, useMyJoinRequests } from '@/features/olympiad/hooks/useOlympiads';
 import { checkHasMembership } from '@/features/olympiad/actions/olympiadActions';
 import { createClient } from '@/shared/lib/supabase/client';
+import { useSubmitInstanceRequest, useMyInstanceRequest } from '@/features/admin/hooks/useInstanceRequests';
 
 export function PendingAssignmentClient({ email }: { email: string }) {
   const router = useRouter();
@@ -13,6 +14,13 @@ export function PendingAssignmentClient({ email }: { email: string }) {
   const [success, setSuccess] = useState<string | null>(null);
   const { mutate: submit, isPending, error, reset } = useSubmitJoinRequest();
   const { data: myRequests } = useMyJoinRequests();
+
+  // Instance request state
+  const [showInstanceForm, setShowInstanceForm] = useState(false);
+  const [instanceName, setInstanceName] = useState('');
+  const [instanceDesc, setInstanceDesc] = useState('');
+  const { mutate: submitInstance, isPending: instancePending, error: instanceError, reset: resetInstance } = useSubmitInstanceRequest();
+  const { data: myInstanceRequest } = useMyInstanceRequest();
 
   const pendingRequests = myRequests?.filter(r => r.status === 'PENDING') ?? [];
 
@@ -55,6 +63,18 @@ export function PendingAssignmentClient({ email }: { email: string }) {
   }
 
   const rejectedRequests = myRequests?.filter(r => r.status === 'REJECTED') ?? [];
+
+  function handleInstanceSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    resetInstance();
+    submitInstance({ instanceName: instanceName.trim(), description: instanceDesc.trim() || undefined }, {
+      onSuccess: () => {
+        setInstanceName('');
+        setInstanceDesc('');
+        setShowInstanceForm(false);
+      },
+    });
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
@@ -111,6 +131,70 @@ export function PendingAssignmentClient({ email }: { email: string }) {
               {isPending ? 'Prüfen…' : 'Beitreten'}
             </button>
           </form>
+
+          {/* Instance request */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-3">
+              <div className="flex-1 h-px bg-gray-100" />
+              <span className="text-xs text-gray-400">oder</span>
+              <div className="flex-1 h-px bg-gray-100" />
+            </div>
+
+            {myInstanceRequest?.status === 'PENDING' ? (
+              <div className="bg-amber-50 border border-amber-100 rounded-lg px-3 py-2.5 text-sm text-amber-800">
+                Instanz-Anfrage für <strong>&bdquo;{myInstanceRequest.instanceName}&ldquo;</strong> ist in Prüfung.
+              </div>
+            ) : myInstanceRequest?.status === 'REJECTED' ? (
+              <div className="bg-red-50 border border-red-100 rounded-lg px-3 py-2.5 text-sm text-red-700">
+                Instanz-Anfrage für <strong>&bdquo;{myInstanceRequest.instanceName}&ldquo;</strong> wurde abgelehnt.
+              </div>
+            ) : showInstanceForm ? (
+              <form onSubmit={handleInstanceSubmit} className="space-y-3">
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1.5">Name der Instanz *</label>
+                  <input
+                    required
+                    autoFocus
+                    value={instanceName}
+                    onChange={e => { setInstanceName(e.target.value); resetInstance(); }}
+                    placeholder="z.B. Familie Müller"
+                    className="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 placeholder:text-gray-400"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1.5">Beschreibung (optional)</label>
+                  <textarea
+                    rows={2}
+                    value={instanceDesc}
+                    onChange={e => setInstanceDesc(e.target.value)}
+                    placeholder="Kurze Beschreibung deiner Gruppe…"
+                    className="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 resize-none placeholder:text-gray-400"
+                  />
+                </div>
+                {instanceError && (
+                  <p className="text-xs text-red-600">{(instanceError as Error).message}</p>
+                )}
+                <div className="flex gap-2">
+                  <button type="submit" disabled={instancePending || !instanceName.trim()}
+                    className="flex-1 bg-gray-900 text-white rounded-xl py-2.5 text-sm font-medium hover:bg-gray-700 disabled:opacity-50 transition-colors">
+                    {instancePending ? 'Senden…' : 'Anfrage senden'}
+                  </button>
+                  <button type="button" onClick={() => { setShowInstanceForm(false); resetInstance(); }}
+                    className="px-4 py-2.5 text-sm text-gray-500 hover:text-gray-700 transition-colors">
+                    Abbrechen
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setShowInstanceForm(true)}
+                className="w-full border border-dashed border-gray-300 text-gray-500 hover:border-gray-500 hover:text-gray-700 rounded-xl py-2.5 text-sm font-medium transition-colors"
+              >
+                + Eigene Instanz beantragen
+              </button>
+            )}
+          </div>
 
           {/* Pending requests */}
           {pendingRequests.length > 0 && (

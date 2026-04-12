@@ -8,6 +8,7 @@ import {
   useArchiveOlympiad,
   useReactivateOlympiad,
   useDeleteOlympiad,
+  useMyMemberships,
 } from '../hooks/useOlympiads';
 import type { OlympiadRecord } from '../services/olympiadRepository';
 import { OlympiadDetail } from './OlympiadDetail';
@@ -97,6 +98,7 @@ function OlympiadRow({
         {instance.description && (
           <p className="text-xs text-gray-400 mt-0.5 truncate max-w-xs">{instance.description}</p>
         )}
+        <p className="text-xs text-gray-400 mt-0.5">{instance.createdByEmail}</p>
       </td>
       <td className="py-3 pr-4 text-sm text-gray-500 whitespace-nowrap">
         {fmt(instance.startsAt)} – {fmt(instance.endsAt)}
@@ -143,17 +145,23 @@ function OlympiadRow({
 
 export function OlympiadPanel() {
   const { data: currentUser } = useCurrentDbUser();
+  const { data: myMemberships = [] } = useMyMemberships();
   const { data: olympiads, isLoading } = useOlympiads();
   const [showCreate, setShowCreate] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const selected = selectedId ? (olympiads?.find(o => o.id === selectedId) ?? null) : null;
 
+  const isOwnerOf = (o: { id: string; createdById: string }) =>
+    currentUser?.role === 'MASTER_ADMIN' ||
+    o.createdById === currentUser?.id ||
+    myMemberships.some(m => m.instanceId === o.id && m.memberRole === 'ADMIN');
+
   if (selected) {
     return (
       <OlympiadDetail
         instance={selected}
-        isOwner={currentUser?.role === 'MASTER_ADMIN' || (currentUser?.role === 'ADMIN' && selected.createdById === currentUser?.id)}
+        isOwner={isOwnerOf(selected)}
         onBack={() => setSelectedId(null)}
       />
     );
@@ -207,7 +215,7 @@ export function OlympiadPanel() {
                 <OlympiadRow
                   key={o.id}
                   instance={o}
-                  isOwner={currentUser?.role === 'MASTER_ADMIN' || (currentUser?.role === 'ADMIN' && o.createdById === currentUser?.id)}
+                  isOwner={isOwnerOf(o)}
                   onSelect={() => setSelectedId(o.id)}
                 />
               ))}

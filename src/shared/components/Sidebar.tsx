@@ -71,9 +71,11 @@ type Props = { role?: 'USER' | 'ADMIN' | 'MASTER_ADMIN' };
 export function Sidebar({ role }: Props) {
   const pathname    = usePathname();
   const [collapsed, setCollapsed] = useState(false);
-  const isAdmin = role === 'ADMIN' || role === 'MASTER_ADMIN';
-  const { data: pendingCount } = usePendingJoinRequestCount(isAdmin);
+  const isGlobalAdmin = role === 'ADMIN' || role === 'MASTER_ADMIN';
   const { active, all: memberships, setActive } = useActiveOlympiad();
+  const isInstanceAdmin = memberships.some(m => m.memberRole === 'ADMIN');
+  const isAdmin = isGlobalAdmin || isInstanceAdmin;
+  const { data: pendingCount } = usePendingJoinRequestCount(isAdmin);
   const showSwitcher = !collapsed && memberships.length > 1;
 
   return (
@@ -116,51 +118,51 @@ export function Sidebar({ role }: Props) {
 
       {/* Nav */}
       <nav className="flex-1 px-2 py-4 space-y-1">
-        {NAV_ITEMS.map(({ label, href, icon }) => {
+        {NAV_ITEMS.map(({ label, href, icon }, index) => {
           const isActive = pathname.startsWith(href);
           return (
-            <Link
-              key={href}
-              href={href}
-              title={collapsed ? label : undefined}
-              className={[
-                'flex items-center gap-3 px-2.5 py-2 rounded-lg text-sm font-medium transition-colors',
-                collapsed ? 'justify-center' : '',
-                isActive
-                  ? 'bg-gray-100 text-gray-900'
-                  : 'text-gray-500 hover:bg-gray-50 hover:text-gray-800',
-              ].join(' ')}
-            >
-              {icon}
-              {!collapsed && <span>{label}</span>}
-            </Link>
+            <div key={href}>
+              <Link
+                href={href}
+                title={collapsed ? label : undefined}
+                className={[
+                  'flex items-center gap-3 px-2.5 py-2 rounded-lg text-sm font-medium transition-colors',
+                  collapsed ? 'justify-center' : '',
+                  isActive
+                    ? 'bg-gray-100 text-gray-900'
+                    : 'text-gray-500 hover:bg-gray-50 hover:text-gray-800',
+                ].join(' ')}
+              >
+                {icon}
+                {!collapsed && <span>{label}</span>}
+              </Link>
+
+              {/* Olympiade-Switcher — between Rangliste (0) and Inventar (1), expanded only */}
+              {index === 0 && showSwitcher && (
+                <div className="mt-1 mb-0.5 px-2.5">
+                  <select
+                    value={active?.instanceId ?? ''}
+                    onChange={e => setActive(e.target.value)}
+                    className="w-full border border-gray-200 rounded-lg px-2.5 py-1.5 text-xs text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-gray-400 truncate"
+                  >
+                    {memberships.map(m => (
+                      <option key={m.instanceId} value={m.instanceId}>
+                        {m.instanceName}{!m.isActive ? ' (archiviert)' : ''}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
           );
         })}
-
-        {/* Olympiade-Switcher — only when user is in multiple olympiads */}
-        {showSwitcher && (
-          <div className="pt-3 pb-1 px-2.5 space-y-1.5">
-            <p className="text-xs font-medium text-gray-400 uppercase tracking-wide">Olympiade</p>
-            <select
-              value={active?.instanceId ?? ''}
-              onChange={e => setActive(e.target.value)}
-              className="w-full border border-gray-200 rounded-lg px-2.5 py-1.5 text-xs text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-gray-400 truncate"
-            >
-              {memberships.map(m => (
-                <option key={m.instanceId} value={m.instanceId}>
-                  {m.instanceName}{!m.isActive ? ' (archiviert)' : ''}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
 
         {isAdmin && (
           <>
             {!collapsed && (
               <div className="pt-3 pb-1 px-2.5">
                 <p className="text-xs font-medium text-gray-400 uppercase tracking-wide">
-                  {role === 'MASTER_ADMIN' ? 'Master Admin' : 'Admin'}
+                  {role === 'MASTER_ADMIN' ? 'Master Admin' : 'Instance Owner'}
                 </p>
               </div>
             )}

@@ -11,19 +11,21 @@ datasource db {
 // ─── Models ──────────────────────────────────────────────────────────────────
 
 model User {
-  id                   String               @id @default(cuid())
-  supabaseId           String               @unique
-  email                String               @unique
-  displayName          String?
-  role                 UserRole             @default(USER)
-  isActive             Boolean              @default(true)
-  createdAt            DateTime             @default(now())
-  tutorialCompletedAt  DateTime?
-  items                Item[]
-  memberships          InstanceMembership[]
-  createdOlympiads     OlympiadInstance[]
-  joinRequests         JoinRequest[]        @relation("JoinRequests")
-  resolvedRequests     JoinRequest[]        @relation("ResolvedRequests")
+  id                       String               @id @default(cuid())
+  supabaseId               String               @unique
+  email                    String               @unique
+  displayName              String?
+  role                     UserRole             @default(USER)
+  isActive                 Boolean              @default(true)
+  createdAt                DateTime             @default(now())
+  tutorialCompletedAt      DateTime?
+  items                    Item[]
+  memberships              InstanceMembership[]
+  createdOlympiads         OlympiadInstance[]
+  joinRequests             JoinRequest[]        @relation("JoinRequests")
+  resolvedRequests         JoinRequest[]        @relation("ResolvedRequests")
+  instanceRequests         InstanceRequest[]    @relation("InstanceRequests")
+  resolvedInstanceRequests InstanceRequest[]    @relation("ResolvedInstanceRequests")
 }
 
 model OlympiadInstance {
@@ -66,6 +68,7 @@ model InstanceMembership {
   userId     String
   instanceId String
   joinedAt   DateTime         @default(now())
+  memberRole MemberRole       @default(MEMBER)
   user       User             @relation(fields: [userId], references: [id])
   instance   OlympiadInstance @relation(fields: [instanceId], references: [id])
 
@@ -116,6 +119,22 @@ model AdditionalCost {
   item      Item     @relation(fields: [itemId], references: [id])
 }
 
+model InstanceRequest {
+  id           String                @id @default(cuid())
+  userId       String
+  instanceName String
+  description  String?
+  status       InstanceRequestStatus @default(PENDING)
+  createdAt    DateTime              @default(now())
+  resolvedAt   DateTime?
+  resolvedById String?
+  user         User                  @relation("InstanceRequests", fields: [userId], references: [id])
+  resolvedBy   User?                 @relation("ResolvedInstanceRequests", fields: [resolvedById], references: [id])
+
+  @@index([status])
+  @@index([userId])
+}
+
 // ─── Enums ───────────────────────────────────────────────────────────────────
 
 enum UserRole {
@@ -128,6 +147,17 @@ enum JoinRequestStatus {
   PENDING
   ACCEPTED
   REJECTED
+}
+
+enum InstanceRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum MemberRole {
+  MEMBER
+  ADMIN
 }
 
 enum ItemStatus {
