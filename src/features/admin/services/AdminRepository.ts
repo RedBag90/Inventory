@@ -223,3 +223,102 @@ export async function resolveJoinRequest(
     });
   }
 }
+
+// ─── Instance requests ────────────────────────────────────────────────────────
+
+export type InstanceRequestRecord = {
+  id:           string;
+  userId:       string;
+  userEmail:    string;
+  instanceName: string;
+  description:  string | null;
+  status:       'PENDING' | 'APPROVED' | 'REJECTED';
+  createdAt:    Date;
+};
+
+/** Returns instance requests. Only MASTER_ADMIN may access. */
+export async function getInstanceRequests(statusFilter: 'PENDING' | 'ALL' = 'PENDING'): Promise<InstanceRequestRecord[]> {
+  await requireMasterAdmin();
+
+  const where: Record<string, unknown> = {};
+  if (statusFilter === 'PENDING') where.status = 'PENDING';
+
+  const requests = await prisma.instanceRequest.findMany({
+    where,
+    orderBy: { createdAt: 'desc' },
+    include: { user: { select: { email: true } } },
+  });
+
+  return requests.map(r => ({
+    id:           r.id,
+    userId:       r.userId,
+    userEmail:    r.user.email,
+    instanceName: r.instanceName,
+    description:  r.description,
+    status:       r.status as 'PENDING' | 'APPROVED' | 'REJECTED',
+    createdAt:    r.createdAt,
+  }));
+}
+
+export async function getPendingInstanceRequestCount(): Promise<number> {
+  const caller = await getCallerDbUser();
+  if (caller.role !== 'MASTER_ADMIN') return 0;
+  return prisma.instanceRequest.count({ where: { status: 'PENDING' } });
+}
+
+export async function resolveInstanceRequest(
+  requestId: string,
+  decision: 'APPROVED' | 'REJECTED',
+): Promise<void> {
+  const caller = await requireMasterAdmin();
+
+  const request = await prisma.instanceRequest.findUnique({
+    where:   { id: requestId },
+    include: { user: { select: { id: true, email: true } } },
+  });
+  if (!request) throw new Error('Request not found');
+  if (request.status !== 'PENDING') throw new Error('Request already resolved');
+
+  await prisma.instanceRequest.update({
+    where: { id: requestId },
+    data:  { status: decision, resolvedAt: new Date(), resolvedById: caller.id },
+  });
+
+  if (decision === 'APPROVED') {
+    // Create the OlympiadInstance and add user as ADMIN member
+    const now = new Date();
+    const instance = await prisma.olympiadInstance.create({
+      data: {
+        name:        request.instanceName,
+        description: request.description ?? undefined,
+        startsAt:    now,
+        endsAt:      new Date(now.getFullYear() + 1, now.getMonth(), now.getDate()),
+        createdById: request.userId,
+      },
+    });
+    await prisma.instanceMembership.create({
+      data: { userId: request.userId, instanceId: instance.id, memberRole: 'ADMIN' },
+    });
+
+    sendMail({
+      to:      request.user.email,
+      subject: `Deine Instanz „${request.instanceName}" wurde genehmigt`,
+      html: `
+        <p>Hallo,</p>
+        <p>Deine Anfrage für die Instanz <strong>${request.instanceName}</strong> wurde <strong>genehmigt</strong>. 🎉</p>
+        <p>Du kannst dich jetzt einloggen und deine Instanz verwalten.</p>
+      `,
+      text: `Deine Instanz „${request.instanceName}" wurde genehmigt. Du kannst dich jetzt einloggen.`,
+    }).catch(err => console.error('[mailer] instance approval email failed:', err));
+  } else {
+    sendMail({
+      to:      request.user.email,
+      subject: `Instanz-Anfrage „${request.instanceName}" abgelehnt`,
+      html: `
+        <p>Hallo,</p>
+        <p>Deine Anfrage für die Instanz <strong>${request.instanceName}</strong> wurde leider <strong>abgelehnt</strong>.</p>
+      `,
+      text: `Deine Anfrage für Instanz „${request.instanceName}" wurde abgelehnt.`,
+    }).catch(err => console.error('[mailer] instance rejection email failed:', err));
+  }
+}

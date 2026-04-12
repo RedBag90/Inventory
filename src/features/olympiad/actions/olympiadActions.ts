@@ -30,14 +30,22 @@ async function requireAdminRole(): Promise<string> {
 }
 
 async function assertOwner(instanceId: string, userId: string) {
-  const [instance, user] = await Promise.all([
+  const [instance, user, membership] = await Promise.all([
     prisma.olympiadInstance.findUnique({ where: { id: instanceId }, select: { createdById: true } }),
     prisma.user.findUnique({ where: { id: userId }, select: { role: true } }),
+    prisma.instanceMembership.findUnique({
+      where:  { userId_instanceId: { userId, instanceId } },
+      select: { memberRole: true },
+    }),
   ]);
   if (!instance) throw new Error('Instance not found');
-  // MASTER_ADMIN can manage all instances; ADMIN only their own
+  // MASTER_ADMIN can manage all instances
   if (user?.role === 'MASTER_ADMIN') return;
-  if (instance.createdById !== userId) throw new Error('Unauthorized');
+  // Per-instance admin via memberRole
+  if (membership?.memberRole === 'ADMIN') return;
+  // Legacy: creator via createdById
+  if (instance.createdById === userId) return;
+  throw new Error('Unauthorized');
 }
 
 function revalidate() {
@@ -255,6 +263,7 @@ export type MyMembership = {
   instanceName: string;
   isActive:     boolean;
   joinedAt:     Date;
+  memberRole:   'MEMBER' | 'ADMIN';
 };
 
 /** Returns all olympiad memberships of the current user, sorted by joinedAt desc. */
@@ -279,6 +288,7 @@ export async function getMyMemberships(): Promise<MyMembership[]> {
     instanceName: m.instance.name,
     isActive:     m.instance.isActive,
     joinedAt:     m.joinedAt,
+    memberRole:   m.memberRole as 'MEMBER' | 'ADMIN',
   }));
 }
 
@@ -315,6 +325,63 @@ export async function getMyJoinRequests() {
     status:       r.status as 'PENDING' | 'REJECTED',
     createdAt:    r.createdAt,
   }));
+}
+
+// ── Instance requests ─────────────────────────────────────────────────────────
+
+export async function submitInstanceRequest(instanceName: string, description?: string) {
+  const supabase = await createClient();
+  const { data: { user: authUser } } = await supabase.auth.getUser();
+  if (!authUser) throw new Error('Nicht eingeloggt');
+
+  const dbUser = await prisma.user.findUnique({
+    where:  { supabaseId: authUser.id },
+    select: { id: true, email: true },
+  });
+  if (!dbUser) throw new Error('Benutzer nicht gefunden');
+
+  const existing = await prisma.instanceRequest.findFirst({
+    where: { userId: dbUser.id, status: 'PENDING' },
+  });
+  if (existing) throw new Error('Du hast bereits eine offene Instanz-Anfrage.');
+
+  await prisma.instanceRequest.create({
+    data: { userId: dbUser.id, instanceName: instanceName.trim(), description },
+  });
+
+  // Notify MASTER_ADMINs (fire-and-forget)
+  const admins = await prisma.user.findMany({
+    where:  { role: 'MASTER_ADMIN', isActive: true },
+    select: { email: true },
+  });
+  for (const admin of admins) {
+    sendMail({
+      to:      admin.email,
+      subject: `Neue Instanz-Anfrage: „${instanceName}"`,
+      html:    `<p><strong>${dbUser.email}</strong> beantragt eine eigene Instanz: <strong>${instanceName}</strong>.</p><p>Bitte öffne den Admin-Bereich, um die Anfrage zu bearbeiten.</p>`,
+      text:    `${dbUser.email} beantragt Instanz „${instanceName}". Bitte Admin-Bereich öffnen.`,
+    }).catch(err => console.error('[mailer] instance request notification failed:', err));
+  }
+
+  revalidate();
+}
+
+export async function getMyInstanceRequest() {
+  const supabase = await createClient();
+  const { data: { user: authUser } } = await supabase.auth.getUser();
+  if (!authUser) return null;
+
+  const dbUser = await prisma.user.findUnique({
+    where:  { supabaseId: authUser.id },
+    select: { id: true },
+  });
+  if (!dbUser) return null;
+
+  return prisma.instanceRequest.findFirst({
+    where:   { userId: dbUser.id },
+    orderBy: { createdAt: 'desc' },
+    select:  { id: true, instanceName: true, status: true, createdAt: true },
+  });
 }
 
 export async function joinViaToken(token: string, userId: string) {

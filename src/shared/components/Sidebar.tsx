@@ -71,9 +71,11 @@ type Props = { role?: 'USER' | 'ADMIN' | 'MASTER_ADMIN' };
 export function Sidebar({ role }: Props) {
   const pathname    = usePathname();
   const [collapsed, setCollapsed] = useState(false);
-  const isAdmin = role === 'ADMIN' || role === 'MASTER_ADMIN';
-  const { data: pendingCount } = usePendingJoinRequestCount(isAdmin);
+  const isGlobalAdmin = role === 'ADMIN' || role === 'MASTER_ADMIN';
   const { active, all: memberships, setActive } = useActiveOlympiad();
+  const isInstanceAdmin = memberships.some(m => m.memberRole === 'ADMIN');
+  const isAdmin = isGlobalAdmin || isInstanceAdmin;
+  const { data: pendingCount } = usePendingJoinRequestCount(isAdmin);
   const showSwitcher = !collapsed && memberships.length > 1;
 
   return (
