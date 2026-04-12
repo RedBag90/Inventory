@@ -145,14 +145,16 @@ export function OlympiadPanel() {
   const { data: currentUser } = useCurrentDbUser();
   const { data: olympiads, isLoading } = useOlympiads();
   const [showCreate, setShowCreate] = useState(false);
-  const [selected, setSelected]     = useState<OlympiadRecord | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  const selected = selectedId ? (olympiads?.find(o => o.id === selectedId) ?? null) : null;
 
   if (selected) {
     return (
       <OlympiadDetail
         instance={selected}
         isOwner={currentUser?.role === 'MASTER_ADMIN' || (currentUser?.role === 'ADMIN' && selected.createdById === currentUser?.id)}
-        onBack={() => setSelected(null)}
+        onBack={() => setSelectedId(null)}
       />
     );
   }
@@ -206,7 +208,7 @@ export function OlympiadPanel() {
                   key={o.id}
                   instance={o}
                   isOwner={currentUser?.role === 'MASTER_ADMIN' || (currentUser?.role === 'ADMIN' && o.createdById === currentUser?.id)}
-                  onSelect={() => setSelected(o)}
+                  onSelect={() => setSelectedId(o.id)}
                 />
               ))}
             </tbody>
