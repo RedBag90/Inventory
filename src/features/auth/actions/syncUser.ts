@@ -62,6 +62,23 @@ export async function syncUser(supabaseId: string, email: string): Promise<Synce
     }
   }
 
+  // Handle DB-stored pending invite by email (survives cross-device email confirmation)
+  const pendingEmailInvite = await prisma.pendingEmailInvite.findFirst({
+    where: { email: user.email },
+  });
+  if (pendingEmailInvite) {
+    await prisma.instanceMembership.upsert({
+      where:  { userId_instanceId: { userId: user.id, instanceId: pendingEmailInvite.instanceId } },
+      update: {},
+      create: { userId: user.id, instanceId: pendingEmailInvite.instanceId },
+    });
+    await prisma.pendingEmailInvite.deleteMany({ where: { email: user.email } });
+    const alreadyMember = user.memberships.some(m => m.instanceId === pendingEmailInvite.instanceId);
+    if (!alreadyMember) {
+      user = { ...user, memberships: [...user.memberships, { instanceId: pendingEmailInvite.instanceId }] };
+    }
+  }
+
   // Block non-admins without any instance membership
   if (user.memberships.length === 0 && user.role === 'USER') {
     redirect('/pending-assignment');
