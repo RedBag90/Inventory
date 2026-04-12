@@ -137,7 +137,7 @@ export default function SignInPage() {
 
         {/* Footer hint */}
         <p className="text-xs text-gray-600">
-          Aktuell läuft die Frühjahrssaison 2025.
+          Aktuell läuft die Frühjahrssaison 2026.
         </p>
       </div>
 
@@ -264,13 +264,6 @@ export default function SignInPage() {
             </Link>
           </p>
 
-          {/* Test accounts */}
-          <div className="border border-gray-100 rounded-lg p-4 bg-gray-50 space-y-1.5 text-xs text-gray-500">
-            <p className="font-semibold text-gray-600 mb-2">Test-Zugänge</p>
-            <div><span className="font-medium text-gray-700">Admin:</span> admin@test.com / Admin1234!</div>
-            <div><span className="font-medium text-gray-700">User 1:</span> user@test.com / User1234!</div>
-            <div><span className="font-medium text-gray-700">User 2:</span> user2@test.com / User1234!</div>
-          </div>
         </div>
       </div>
     </div>
