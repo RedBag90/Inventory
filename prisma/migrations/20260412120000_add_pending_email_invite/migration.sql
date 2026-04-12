@@ -1,5 +1,5 @@
 -- CreateTable
-CREATE TABLE "PendingEmailInvite" (
+CREATE TABLE IF NOT EXISTS "PendingEmailInvite" (
     "id" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "instanceId" TEXT NOT NULL,
@@ -9,7 +9,7 @@ CREATE TABLE "PendingEmailInvite" (
 );
 
 -- CreateIndex
-CREATE INDEX "PendingEmailInvite_email_idx" ON "PendingEmailInvite"("email");
+CREATE INDEX IF NOT EXISTS "PendingEmailInvite_email_idx" ON "PendingEmailInvite"("email");
 
 -- CreateUniqueIndex
-CREATE UNIQUE INDEX "PendingEmailInvite_email_instanceId_key" ON "PendingEmailInvite"("email", "instanceId");
+CREATE UNIQUE INDEX IF NOT EXISTS "PendingEmailInvite_email_instanceId_key" ON "PendingEmailInvite"("email", "instanceId");
