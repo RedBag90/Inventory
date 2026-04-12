@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { createClient } from '@/shared/lib/supabase/client';
 
 type Stage = 'loading' | 'form' | 'success' | 'invalid';
@@ -88,9 +89,9 @@ export default function UpdatePasswordPage() {
               <p className="text-sm text-red-600">
                 Dieser Link ist ungültig oder abgelaufen. Bitte fordere eine neue Passwort-Reset-E-Mail an.
               </p>
-              <a href="/sign-in" className="block w-full bg-gray-900 text-white rounded-xl py-2.5 text-sm font-medium text-center hover:bg-gray-700 transition-colors">
+              <Link href="/sign-in" className="block w-full bg-gray-900 text-white rounded-xl py-2.5 text-sm font-medium text-center hover:bg-gray-700 transition-colors">
                 Zurück zur Anmeldung
-              </a>
+              </Link>
             </div>
           )}
 
