@@ -7,7 +7,7 @@ export const CreateItemSchema = z.object({
   name:             z.string().min(1, 'Name is required').max(200),
   description:      z.string().max(1000).optional(),
   purchasePrice:    z.number().positive('Purchase price must be positive'),
-  purchasePlatform: z.enum(['KLEINANZEIGEN', 'EBAY', 'FACEBOOK', 'OTHER']),
+  purchasePlatform: z.enum(['KLEINANZEIGEN', 'EBAY', 'FACEBOOK', 'OTHER'], { errorMap: () => ({ message: 'Bitte eine Plattform auswählen.' }) }),
   purchasedAt:      z.coerce.date(),
   shippingCostIn:   z.number().min(0, 'Must be 0 or more').default(0),
   repairCost:       z.number().min(0, 'Must be 0 or more').default(0),
@@ -20,7 +20,7 @@ export const EditItemSchema = z.object({
   name:             z.string().min(1, 'Name is required').max(200),
   description:      z.string().max(1000).optional(),
   purchasePrice:    z.number().positive('Purchase price must be positive'),
-  purchasePlatform: z.enum(['KLEINANZEIGEN', 'EBAY', 'FACEBOOK', 'OTHER']),
+  purchasePlatform: z.enum(['KLEINANZEIGEN', 'EBAY', 'FACEBOOK', 'OTHER'], { errorMap: () => ({ message: 'Bitte eine Plattform auswählen.' }) }),
   purchasedAt:      z.coerce.date(),
 });
 

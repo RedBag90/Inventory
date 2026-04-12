@@ -24,7 +24,7 @@ export function QuickSellForm({ onReview, onCancel }: Props) {
     resolver: zodResolver(QuickSellSchema),
     defaultValues: {
       shippingCostOut: 0,
-      soldAt: new Date(),
+      soldAt: todayISO() as unknown as Date,
     },
   });
 
@@ -113,7 +113,6 @@ export function QuickSellForm({ onReview, onCancel }: Props) {
         </label>
         <input
           type="date"
-          defaultValue={todayISO()}
           {...register('soldAt', { valueAsDate: true })}
           className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
         />

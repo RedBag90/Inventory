@@ -39,8 +39,24 @@ export default function SignInPage() {
   const router = useRouter();
   const [email, setEmail]       = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError]       = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Show error from URL params (e.g. expired recovery link → ?error=access_denied)
+  const [error, setError] = useState<string | null>(() => {
+    if (typeof window === 'undefined') return null;
+    const p = new URLSearchParams(window.location.search);
+    const code = p.get('error_code');
+    if (code === 'otp_expired') return 'Der Link ist abgelaufen. Bitte fordere einen neuen an.';
+    if (p.get('error')) return 'Der Link ist ungültig. Bitte fordere einen neuen an.';
+    return null;
+  });
+
+  // Forgot password state
+  const [showForgot, setShowForgot]     = useState(false);
+  const [forgotEmail, setForgotEmail]   = useState('');
+  const [forgotSent, setForgotSent]     = useState(false);
+  const [forgotLoading, setForgotLoading] = useState(false);
+  const [forgotError, setForgotError]   = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -58,6 +74,24 @@ export default function SignInPage() {
 
     router.push('/dashboard/leaderboard');
     router.refresh();
+  }
+
+  async function handleForgotPassword(e: React.FormEvent) {
+    e.preventDefault();
+    setForgotError(null);
+    setForgotLoading(true);
+
+    const supabase = createClient();
+    const { error: resetError } = await supabase.auth.resetPasswordForEmail(forgotEmail, {
+      redirectTo: `${window.location.origin}/auth/callback?next=/update-password`,
+    });
+
+    setForgotLoading(false);
+    if (resetError) {
+      setForgotError(resetError.message);
+    } else {
+      setForgotSent(true);
+    }
   }
 
   return (
@@ -125,6 +159,50 @@ export default function SignInPage() {
             <p className="mt-1 text-sm text-gray-500">Melde dich an und sieh, wo du in der Rangliste stehst.</p>
           </div>
 
+          {/* ── Forgot password panel ── */}
+          {showForgot ? (
+            <div className="space-y-5">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">Passwort zurücksetzen</h2>
+                <p className="mt-1 text-sm text-gray-500">Wir schicken dir einen Link per E-Mail.</p>
+              </div>
+              {forgotSent ? (
+                <div className="space-y-4">
+                  <div className="bg-green-50 border border-green-200 rounded-lg px-4 py-3 text-sm text-green-700">
+                    E-Mail gesendet! Bitte prüfe dein Postfach und klicke auf den Link.
+                  </div>
+                  <button onClick={() => { setShowForgot(false); setForgotSent(false); setForgotEmail(''); }}
+                    className="w-full border border-gray-200 text-gray-600 rounded-lg py-2.5 text-sm font-medium hover:border-gray-400 transition-colors">
+                    Zurück zur Anmeldung
+                  </button>
+                </div>
+              ) : (
+                <form onSubmit={handleForgotPassword} className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">E-Mail</label>
+                    <input
+                      type="email" required autoFocus
+                      placeholder="du@beispiel.de"
+                      value={forgotEmail}
+                      onChange={e => setForgotEmail(e.target.value)}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent placeholder:text-gray-400"
+                    />
+                  </div>
+                  {forgotError && (
+                    <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{forgotError}</p>
+                  )}
+                  <button type="submit" disabled={forgotLoading}
+                    className="w-full bg-gray-900 text-white rounded-lg py-2.5 text-sm font-medium hover:bg-gray-700 disabled:opacity-50 transition-colors">
+                    {forgotLoading ? 'Senden…' : 'Link senden'}
+                  </button>
+                  <button type="button" onClick={() => setShowForgot(false)}
+                    className="w-full text-sm text-gray-400 hover:text-gray-600 py-1 transition-colors">
+                    Zurück zur Anmeldung
+                  </button>
+                </form>
+              )}
+            </div>
+          ) : (
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1.5">
@@ -147,6 +225,10 @@ export default function SignInPage() {
                 <label htmlFor="password" className="text-sm font-medium text-gray-700">
                   Passwort
                 </label>
+                <button type="button" onClick={() => { setShowForgot(true); setForgotEmail(email); }}
+                  className="text-xs text-gray-400 hover:text-gray-700 transition-colors">
+                  Passwort vergessen?
+                </button>
               </div>
               <input
                 id="password"
@@ -173,6 +255,7 @@ export default function SignInPage() {
               {isLoading ? 'Anmelden…' : 'Anmelden'}
             </button>
           </form>
+          )}
 
           <p className="text-center text-sm text-gray-500">
             Noch kein Konto?{' '}
