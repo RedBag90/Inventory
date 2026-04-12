@@ -9,7 +9,7 @@ export function useAdminUsers() {
   return useQuery({
     queryKey: adminKeys.users(),
     queryFn:  getAllUsers,
-    staleTime: 30_000,
+    staleTime: 0,
   });
 }
 

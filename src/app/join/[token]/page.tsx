@@ -1,7 +1,7 @@
-import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/shared/lib/supabase/server';
 import { prisma } from '@/shared/lib/prisma';
+import { JoinAuthClient } from './JoinAuthClient';
 
 export default async function JoinPage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
@@ -12,10 +12,7 @@ export default async function JoinPage({ params }: { params: Promise<{ token: st
     select: { id: true, name: true },
   });
 
-  const cookieStore = await cookies();
-
   if (!instance) {
-    // Invalid or revoked token — show error page
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden">
@@ -60,17 +57,16 @@ export default async function JoinPage({ params }: { params: Promise<{ token: st
           data: { userId: dbUser.id, instanceId: instance.id },
         });
       }
-      redirect('/dashboard');
+      redirect('/dashboard/leaderboard');
     }
   }
 
-  // Not logged in — store token in cookie and send to sign-up/sign-in
-  cookieStore.set('pending_invite_token', token, {
-    httpOnly: true,
-    path:     '/',
-    maxAge:   60 * 60 * 24 * 7, // 1 week
-    sameSite: 'lax',
-  });
-
-  redirect('/sign-up');
+  // Not logged in — show branded auth page
+  return (
+    <JoinAuthClient
+      instanceId={instance.id}
+      instanceName={instance.name}
+      token={token}
+    />
+  );
 }

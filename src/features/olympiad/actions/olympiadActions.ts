@@ -399,3 +399,17 @@ export async function joinViaToken(token: string, userId: string) {
   revalidate();
   return instance.name;
 }
+
+// ── Pending email invite ──────────────────────────────────────────────────────
+
+/**
+ * Stores a pending invite by email so membership is created on first login,
+ * even if the user confirms their email on a different device/browser.
+ */
+export async function storePendingEmailInvite(email: string, instanceId: string): Promise<void> {
+  await prisma.pendingEmailInvite.upsert({
+    where:  { email_instanceId: { email, instanceId } },
+    update: {},
+    create: { email, instanceId },
+  });
+}

@@ -119,6 +119,16 @@ model AdditionalCost {
   item      Item     @relation(fields: [itemId], references: [id])
 }
 
+model PendingEmailInvite {
+  id         String   @id @default(cuid())
+  email      String
+  instanceId String
+  createdAt  DateTime @default(now())
+
+  @@unique([email, instanceId])
+  @@index([email])
+}
+
 model InstanceRequest {
   id           String                @id @default(cuid())
   userId       String
