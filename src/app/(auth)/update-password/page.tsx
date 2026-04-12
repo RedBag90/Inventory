@@ -1,41 +1,20 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+// Reached after /auth/callback exchanges the PKCE recovery code for a session.
+// The user is already authenticated — just collect and save the new password.
+
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/shared/lib/supabase/client';
 
-type Stage = 'loading' | 'form' | 'success' | 'invalid';
-
 export default function UpdatePasswordPage() {
   const router = useRouter();
-  const [stage,    setStage]    = useState<Stage>('loading');
-  const [password, setPassword] = useState('');
-  const [confirm,  setConfirm]  = useState('');
-  const [error,    setError]    = useState<string | null>(null);
+  const [password,  setPassword]  = useState('');
+  const [confirm,   setConfirm]   = useState('');
+  const [error,     setError]     = useState<string | null>(null);
+  const [success,   setSuccess]   = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
-  // Parse the hash fragment that Supabase appends after the recovery link is clicked.
-  // Format: #access_token=...&refresh_token=...&type=recovery
-  useEffect(() => {
-    const hash   = window.location.hash.slice(1); // remove leading #
-    const params = new URLSearchParams(hash);
-    const type   = params.get('type');
-    const access  = params.get('access_token');
-    const refresh = params.get('refresh_token');
-
-    if (type !== 'recovery' || !access || !refresh) {
-      setStage('invalid');
-      return;
-    }
-
-    const supabase = createClient();
-    supabase.auth.setSession({ access_token: access, refresh_token: refresh })
-      .then(({ error }) => {
-        if (error) { setStage('invalid'); }
-        else       { setStage('form'); }
-      });
-  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -60,7 +39,7 @@ export default function UpdatePasswordPage() {
       return;
     }
 
-    setStage('success');
+    setSuccess(true);
     setTimeout(() => router.push('/dashboard/inventory'), 2000);
   }
 
@@ -80,22 +59,7 @@ export default function UpdatePasswordPage() {
         </div>
 
         <div className="px-8 py-6">
-          {stage === 'loading' && (
-            <p className="text-sm text-gray-400 text-center py-4">Wird geprüft…</p>
-          )}
-
-          {stage === 'invalid' && (
-            <div className="text-center space-y-4">
-              <p className="text-sm text-red-600">
-                Dieser Link ist ungültig oder abgelaufen. Bitte fordere eine neue Passwort-Reset-E-Mail an.
-              </p>
-              <Link href="/sign-in" className="block w-full bg-gray-900 text-white rounded-xl py-2.5 text-sm font-medium text-center hover:bg-gray-700 transition-colors">
-                Zurück zur Anmeldung
-              </Link>
-            </div>
-          )}
-
-          {stage === 'success' && (
+          {success ? (
             <div className="text-center space-y-3 py-2">
               <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto">
                 <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
@@ -105,9 +69,7 @@ export default function UpdatePasswordPage() {
               <p className="text-sm font-medium text-gray-900">Passwort gespeichert!</p>
               <p className="text-xs text-gray-400">Du wirst weitergeleitet…</p>
             </div>
-          )}
-
-          {stage === 'form' && (
+          ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1.5">
@@ -117,9 +79,9 @@ export default function UpdatePasswordPage() {
                   type="password"
                   required
                   minLength={8}
+                  autoFocus
                   value={password}
                   onChange={e => setPassword(e.target.value)}
-                  autoFocus
                   placeholder="Mindestens 8 Zeichen"
                   className="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 placeholder:text-gray-400"
                 />
@@ -147,6 +109,10 @@ export default function UpdatePasswordPage() {
               >
                 {isLoading ? 'Speichern…' : 'Passwort speichern'}
               </button>
+              <Link href="/sign-in"
+                className="block text-center text-xs text-gray-400 hover:text-gray-600 py-1 transition-colors">
+                Zurück zur Anmeldung
+              </Link>
             </form>
           )}
         </div>

@@ -39,8 +39,17 @@ export default function SignInPage() {
   const router = useRouter();
   const [email, setEmail]       = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError]       = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Show error from URL params (e.g. expired recovery link → ?error=access_denied)
+  const [error, setError] = useState<string | null>(() => {
+    if (typeof window === 'undefined') return null;
+    const p = new URLSearchParams(window.location.search);
+    const code = p.get('error_code');
+    if (code === 'otp_expired') return 'Der Link ist abgelaufen. Bitte fordere einen neuen an.';
+    if (p.get('error')) return 'Der Link ist ungültig. Bitte fordere einen neuen an.';
+    return null;
+  });
 
   // Forgot password state
   const [showForgot, setShowForgot]     = useState(false);
@@ -74,7 +83,7 @@ export default function SignInPage() {
 
     const supabase = createClient();
     const { error: resetError } = await supabase.auth.resetPasswordForEmail(forgotEmail, {
-      redirectTo: `${window.location.origin}/update-password`,
+      redirectTo: `${window.location.origin}/auth/callback?next=/update-password`,
     });
 
     setForgotLoading(false);
