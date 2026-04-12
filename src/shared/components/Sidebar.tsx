@@ -162,7 +162,7 @@ export function Sidebar({ role }: Props) {
             {!collapsed && (
               <div className="pt-3 pb-1 px-2.5">
                 <p className="text-xs font-medium text-gray-400 uppercase tracking-wide">
-                  {role === 'MASTER_ADMIN' ? 'Master Admin' : 'Admin'}
+                  {role === 'MASTER_ADMIN' ? 'Master Admin' : 'Instance Owner'}
                 </p>
               </div>
             )}

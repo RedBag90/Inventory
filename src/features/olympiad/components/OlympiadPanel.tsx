@@ -98,6 +98,7 @@ function OlympiadRow({
         {instance.description && (
           <p className="text-xs text-gray-400 mt-0.5 truncate max-w-xs">{instance.description}</p>
         )}
+        <p className="text-xs text-gray-400 mt-0.5">{instance.createdByEmail}</p>
       </td>
       <td className="py-3 pr-4 text-sm text-gray-500 whitespace-nowrap">
         {fmt(instance.startsAt)} – {fmt(instance.endsAt)}

@@ -324,7 +324,7 @@ export async function resolveInstanceRequest(
   });
 
   if (decision === 'APPROVED') {
-    // Create the OlympiadInstance and add user as ADMIN member
+    // Create the OlympiadInstance, add user as ADMIN member, and promote global role to ADMIN
     const now = new Date();
     const instance = await prisma.olympiadInstance.create({
       data: {
@@ -335,9 +335,15 @@ export async function resolveInstanceRequest(
         createdById: request.userId,
       },
     });
-    await prisma.instanceMembership.create({
-      data: { userId: request.userId, instanceId: instance.id, memberRole: 'ADMIN' },
-    });
+    await Promise.all([
+      prisma.instanceMembership.create({
+        data: { userId: request.userId, instanceId: instance.id, memberRole: 'ADMIN' },
+      }),
+      prisma.user.update({
+        where: { id: request.userId },
+        data:  { role: 'ADMIN' },
+      }),
+    ]);
 
     sendMail({
       to:      request.user.email,
@@ -360,4 +366,66 @@ export async function resolveInstanceRequest(
       text: `Deine Anfrage für Instanz „${request.instanceName}" wurde abgelehnt.`,
     }).catch(err => console.error('[mailer] instance rejection email failed:', err));
   }
+}
+
+// ─── Instance overview (MASTER_ADMIN) ─────────────────────────────────────────
+
+export type AdminInstanceRecord = {
+  id:             string;
+  name:           string;
+  description:    string | null;
+  startsAt:       Date;
+  endsAt:         Date;
+  isActive:       boolean;
+  createdAt:      Date;
+  createdById:    string;
+  createdByEmail: string;
+  memberCount:    number;
+};
+
+function mapInstance(i: {
+  id: string; name: string; description: string | null;
+  startsAt: Date; endsAt: Date; isActive: boolean; createdAt: Date; createdById: string;
+  createdBy: { email: string };
+  _count: { memberships: number };
+}): AdminInstanceRecord {
+  return {
+    id:             i.id,
+    name:           i.name,
+    description:    i.description,
+    startsAt:       i.startsAt,
+    endsAt:         i.endsAt,
+    isActive:       i.isActive,
+    createdAt:      i.createdAt,
+    createdById:    i.createdById,
+    createdByEmail: i.createdBy.email,
+    memberCount:    i._count.memberships,
+  };
+}
+
+/** All olympiad instances across the platform. MASTER_ADMIN only. */
+export async function getAllInstances(): Promise<AdminInstanceRecord[]> {
+  await requireMasterAdmin();
+  const rows = await prisma.olympiadInstance.findMany({
+    orderBy: { createdAt: 'desc' },
+    include: {
+      _count:    { select: { memberships: true } },
+      createdBy: { select: { email: true } },
+    },
+  });
+  return rows.map(mapInstance);
+}
+
+/** All olympiad instances created by a specific user. MASTER_ADMIN only. */
+export async function getInstanceOlympiads(createdById: string): Promise<AdminInstanceRecord[]> {
+  await requireMasterAdmin();
+  const rows = await prisma.olympiadInstance.findMany({
+    where:   { createdById },
+    orderBy: { createdAt: 'desc' },
+    include: {
+      _count:    { select: { memberships: true } },
+      createdBy: { select: { email: true } },
+    },
+  });
+  return rows.map(mapInstance);
 }

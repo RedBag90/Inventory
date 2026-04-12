@@ -4,18 +4,19 @@ import { prisma } from '@/shared/lib/prisma';
 import { createClient } from '@/shared/lib/supabase/server';
 
 export type OlympiadRecord = {
-  id:           string;
-  name:         string;
-  description:  string | null;
-  startsAt:     Date;
-  endsAt:       Date;
-  isActive:     boolean;
-  createdAt:    Date;
-  createdById:  string;
-  inviteToken:  string | null;
-  joinCode:     string | null;
-  autoAccept:   boolean;
-  memberCount:  number;
+  id:             string;
+  name:           string;
+  description:    string | null;
+  startsAt:       Date;
+  endsAt:         Date;
+  isActive:       boolean;
+  createdAt:      Date;
+  createdById:    string;
+  createdByEmail: string;
+  inviteToken:    string | null;
+  joinCode:       string | null;
+  autoAccept:     boolean;
+  memberCount:    number;
 };
 
 export type OlympiadMember = {
@@ -46,21 +47,25 @@ export async function getOlympiads(): Promise<OlympiadRecord[]> {
   const instances = await prisma.olympiadInstance.findMany({
     where,
     orderBy: { createdAt: 'desc' },
-    include: { _count: { select: { memberships: true } } },
+    include: {
+      _count:    { select: { memberships: true } },
+      createdBy: { select: { email: true } },
+    },
   });
   return instances.map((i) => ({
-    id:          i.id,
-    name:        i.name,
-    description: i.description,
-    startsAt:    i.startsAt,
-    endsAt:      i.endsAt,
-    isActive:    i.isActive,
-    createdAt:   i.createdAt,
-    createdById: i.createdById,
-    inviteToken: i.inviteToken,
-    joinCode:    i.joinCode,
-    autoAccept:  i.autoAccept,
-    memberCount: i._count.memberships,
+    id:             i.id,
+    name:           i.name,
+    description:    i.description,
+    startsAt:       i.startsAt,
+    endsAt:         i.endsAt,
+    isActive:       i.isActive,
+    createdAt:      i.createdAt,
+    createdById:    i.createdById,
+    createdByEmail: i.createdBy.email,
+    inviteToken:    i.inviteToken,
+    joinCode:       i.joinCode,
+    autoAccept:     i.autoAccept,
+    memberCount:    i._count.memberships,
   }));
 }
 
