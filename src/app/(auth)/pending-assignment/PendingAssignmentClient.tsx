@@ -142,11 +142,11 @@ export function PendingAssignmentClient({ email }: { email: string }) {
 
             {myInstanceRequest?.status === 'PENDING' ? (
               <div className="bg-amber-50 border border-amber-100 rounded-lg px-3 py-2.5 text-sm text-amber-800">
-                Instanz-Anfrage für <strong>„{myInstanceRequest.instanceName}"</strong> ist in Prüfung.
+                Instanz-Anfrage für <strong>&bdquo;{myInstanceRequest.instanceName}&ldquo;</strong> ist in Prüfung.
               </div>
             ) : myInstanceRequest?.status === 'REJECTED' ? (
               <div className="bg-red-50 border border-red-100 rounded-lg px-3 py-2.5 text-sm text-red-700">
-                Instanz-Anfrage für <strong>„{myInstanceRequest.instanceName}"</strong> wurde abgelehnt.
+                Instanz-Anfrage für <strong>&bdquo;{myInstanceRequest.instanceName}&ldquo;</strong> wurde abgelehnt.
               </div>
             ) : showInstanceForm ? (
               <form onSubmit={handleInstanceSubmit} className="space-y-3">
