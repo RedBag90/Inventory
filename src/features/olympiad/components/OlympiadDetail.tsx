@@ -141,6 +141,7 @@ function JoinCodeSection({ instance, isOwner }: { instance: OlympiadRecord; isOw
   const { mutate: revoke,   isPending: revoking   } = useRevokeJoinCode();
   const { mutate: setAutoAccept } = useUpdateAutoAccept();
   const [copied, setCopied] = useState(false);
+  const [autoAccept, setAutoAcceptLocal] = useState(instance.autoAccept);
 
   function copy() {
     if (instance.joinCode) {
@@ -169,8 +170,11 @@ function JoinCodeSection({ instance, isOwner }: { instance: OlympiadRecord; isOw
               <label className="flex items-center gap-2.5 cursor-pointer select-none">
                 <input
                   type="checkbox"
-                  checked={instance.autoAccept}
-                  onChange={e => setAutoAccept({ instanceId: instance.id, autoAccept: e.target.checked })}
+                  checked={autoAccept}
+                  onChange={e => {
+                    setAutoAcceptLocal(e.target.checked);
+                    setAutoAccept({ instanceId: instance.id, autoAccept: e.target.checked });
+                  }}
                   className="w-4 h-4 rounded border-gray-300 text-gray-900 focus:ring-gray-400"
                 />
                 <span className="text-xs text-gray-600">Anfragen automatisch akzeptieren</span>
