@@ -11,29 +11,41 @@ import type { AdminUserRecord, UserRole } from '../types/admin.types';
 
 // ─── Auth + role guards ───────────────────────────────────────────────────────
 
-async function getCallerDbUser() {
+type CallerCtx = { id: string; role: string; adminInstanceIds: string[] };
+
+async function getCallerCtx(): Promise<CallerCtx> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error('Unauthenticated');
   const dbUser = await prisma.user.findUnique({
     where:  { supabaseId: user.id },
-    select: { id: true, role: true },
+    select: {
+      id:          true,
+      role:        true,
+      memberships: { where: { memberRole: 'ADMIN' }, select: { instanceId: true } },
+    },
   });
   if (!dbUser) throw new Error('Unauthenticated');
-  return dbUser;
+  return {
+    id:               dbUser.id,
+    role:             dbUser.role,
+    adminInstanceIds: dbUser.memberships.map(m => m.instanceId),
+  };
 }
 
-/** Allows ADMIN and MASTER_ADMIN. */
-async function requireAdmin(): Promise<void> {
-  const caller = await getCallerDbUser();
-  if (caller.role !== 'ADMIN' && caller.role !== 'MASTER_ADMIN') throw new Error('Forbidden');
+/** Allows ADMIN, MASTER_ADMIN, or any user with instanceMembership.memberRole === 'ADMIN'. */
+async function requireAnyAdmin(): Promise<CallerCtx> {
+  const ctx = await getCallerCtx();
+  if (ctx.role !== 'ADMIN' && ctx.role !== 'MASTER_ADMIN' && ctx.adminInstanceIds.length === 0)
+    throw new Error('Forbidden');
+  return ctx;
 }
 
 /** Allows MASTER_ADMIN only. */
-async function requireMasterAdmin(): Promise<{ id: string }> {
-  const caller = await getCallerDbUser();
-  if (caller.role !== 'MASTER_ADMIN') throw new Error('Forbidden');
-  return caller;
+async function requireMasterAdmin(): Promise<CallerCtx> {
+  const ctx = await getCallerCtx();
+  if (ctx.role !== 'MASTER_ADMIN') throw new Error('Forbidden');
+  return ctx;
 }
 
 // ─── Profit helper ────────────────────────────────────────────────────────────
@@ -60,11 +72,21 @@ function computeProfit(sale: {
 
 // ─── Queries ──────────────────────────────────────────────────────────────────
 
-/** Returns all registered users with per-user stats. ADMIN sees own-olympiad members; MASTER_ADMIN sees all. */
+/** Returns registered users with per-user stats. MASTER_ADMIN sees all; instance admins see only their instance's members. */
 export async function getAllUsers(): Promise<AdminUserRecord[]> {
-  await requireAdmin();
+  const ctx = await requireAnyAdmin();
+
+  let userIdFilter: string[] | undefined;
+  if (ctx.role !== 'MASTER_ADMIN') {
+    const memberships = await prisma.instanceMembership.findMany({
+      where:  { instanceId: { in: ctx.adminInstanceIds } },
+      select: { userId: true },
+    });
+    userIdFilter = [...new Set(memberships.map(m => m.userId))];
+  }
 
   const users = await prisma.user.findMany({
+    where:   userIdFilter ? { id: { in: userIdFilter } } : {},
     orderBy: { createdAt: 'desc' },
     include: {
       items: {
@@ -125,17 +147,21 @@ export type JoinRequestRecord = {
 
 /**
  * Returns join requests visible to the caller:
- * - ADMIN: only requests for their own olympiads
  * - MASTER_ADMIN: all requests
+ * - global ADMIN: requests for olympiads they created
+ * - instance admin: requests for their own instance(s)
  */
 export async function getJoinRequests(statusFilter: 'PENDING' | 'ALL' = 'PENDING'): Promise<JoinRequestRecord[]> {
-  const caller = await getCallerDbUser();
-  if (caller.role !== 'ADMIN' && caller.role !== 'MASTER_ADMIN') throw new Error('Forbidden');
+  const ctx = await requireAnyAdmin();
 
   const where: Record<string, unknown> = {};
   if (statusFilter === 'PENDING') where.status = 'PENDING';
-  if (caller.role === 'ADMIN') {
-    where.instance = { createdById: caller.id };
+  if (ctx.role === 'MASTER_ADMIN') {
+    // no extra filter
+  } else if (ctx.adminInstanceIds.length > 0) {
+    where.instanceId = { in: ctx.adminInstanceIds };
+  } else {
+    where.instance = { createdById: ctx.id };
   }
 
   const requests = await prisma.joinRequest.findMany({
@@ -159,11 +185,19 @@ export async function getJoinRequests(statusFilter: 'PENDING' | 'ALL' = 'PENDING
 }
 
 export async function getPendingJoinRequestCount(): Promise<number> {
-  const caller = await getCallerDbUser();
-  if (caller.role !== 'ADMIN' && caller.role !== 'MASTER_ADMIN') return 0;
+  const ctx = await getCallerCtx();
+  const isGlobalAdmin   = ctx.role === 'ADMIN' || ctx.role === 'MASTER_ADMIN';
+  const isInstanceAdmin = ctx.adminInstanceIds.length > 0;
+  if (!isGlobalAdmin && !isInstanceAdmin) return 0;
 
   const where: Record<string, unknown> = { status: 'PENDING' };
-  if (caller.role === 'ADMIN') where.instance = { createdById: caller.id };
+  if (ctx.role === 'MASTER_ADMIN') {
+    // no extra filter
+  } else if (isInstanceAdmin) {
+    where.instanceId = { in: ctx.adminInstanceIds };
+  } else {
+    where.instance = { createdById: ctx.id };
+  }
 
   return prisma.joinRequest.count({ where });
 }
@@ -172,8 +206,7 @@ export async function resolveJoinRequest(
   requestId: string,
   decision: 'ACCEPTED' | 'REJECTED',
 ): Promise<void> {
-  const caller = await getCallerDbUser();
-  if (caller.role !== 'ADMIN' && caller.role !== 'MASTER_ADMIN') throw new Error('Forbidden');
+  const ctx = await requireAnyAdmin();
 
   const request = await prisma.joinRequest.findUnique({
     where:   { id: requestId },
@@ -183,11 +216,17 @@ export async function resolveJoinRequest(
     },
   });
   if (!request) throw new Error('Request not found');
-  if (caller.role === 'ADMIN' && request.instance.createdById !== caller.id) throw new Error('Forbidden');
+
+  if (ctx.role !== 'MASTER_ADMIN') {
+    const canResolve =
+      (ctx.role === 'ADMIN' && request.instance.createdById === ctx.id) ||
+      ctx.adminInstanceIds.includes(request.instanceId);
+    if (!canResolve) throw new Error('Forbidden');
+  }
 
   await prisma.joinRequest.update({
     where: { id: requestId },
-    data:  { status: decision, resolvedAt: new Date(), resolvedById: caller.id },
+    data:  { status: decision, resolvedAt: new Date(), resolvedById: ctx.id },
   });
 
   // Notify the user of the decision (fire-and-forget)
@@ -261,8 +300,8 @@ export async function getInstanceRequests(statusFilter: 'PENDING' | 'ALL' = 'PEN
 }
 
 export async function getPendingInstanceRequestCount(): Promise<number> {
-  const caller = await getCallerDbUser();
-  if (caller.role !== 'MASTER_ADMIN') return 0;
+  const ctx = await getCallerCtx();
+  if (ctx.role !== 'MASTER_ADMIN') return 0;
   return prisma.instanceRequest.count({ where: { status: 'PENDING' } });
 }
 

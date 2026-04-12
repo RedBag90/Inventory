@@ -9,6 +9,7 @@ import { useAdminUsers, useSetUserRole, useSetUserActive } from '../hooks/useAdm
 import { useJoinRequests, useResolveJoinRequest, usePendingJoinRequestCount } from '../hooks/useJoinRequests';
 import { useInstanceRequests, useResolveInstanceRequest, usePendingInstanceRequestCount } from '../hooks/useInstanceRequests';
 import { useCurrentDbUser } from '@/features/auth/hooks/useCurrentDbUser';
+import { useMyMemberships } from '@/features/olympiad/hooks/useOlympiads';
 import { formatCurrency, formatDate } from '@/shared/lib/utils';
 import type { AdminUserRecord, UserRole } from '../types/admin.types';
 import type { JoinRequestRecord, InstanceRequestRecord } from '../services/AdminRepository';
@@ -52,7 +53,9 @@ type AdminTab = 'users' | 'olympiads' | 'requests' | 'instanceRequests';
 
 export function AdminPage() {
   const { data: me } = useCurrentDbUser();
-  const isMasterAdmin = me?.role === 'MASTER_ADMIN';
+  const { data: memberships = [] } = useMyMemberships();
+  const isMasterAdmin   = me?.role === 'MASTER_ADMIN';
+  const isInstanceAdmin = memberships.some(m => m.memberRole === 'ADMIN');
   const [tab, setTab] = useState<AdminTab>('olympiads');
   const { data: pendingCount } = usePendingJoinRequestCount();
   const { data: pendingInstanceCount } = usePendingInstanceRequestCount(isMasterAdmin);
@@ -62,7 +65,9 @@ export function AdminPage() {
     ['requests',  'Anfragen', pendingCount ?? 0],
     ...(isMasterAdmin ? [
       ['instanceRequests', 'Instanz-Anfragen', pendingInstanceCount ?? 0] as [AdminTab, string, number],
-      ['users', 'Users'] as [AdminTab, string],
+    ] : []),
+    ...((isMasterAdmin || isInstanceAdmin) ? [
+      ['users', 'Nutzer'] as [AdminTab, string],
     ] : []),
   ];
 
@@ -93,7 +98,7 @@ export function AdminPage() {
       {tab === 'olympiads'        && <OlympiadPanel />}
       {tab === 'requests'         && <JoinRequestsTab />}
       {tab === 'instanceRequests' && isMasterAdmin && <InstanceRequestsTab />}
-      {tab === 'users'            && isMasterAdmin && <UserManagement />}
+      {tab === 'users'            && (isMasterAdmin || isInstanceAdmin) && <UserManagement />}
     </div>
   );
 }

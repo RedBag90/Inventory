@@ -8,6 +8,7 @@ import {
   useArchiveOlympiad,
   useReactivateOlympiad,
   useDeleteOlympiad,
+  useMyMemberships,
 } from '../hooks/useOlympiads';
 import type { OlympiadRecord } from '../services/olympiadRepository';
 import { OlympiadDetail } from './OlympiadDetail';
@@ -143,17 +144,22 @@ function OlympiadRow({
 
 export function OlympiadPanel() {
   const { data: currentUser } = useCurrentDbUser();
+  const { data: myMemberships = [] } = useMyMemberships();
   const { data: olympiads, isLoading } = useOlympiads();
   const [showCreate, setShowCreate] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const selected = selectedId ? (olympiads?.find(o => o.id === selectedId) ?? null) : null;
 
+  const isOwnerOf = (instanceId: string) =>
+    currentUser?.role === 'MASTER_ADMIN' ||
+    myMemberships.some(m => m.instanceId === instanceId && m.memberRole === 'ADMIN');
+
   if (selected) {
     return (
       <OlympiadDetail
         instance={selected}
-        isOwner={currentUser?.role === 'MASTER_ADMIN' || (currentUser?.role === 'ADMIN' && selected.createdById === currentUser?.id)}
+        isOwner={isOwnerOf(selected.id)}
         onBack={() => setSelectedId(null)}
       />
     );
@@ -207,7 +213,7 @@ export function OlympiadPanel() {
                 <OlympiadRow
                   key={o.id}
                   instance={o}
-                  isOwner={currentUser?.role === 'MASTER_ADMIN' || (currentUser?.role === 'ADMIN' && o.createdById === currentUser?.id)}
+                  isOwner={isOwnerOf(o.id)}
                   onSelect={() => setSelectedId(o.id)}
                 />
               ))}
