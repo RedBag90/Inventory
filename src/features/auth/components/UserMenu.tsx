@@ -127,7 +127,7 @@ export function UserMenu() {
                     ? 'bg-amber-100 text-amber-800'
                     : 'bg-gray-100 text-gray-600'
               }`}>
-                {role === 'MASTER_ADMIN' ? 'Master Admin' : role === 'ADMIN' ? 'Admin' : 'Mitglied'}
+                {role === 'MASTER_ADMIN' ? 'Master Admin' : role === 'ADMIN' ? 'Instance Owner' : 'Mitglied'}
               </span>
             </div>
           </div>
