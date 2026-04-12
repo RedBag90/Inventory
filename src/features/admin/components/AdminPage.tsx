@@ -8,7 +8,7 @@ import { useState } from 'react';
 import { useAdminUsers, useSetUserRole, useSetUserActive } from '../hooks/useAdminUsers';
 import { useJoinRequests, useResolveJoinRequest, usePendingJoinRequestCount } from '../hooks/useJoinRequests';
 import { useInstanceRequests, useResolveInstanceRequest, usePendingInstanceRequestCount } from '../hooks/useInstanceRequests';
-import { useInstances, useInstanceOlympiads } from '../hooks/useInstances';
+import { useInstances, useInstanceOlympiads, useTransferOlympiadOwner } from '../hooks/useInstances';
 import { useCurrentDbUser } from '@/features/auth/hooks/useCurrentDbUser';
 import { useMyMemberships } from '@/features/olympiad/hooks/useOlympiads';
 import { useOlympiadMembers, useUpdateOlympiad } from '@/features/olympiad/hooks/useOlympiads';
@@ -454,6 +454,9 @@ function InstanceDetail({ instance, onBack }: { instance: AdminInstanceRecord; o
   const { data: olympiads } = useInstanceOlympiads(instance.createdById);
   const { data: members, isLoading: membersLoading } = useOlympiadMembers(instance.id);
   const { mutate: update } = useUpdateOlympiad();
+  const { mutate: transfer, isPending: transferring, error: transferError, reset: resetTransfer } = useTransferOlympiadOwner();
+  const [transferEmail, setTransferEmail] = useState('');
+  const [transferSuccess, setTransferSuccess] = useState(false);
 
   function save(field: string, value: string) {
     const data: Record<string, string | Date> = {};
@@ -527,6 +530,44 @@ function InstanceDetail({ instance, onBack }: { instance: AdminInstanceRecord; o
               </li>
             ))}
           </ul>
+        )}
+      </div>
+
+      {/* Transfer ownership */}
+      <div className="bg-white border border-gray-200 rounded-xl p-5 space-y-3">
+        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Instanz übertragen</p>
+        {transferSuccess ? (
+          <p className="text-sm text-green-700 bg-green-50 border border-green-100 rounded-lg px-3 py-2">
+            Instanz erfolgreich übertragen.
+          </p>
+        ) : (
+          <form
+            onSubmit={e => {
+              e.preventDefault();
+              resetTransfer();
+              setTransferSuccess(false);
+              transfer({ instanceId: instance.id, newOwnerEmail: transferEmail.trim() }, {
+                onSuccess: () => { setTransferSuccess(true); setTransferEmail(''); },
+              });
+            }}
+            className="flex gap-2"
+          >
+            <input
+              type="email"
+              value={transferEmail}
+              onChange={e => { setTransferEmail(e.target.value); resetTransfer(); setTransferSuccess(false); }}
+              placeholder="Neue Inhaber-E-Mail"
+              required
+              className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
+            />
+            <button type="submit" disabled={transferring || !transferEmail.trim()}
+              className="bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-700 disabled:opacity-50 transition-colors">
+              {transferring ? '…' : 'Übertragen'}
+            </button>
+          </form>
+        )}
+        {transferError && (
+          <p className="text-xs text-red-600">{(transferError as Error).message}</p>
         )}
       </div>
 

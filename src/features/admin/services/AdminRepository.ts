@@ -416,6 +416,20 @@ export async function getAllInstances(): Promise<AdminInstanceRecord[]> {
   return rows.map(mapInstance);
 }
 
+/** Transfer an olympiad to a new owner by email. MASTER_ADMIN only. */
+export async function transferOlympiadOwner(instanceId: string, newOwnerEmail: string): Promise<void> {
+  await requireMasterAdmin();
+  const newOwner = await prisma.user.findUnique({
+    where:  { email: newOwnerEmail },
+    select: { id: true },
+  });
+  if (!newOwner) throw new Error(`Kein User mit der E-Mail „${newOwnerEmail}" gefunden.`);
+  await prisma.olympiadInstance.update({
+    where: { id: instanceId },
+    data:  { createdById: newOwner.id },
+  });
+}
+
 /** All olympiad instances created by a specific user. MASTER_ADMIN only. */
 export async function getInstanceOlympiads(createdById: string): Promise<AdminInstanceRecord[]> {
   await requireMasterAdmin();
