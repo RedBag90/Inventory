@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { createClient } from '@/shared/lib/supabase/client';
@@ -201,6 +202,15 @@ export function UserMenu() {
 
           {/* Footer */}
           <div className="px-4 pb-4 space-y-2">
+            {role === 'USER' && (
+              <Link
+                href="/pending-assignment"
+                onClick={() => setOpen(false)}
+                className="block w-full text-center text-sm text-indigo-600 hover:text-indigo-800 border border-indigo-200 hover:border-indigo-400 rounded-lg py-2 font-medium transition-colors"
+              >
+                Selber Organisator werden
+              </Link>
+            )}
             <button
               onClick={() => { setOpen(false); restartTutorial(); }}
               className="w-full text-sm text-gray-500 hover:text-gray-800 border border-gray-200 hover:border-gray-400 rounded-lg py-2 font-medium transition-colors"
