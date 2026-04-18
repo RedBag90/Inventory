@@ -1,4 +1,37 @@
 'use client';
-// Feature-level error boundary — wrap each dashboard feature with this.
-// Reports errors to Sentry. Renders a retry UI on failure.
-// Never use a single root-level boundary — use one per feature.
+
+import React from 'react';
+import * as Sentry from '@sentry/nextjs';
+
+type Props = { children: React.ReactNode; fallback?: React.ReactNode };
+type State = { hasError: boolean };
+
+export class AppErrorBoundary extends React.Component<Props, State> {
+  state: State = { hasError: false };
+
+  static getDerivedStateFromError(): State {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error, info: React.ErrorInfo) {
+    Sentry.captureException(error, { extra: { componentStack: info.componentStack } });
+  }
+
+  render() {
+    if (this.state.hasError) {
+      if (this.props.fallback) return this.props.fallback;
+      return (
+        <div className="flex flex-col items-center justify-center p-8 text-center space-y-3">
+          <p className="text-sm font-medium text-gray-900">Etwas ist schiefgelaufen.</p>
+          <button
+            onClick={() => this.setState({ hasError: false })}
+            className="text-xs text-gray-500 underline hover:text-gray-800 transition-colors"
+          >
+            Erneut versuchen
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}

@@ -1,10 +1,16 @@
 import type { NextConfig } from 'next';
+import { withSentryConfig } from '@sentry/nextjs';
 
 const nextConfig: NextConfig = {
-  // Strict mode for React 19 — catches deprecated patterns early
   reactStrictMode: true,
-  // Pin the tracing root to this project to avoid the "multiple lockfiles" warning
   outputFileTracingRoot: __dirname,
+  experimental: {
+    reactCompiler: true,
+  },
 };
 
-export default nextConfig;
+export default withSentryConfig(nextConfig, {
+  silent: true,
+  disableLogger: true,
+  automaticVercelMonitors: true,
+});
