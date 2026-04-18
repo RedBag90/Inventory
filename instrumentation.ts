@@ -3,7 +3,7 @@ export async function register() {
     const { init } = await import('@sentry/nextjs');
     const { env } = await import('@/shared/config/env');
     init({
-      dsn: env.SENTRY_DSN,
+      dsn: env.NEXT_PUBLIC_SENTRY_DSN,
       tracesSampleRate: 1.0,
       enabled: env.NODE_ENV === 'production',
     });
@@ -13,7 +13,7 @@ export async function register() {
     const { init } = await import('@sentry/nextjs');
     const { env } = await import('@/shared/config/env');
     init({
-      dsn: env.SENTRY_DSN,
+      dsn: env.NEXT_PUBLIC_SENTRY_DSN,
       tracesSampleRate: 1.0,
       enabled: env.NODE_ENV === 'production',
     });
