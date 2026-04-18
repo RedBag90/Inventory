@@ -48,7 +48,7 @@ export function TutorialOverlays() {
       <SpotlightOverlay
         targetSelector="[data-tutorial='user-menu-button']"
         title="Zeig, wer du bist!"
-        description="In der Bestenliste stehst du noch als 'Unbekannt'? Klick oben rechts auf deinen Namen und vergib dir einen Anzeigenamen — z. B. 'FlohmarktKönig'."
+        description="In der Bestenliste stehst du noch ohne Namen? Klick oben rechts auf deinen Namen und vergib dir einen Anzeigenamen — z. B. 'FlohmarktKönig'."
         step={5}
         totalSteps={TOTAL_STEPS}
         onNext={next}
