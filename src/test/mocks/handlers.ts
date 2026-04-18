@@ -1,4 +1,4 @@
-import { http, HttpResponse } from 'msw';
+import { http } from 'msw';
 
 // Add request handlers here as features are tested.
 // Example: http.get('/api/items', () => HttpResponse.json([]))

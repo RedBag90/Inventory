@@ -14,7 +14,6 @@ type Props = {
 };
 
 export function JoinAuthClient({ instanceId, instanceName, token }: Props) {
-  const router = useRouter();
   const [tab, setTab] = useState<Tab>('login');
 
   return (
