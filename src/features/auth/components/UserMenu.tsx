@@ -90,6 +90,7 @@ export function UserMenu() {
     <div ref={containerRef} className="relative">
       {/* Trigger */}
       <button
+        data-tutorial="user-menu-button"
         onClick={() => setOpen((v) => !v)}
         className="flex items-center gap-2 rounded-full hover:bg-gray-100 px-2 py-1 transition-colors"
       >

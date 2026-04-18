@@ -12,6 +12,7 @@ export type TutorialStep =
   | 'inventory-sell'
   | 'reporting'
   | 'leaderboard'
+  | 'set-display-name'
   | 'first-sale'
   | 'done';
 
@@ -29,6 +30,7 @@ const STEP_ORDER: TutorialStep[] = [
   'inventory-sell',
   'inventory-add',
   'leaderboard',
+  'set-display-name',
   'reporting',
   'first-sale',
   'done',
@@ -39,8 +41,9 @@ const STEP_ROUTES: Record<TutorialStep, string | null> = {
   'inventory-sell': '/dashboard/inventory',
   'inventory-add':  '/dashboard/inventory',
   'reporting':      '/dashboard/reporting',
-  'leaderboard':    '/dashboard/leaderboard',
-  'first-sale':     '/dashboard/inventory',
+  'leaderboard':        '/dashboard/leaderboard',
+  'set-display-name':   '/dashboard/leaderboard',
+  'first-sale':         '/dashboard/inventory',
   'done':           '/dashboard/inventory',
 };
 

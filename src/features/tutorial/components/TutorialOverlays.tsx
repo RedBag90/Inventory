@@ -6,7 +6,7 @@ import { SpotlightOverlay } from './SpotlightOverlay';
 
 // ── Per-step overlay definitions ─────────────────────────────────────────────
 
-const TOTAL_STEPS = 5; // steps 2–6 (welcome is step 1 but separate)
+const TOTAL_STEPS = 6; // steps 2–7 (welcome is step 1 but separate)
 
 export function TutorialOverlays() {
   const { step, next, skip } = useTutorial();
@@ -43,13 +43,27 @@ export function TutorialOverlays() {
     );
   }
 
+  if (step === 'set-display-name' && pathname.startsWith('/dashboard/leaderboard')) {
+    return (
+      <SpotlightOverlay
+        targetSelector="[data-tutorial='user-menu-button']"
+        title="Zeig, wer du bist!"
+        description="In der Bestenliste stehst du noch ohne Namen? Klick oben rechts auf deinen Namen und vergib dir einen Anzeigenamen — z. B. 'FlohmarktKönig'."
+        step={5}
+        totalSteps={TOTAL_STEPS}
+        onNext={next}
+        onSkip={skip}
+      />
+    );
+  }
+
   if (step === 'reporting' && pathname.startsWith('/dashboard/reporting')) {
     return (
       <SpotlightOverlay
         targetSelector="[data-tutorial='reporting-tabs']"
         title="Deine Zahlen im Überblick"
         description="Hier siehst du Umsatz, Kosten und Gewinn — täglich, monatlich, quartalsweise oder kumuliert. Die Karten oben zeigen dir die wichtigsten Kennzahlen auf einen Blick."
-        step={5}
+        step={6}
         totalSteps={TOTAL_STEPS}
         onNext={next}
         onSkip={skip}
@@ -77,7 +91,7 @@ export function TutorialOverlays() {
         targetSelector="[data-tutorial='quick-sell-button']"
         title="Bereit für deinen ersten Verkauf?"
         description="Dokumentiere jetzt deinen ersten Verkauf — klick auf 'Schnell verkaufen' und trag Artikel, Preis und Plattform ein. In 30 Sekunden erledigt."
-        step={6}
+        step={7}
         totalSteps={TOTAL_STEPS}
         nextLabel="Jetzt loslegen!"
         onNext={next}
