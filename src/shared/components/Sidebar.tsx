@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { usePendingJoinRequestCount } from '@/features/admin/hooks/useJoinRequests';
 import { useActiveOlympiad } from '@/features/olympiad/hooks/useActiveOlympiad';
+import { useMyBadgeCount } from '@/features/badges/hooks/useBadges';
 
 // ── icons ─────────────────────────────────────────────────────────────────────
 
@@ -41,6 +42,14 @@ function IconUsers() {
   );
 }
 
+function IconBadge() {
+  return (
+    <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 0 1-1.043 3.296 3.745 3.745 0 0 1-3.296 1.043A3.745 3.745 0 0 1 12 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 0 1-3.296-1.043 3.745 3.745 0 0 1-1.043-3.296A3.745 3.745 0 0 1 3 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 0 1 1.043-3.296 3.746 3.746 0 0 1 3.296-1.043A3.746 3.746 0 0 1 12 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 0 1 3.296 1.043 3.746 3.746 0 0 1 1.043 3.296A3.745 3.745 0 0 1 21 12Z" />
+    </svg>
+  );
+}
+
 function IconChevronLeft() {
   return (
     <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
@@ -68,16 +77,18 @@ export function Sidebar({ role }: Props) {
   const [collapsed, setCollapsed] = useState(false);
   const isGlobalAdmin = role === 'ADMIN' || role === 'MASTER_ADMIN';
   const { active, all: memberships, setActive } = useActiveOlympiad();
+  const { data: badgeCount } = useMyBadgeCount();
   const isInstanceAdmin = memberships.some(m => m.memberRole === 'ADMIN');
   const isAdmin = isGlobalAdmin || isInstanceAdmin;
   const { data: pendingCount } = usePendingJoinRequestCount(isAdmin);
   const showSwitcher = !collapsed && memberships.length > 1;
 
   const NAV_ITEMS = [
-    { label: t('leaderboard'), href: '/dashboard/leaderboard', icon: <IconTrophy /> },
-    { label: t('inventory'),   href: '/dashboard/inventory',   icon: <IconBox />    },
-    { label: t('reporting'),   href: '/dashboard/reporting',   icon: <IconChart />  },
-  ] as const;
+    { label: t('leaderboard'), href: '/dashboard/leaderboard', icon: <IconTrophy />, count: undefined },
+    { label: t('inventory'),   href: '/dashboard/inventory',   icon: <IconBox />,    count: undefined },
+    { label: t('reporting'),   href: '/dashboard/reporting',   icon: <IconChart />,  count: undefined },
+    { label: t('badges'),      href: '/dashboard/badges',      icon: <IconBadge />,  count: badgeCount ?? undefined },
+  ] satisfies { label: string; href: string; icon: React.ReactNode; count: number | undefined }[];
 
   return (
     <aside className={[
@@ -119,7 +130,7 @@ export function Sidebar({ role }: Props) {
 
       {/* Nav */}
       <nav className="flex-1 px-2 py-4 space-y-1">
-        {NAV_ITEMS.map(({ label, href, icon }, index) => {
+        {NAV_ITEMS.map(({ label, href, icon, count }, index) => {
           const isActive = pathname.startsWith(href);
           return (
             <div key={href}>
@@ -135,7 +146,16 @@ export function Sidebar({ role }: Props) {
                 ].join(' ')}
               >
                 {icon}
-                {!collapsed && <span>{label}</span>}
+                {!collapsed && (
+                  <span className="flex-1 flex items-center justify-between">
+                    {label}
+                    {count != null && count > 0 && (
+                      <span className="inline-flex items-center justify-center min-w-[1.1rem] h-[1.1rem] px-1 rounded-full bg-amber-400 text-gray-900 text-[10px] font-bold leading-none">
+                        {count > 99 ? '99+' : count}
+                      </span>
+                    )}
+                  </span>
+                )}
               </Link>
 
               {/* Olympiade-Switcher — between Rangliste (0) and Inventar (1), expanded only */}

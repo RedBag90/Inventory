@@ -38,6 +38,7 @@
     "leaderboard": "Rangliste",
     "inventory": "Inventar",
     "reporting": "Berichte",
+    "badges": "Abzeichen",
     "collapseSidebar": "Seitenleiste einklappen",
     "expandSidebar": "Seitenleiste ausklappen"
   },
@@ -287,5 +288,44 @@
       "firstSaleTitle": "Bereit für deinen ersten Verkauf?",
       "firstSaleDescription": "Dokumentiere jetzt deinen ersten Verkauf — klick auf 'Schnell verkaufen' und trag Artikel, Preis und Plattform ein. In 30 Sekunden erledigt."
     }
+  },
+  "badges": {
+    "pageTitle": "Meine Abzeichen",
+    "earned": "Verdient",
+    "locked": "Noch nicht verdient",
+    "newBadgeToast": "Neues Abzeichen!",
+    "categoryAll": "Alle",
+    "categories": {
+      "SALES": "Verkäufe",
+      "PROFIT": "Gewinn",
+      "EFFICIENCY": "Effizienz",
+      "INVENTORY": "Inventar",
+      "LEADERBOARD": "Rangliste",
+      "ENGAGEMENT": "Engagement",
+      "SPECIAL": "Sonderabzeichen"
+    },
+    "tiers": {
+      "BRONZE": "Bronze",
+      "SILVER": "Silber",
+      "GOLD": "Gold"
+    },
+    "first-item":    { "name": "Erste Beute",       "description": "Deinen ersten Artikel ins Inventar aufgenommen." },
+    "buyer-10":      { "name": "Einkäufer",          "description": "10 Artikel gekauft." },
+    "buyer-25":      { "name": "Großeinkäufer",      "description": "25 Artikel gekauft." },
+    "buyer-50":      { "name": "Lagerhaus",          "description": "50 Artikel gekauft." },
+    "first-sale":    { "name": "Erster Verkauf",     "description": "Deinen ersten Artikel verkauft." },
+    "seller-10":     { "name": "Händler",            "description": "10 Artikel verkauft." },
+    "seller-25":     { "name": "Profi-Händler",      "description": "25 Artikel verkauft." },
+    "seller-50":     { "name": "Meister-Händler",    "description": "50 Artikel verkauft." },
+    "profit-100":    { "name": "Erster Hunderter",   "description": "€100 Gesamtgewinn erreicht." },
+    "profit-500":    { "name": "Fünfhundert Club",   "description": "€500 Gesamtgewinn erreicht." },
+    "profit-1000":   { "name": "Tausender",          "description": "€1.000 Gesamtgewinn erreicht." },
+    "profit-5000":   { "name": "Big Flipper",        "description": "€5.000 Gesamtgewinn erreicht." },
+    "speed-3d":      { "name": "Schnellschuss",      "description": "Einen Artikel innerhalb von 3 Tagen nach Kauf verkauft." },
+    "speed-1d":      { "name": "Blitzverkäufer",     "description": "Einen Artikel am selben Tag verkauft." },
+    "top-3":         { "name": "Podium",             "description": "Top-3-Platzierung in einer Saison erreicht." },
+    "champion":      { "name": "Champion",           "description": "Platz 1 in einer Saison belegt." },
+    "display-name":  { "name": "Gesicht der Masse",  "description": "Einen Anzeigenamen festgelegt." },
+    "tutorial-done": { "name": "Eingewöhnt",         "description": "Das Tutorial abgeschlossen." }
   }
 }

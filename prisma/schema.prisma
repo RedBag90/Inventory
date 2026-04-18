@@ -26,6 +26,7 @@ model User {
   resolvedRequests         JoinRequest[]        @relation("ResolvedRequests")
   instanceRequests         InstanceRequest[]    @relation("InstanceRequests")
   resolvedInstanceRequests InstanceRequest[]    @relation("ResolvedInstanceRequests")
+  userBadges               UserBadge[]
 }
 
 model OlympiadInstance {
@@ -119,6 +120,30 @@ model AdditionalCost {
   item      Item     @relation(fields: [itemId], references: [id])
 }
 
+model Badge {
+  id         String        @id @default(cuid())
+  slug       String        @unique
+  category   BadgeCategory
+  tier       BadgeTier
+  criteria   Json
+  sortOrder  Int           @default(0)
+  createdAt  DateTime      @default(now())
+  userBadges UserBadge[]
+}
+
+model UserBadge {
+  id         String    @id @default(cuid())
+  userId     String
+  badgeId    String
+  unlockedAt DateTime  @default(now())
+  notified   Boolean   @default(false)
+  user       User      @relation(fields: [userId], references: [id])
+  badge      Badge     @relation(fields: [badgeId], references: [id])
+
+  @@unique([userId, badgeId])
+  @@index([userId])
+}
+
 model PendingEmailInvite {
   id         String   @id @default(cuid())
   email      String
@@ -180,4 +205,20 @@ enum Platform {
   EBAY
   FACEBOOK
   OTHER
+}
+
+enum BadgeCategory {
+  SALES
+  PROFIT
+  EFFICIENCY
+  INVENTORY
+  LEADERBOARD
+  ENGAGEMENT
+  SPECIAL
+}
+
+enum BadgeTier {
+  BRONZE
+  SILVER
+  GOLD
 }

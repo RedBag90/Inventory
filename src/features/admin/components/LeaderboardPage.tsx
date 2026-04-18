@@ -6,6 +6,8 @@ import { useCurrentDbUser } from '@/features/auth/hooks/useCurrentDbUser';
 import { useOlympiads } from '@/features/olympiad/hooks/useOlympiads';
 import { useActiveOlympiad } from '@/features/olympiad/hooks/useActiveOlympiad';
 import { formatCurrency } from '@/shared/lib/utils';
+import { BadgeChip } from '@/features/badges/components/BadgeChip';
+import { useTranslations } from 'next-intl';
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
@@ -55,6 +57,7 @@ type Entry = {
   soldCount: number;
   totalProfit: number;
   rankChange: number;
+  topBadges: { slug: string; tier: string }[];
 };
 
 // height encodes rank — gold tallest, bronze shortest
@@ -113,6 +116,7 @@ function PodiumCard({ user, config }: { user: Entry; config: typeof PODIUM_CONFI
 // ── main component ────────────────────────────────────────────────────────────
 
 export function LeaderboardPage() {
+  const tb = useTranslations('badges');
   const { data: me } = useCurrentDbUser();
   const isMasterAdmin = me?.role === 'MASTER_ADMIN';
 
@@ -258,13 +262,16 @@ export function LeaderboardPage() {
 
                     {/* Name */}
                     <div className="min-w-0 pl-3">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1.5 flex-wrap">
                         <p className="text-sm font-medium text-gray-900 truncate">{label}</p>
                         {isMe && (
                           <span className="text-[10px] font-bold bg-gray-900 text-white px-1.5 py-0.5 rounded-full shrink-0">
                             Du
                           </span>
                         )}
+                        {user.topBadges.map((b) => (
+                          <BadgeChip key={b.slug} slug={b.slug} tier={b.tier as 'BRONZE' | 'SILVER' | 'GOLD'} label={tb(`${b.slug}.name`)} size="sm" />
+                        ))}
                       </div>
                       {user.displayName && (
                         <p className="text-xs text-gray-400 truncate">{user.email}</p>
