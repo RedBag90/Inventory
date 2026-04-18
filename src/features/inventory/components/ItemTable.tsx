@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { useItems } from '../hooks/useItems';
 import { ItemCard } from './ItemCard';
 import { inventoryKeys } from '../hooks/inventoryKeys';
@@ -15,24 +16,24 @@ import { GhostItemCard } from '@/features/tutorial/components/GhostItemCard';
 
 type FilterTab = 'ALL' | 'IN_STOCK' | 'SOLD';
 
-const TABS: { label: string; value: FilterTab }[] = [
-  { label: 'Alle',     value: 'ALL' },
-  { label: 'Auf Lager', value: 'IN_STOCK' },
-  { label: 'Verkauft', value: 'SOLD' },
-];
-
 type Props = {
   onRecordSale: (item: ItemWithCosts) => void;
 };
 
 export function ItemTable({ onRecordSale }: Props) {
+  const t = useTranslations('inventory');
   const { data: items, isLoading, isError } = useItems();
   const { step: tutorialStep } = useTutorial();
   const searchParams = useSearchParams();
   const pathname     = usePathname();
   const router       = useRouter();
 
-  // Always fetch all items for stats (shared cache when no filter active)
+  const TABS: { label: string; value: FilterTab }[] = [
+    { label: t('filterAll'),     value: 'ALL' },
+    { label: t('filterInStock'), value: 'IN_STOCK' },
+    { label: t('filterSold'),    value: 'SOLD' },
+  ];
+
   const { data: allItems } = useQuery({
     queryKey: inventoryKeys.list({}),
     queryFn:  () => getItems({}),
@@ -48,7 +49,6 @@ export function ItemTable({ onRecordSale }: Props) {
     router.push(`${pathname}?${params.toString()}`);
   }
 
-  // Derive stats from all items
   const stats = allItems ? {
     total:   allItems.length,
     inStock: allItems.filter((i) => i.status === 'IN_STOCK').length,
@@ -66,11 +66,11 @@ export function ItemTable({ onRecordSale }: Props) {
       {stats && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
-            { label: 'Artikel gesamt', value: String(stats.total) },
-            { label: 'Auf Lager',      value: String(stats.inStock) },
-            { label: 'Verkauft',       value: String(stats.sold) },
+            { label: t('totalItems'), value: String(stats.total) },
+            { label: t('inStock'),    value: String(stats.inStock) },
+            { label: t('sold'),       value: String(stats.sold) },
             {
-              label: 'Realisierter Gewinn',
+              label: t('profit'),
               value: formatCurrency(stats.profit),
               color: stats.profit > 0 ? 'text-emerald-600' : stats.profit < 0 ? 'text-red-500' : 'text-gray-500',
             },
@@ -107,30 +107,28 @@ export function ItemTable({ onRecordSale }: Props) {
           ))}
         </div>
 
-        {/* Content */}
         {isLoading && (
-          <div className="py-12 text-center text-sm text-gray-400">Laden…</div>
+          <div className="py-12 text-center text-sm text-gray-400">{t('loading')}</div>
         )}
 
         {isError && (
-          <div className="py-12 text-center text-sm text-red-500">Inventar konnte nicht geladen werden.</div>
+          <div className="py-12 text-center text-sm text-red-500">{t('loadError')}</div>
         )}
 
         {!isLoading && !isError && (!items || items.length === 0) && tutorialStep !== 'inventory-sell' && (
           <div className="py-16 text-center">
-            <p className="text-sm text-gray-400">Keine Artikel gefunden.</p>
+            <p className="text-sm text-gray-400">{t('noItems')}</p>
             {activeFilter !== 'ALL' && (
               <button
                 onClick={() => setFilter('ALL')}
                 className="mt-2 text-xs text-gray-500 underline underline-offset-2"
               >
-                Filter zurücksetzen
+                {t('resetFilter')}
               </button>
             )}
           </div>
         )}
 
-        {/* Ghost item for tutorial step 'inventory-sell' when list is empty */}
         {tutorialStep === 'inventory-sell' && (!items || items.length === 0) && (
           <ul className="divide-y divide-gray-100">
             <GhostItemCard />

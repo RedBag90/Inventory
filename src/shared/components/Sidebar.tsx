@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { usePendingJoinRequestCount } from '@/features/admin/hooks/useJoinRequests';
 import { useActiveOlympiad } from '@/features/olympiad/hooks/useActiveOlympiad';
 
@@ -56,19 +57,13 @@ function IconChevronRight() {
   );
 }
 
-// ── nav config ────────────────────────────────────────────────────────────────
-
-const NAV_ITEMS = [
-  { label: 'Rangliste', href: '/dashboard/leaderboard', icon: <IconTrophy /> },
-  { label: 'Inventar',  href: '/dashboard/inventory',   icon: <IconBox />    },
-  { label: 'Berichte',  href: '/dashboard/reporting',   icon: <IconChart />  },
-] as const;
-
 // ── component ─────────────────────────────────────────────────────────────────
 
 type Props = { role?: 'USER' | 'ADMIN' | 'MASTER_ADMIN' };
 
 export function Sidebar({ role }: Props) {
+  const t = useTranslations('nav');
+  const tUser = useTranslations('userMenu');
   const pathname    = usePathname();
   const [collapsed, setCollapsed] = useState(false);
   const isGlobalAdmin = role === 'ADMIN' || role === 'MASTER_ADMIN';
@@ -77,6 +72,12 @@ export function Sidebar({ role }: Props) {
   const isAdmin = isGlobalAdmin || isInstanceAdmin;
   const { data: pendingCount } = usePendingJoinRequestCount(isAdmin);
   const showSwitcher = !collapsed && memberships.length > 1;
+
+  const NAV_ITEMS = [
+    { label: t('leaderboard'), href: '/dashboard/leaderboard', icon: <IconTrophy /> },
+    { label: t('inventory'),   href: '/dashboard/inventory',   icon: <IconBox />    },
+    { label: t('reporting'),   href: '/dashboard/reporting',   icon: <IconChart />  },
+  ] as const;
 
   return (
     <aside className={[
@@ -109,7 +110,7 @@ export function Sidebar({ role }: Props) {
           <button
             onClick={() => setCollapsed(true)}
             className="text-gray-400 hover:text-gray-700 p-1 rounded transition-colors shrink-0"
-            title="Seitenleiste einklappen"
+            title={t('collapseSidebar')}
           >
             <IconChevronLeft />
           </button>
@@ -162,7 +163,7 @@ export function Sidebar({ role }: Props) {
             {!collapsed && (
               <div className="pt-3 pb-1 px-2.5">
                 <p className="text-xs font-medium text-gray-400 uppercase tracking-wide">
-                  {role === 'MASTER_ADMIN' ? 'Master Admin' : 'Instance Owner'}
+                  {role === 'MASTER_ADMIN' ? tUser('roleMasterAdmin') : tUser('roleInstanceOwner')}
                 </p>
               </div>
             )}
@@ -205,7 +206,7 @@ export function Sidebar({ role }: Props) {
           <button
             onClick={() => setCollapsed(false)}
             className="w-full flex items-center justify-center p-2 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-50 transition-colors"
-            title="Seitenleiste ausklappen"
+            title={t('expandSidebar')}
           >
             <IconChevronRight />
           </button>
