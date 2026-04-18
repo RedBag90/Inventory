@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/shared/lib/supabase/client';
 
@@ -36,7 +35,6 @@ const FEATURES = [
 ];
 
 export default function SignInPage() {
-  const router = useRouter();
   const [email, setEmail]       = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -72,8 +70,7 @@ export default function SignInPage() {
       return;
     }
 
-    router.push('/dashboard/leaderboard');
-    router.refresh();
+    window.location.href = '/dashboard/leaderboard';
   }
 
   async function handleForgotPassword(e: React.FormEvent) {
