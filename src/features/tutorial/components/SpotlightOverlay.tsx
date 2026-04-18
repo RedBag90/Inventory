@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -25,10 +26,11 @@ export function SpotlightOverlay({
   description,
   step,
   totalSteps,
-  nextLabel = 'Verstanden',
+  nextLabel,
   onNext,
   onSkip,
 }: Props) {
+  const t = useTranslations('tutorial.spotlight');
   const [rect, setRect] = useState<Rect | null>(null);
   const frameRef = useRef<number | null>(null);
 
@@ -56,14 +58,13 @@ export function SpotlightOverlay({
   if (!rect) return null;
 
   const PAD = 8;
-  const TOOLTIP_H = 160; // approximate tooltip height
+  const TOOLTIP_H = 160;
   const TOOLTIP_W = 304;
   const spotTop    = rect.top    - PAD;
   const spotLeft   = rect.left   - PAD;
   const spotWidth  = rect.width  + PAD * 2;
   const spotHeight = rect.height + PAD * 2;
 
-  // Place tooltip above if not enough room below, clamped to viewport
   const spaceBelow = window.innerHeight - (spotTop + spotHeight);
   const tooltipBelow = spaceBelow >= TOOLTIP_H + 16;
   const tooltipTop = tooltipBelow
@@ -73,7 +74,6 @@ export function SpotlightOverlay({
 
   return (
     <div className="fixed inset-0 z-50 pointer-events-none">
-      {/* Dark overlay with cutout — no pointer-events so page stays scrollable */}
       <svg className="absolute inset-0 w-full h-full">
         <defs>
           <mask id="spotlight-mask">
@@ -96,23 +96,16 @@ export function SpotlightOverlay({
         />
       </svg>
 
-      {/* Highlight border around target */}
       <div
         className="absolute rounded-xl ring-2 ring-amber-400 ring-offset-0 pointer-events-none"
         style={{ top: spotTop, left: spotLeft, width: spotWidth, height: spotHeight }}
       />
 
-      {/* Tooltip card — clamped within viewport */}
       <div
         className="absolute pointer-events-auto"
-        style={{
-          left: tooltipLeft,
-          top:  tooltipTop,
-          width: TOOLTIP_W,
-        }}
+        style={{ left: tooltipLeft, top: tooltipTop, width: TOOLTIP_W }}
       >
         <div className="bg-white rounded-2xl shadow-2xl p-5">
-          {/* Progress dots */}
           <div className="flex items-center gap-1.5 mb-3">
             {Array.from({ length: totalSteps }).map((_, i) => (
               <div
@@ -133,13 +126,13 @@ export function SpotlightOverlay({
               onClick={onSkip}
               className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
             >
-              Überspringen
+              {t('skip')}
             </button>
             <button
               onClick={onNext}
               className="bg-gray-900 text-white px-4 py-1.5 rounded-lg text-xs font-semibold hover:bg-gray-700 transition-colors"
             >
-              {nextLabel}
+              {nextLabel ?? t('understood')}
             </button>
           </div>
         </div>

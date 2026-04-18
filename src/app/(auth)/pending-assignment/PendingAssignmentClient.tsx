@@ -3,19 +3,21 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
+import { useTranslations } from 'next-intl';
 import { useSubmitJoinRequest, useMyJoinRequests } from '@/features/olympiad/hooks/useOlympiads';
 import { checkHasMembership } from '@/features/olympiad/actions/olympiadActions';
 import { createClient } from '@/shared/lib/supabase/client';
 import { useSubmitInstanceRequest, useMyInstanceRequest } from '@/features/admin/hooks/useInstanceRequests';
 
 export function PendingAssignmentClient({ email }: { email: string }) {
+  const t = useTranslations('auth.pending');
+  const tc = useTranslations('common');
   const router = useRouter();
   const [code, setCode] = useState('');
   const [success, setSuccess] = useState<string | null>(null);
   const { mutate: submit, isPending, error, reset } = useSubmitJoinRequest();
   const { data: myRequests } = useMyJoinRequests();
 
-  // Instance request state
   const [showInstanceForm, setShowInstanceForm] = useState(false);
   const [instanceName, setInstanceName] = useState('');
   const [instanceDesc, setInstanceDesc] = useState('');
@@ -24,8 +26,6 @@ export function PendingAssignmentClient({ email }: { email: string }) {
 
   const pendingRequests = myRequests?.filter(r => r.status === 'PENDING') ?? [];
 
-  // Poll for membership approval when there are pending requests.
-  // When an admin accepts, redirect to dashboard — tutorial auto-triggers there.
   const { data: hasMembership } = useQuery({
     queryKey:        ['hasMembership'],
     queryFn:         checkHasMembership,
@@ -80,7 +80,6 @@ export function PendingAssignmentClient({ email }: { email: string }) {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden">
 
-        {/* Header */}
         <div className="bg-gray-900 px-8 py-8 text-center">
           <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
@@ -90,7 +89,6 @@ export function PendingAssignmentClient({ email }: { email: string }) {
           <h1 className="text-xl font-bold text-white">Flohmarkt-Olympiade</h1>
         </div>
 
-        {/* Content */}
         <div className="px-8 py-6 space-y-5">
           <div className="text-center space-y-2">
             <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center mx-auto">
@@ -98,22 +96,19 @@ export function PendingAssignmentClient({ email }: { email: string }) {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
               </svg>
             </div>
-            <h2 className="text-base font-bold text-gray-900">Noch nicht zugewiesen</h2>
-            <p className="text-sm text-gray-500 leading-relaxed">
-              Du bist noch keiner Olympiade zugewiesen. Gib einen Beitrittscode ein oder warte auf eine Einladung.
-            </p>
+            <h2 className="text-base font-bold text-gray-900">{t('title')}</h2>
+            <p className="text-sm text-gray-500 leading-relaxed">{t('subtitle')}</p>
           </div>
 
-          {/* Code input */}
           <form onSubmit={handleSubmit} className="space-y-3">
             <div>
               <label className="block text-xs font-medium text-gray-600 mb-1.5">
-                Beitrittscode
+                {t('joinCode')}
               </label>
               <input
                 value={code}
                 onChange={e => { setCode(e.target.value.toUpperCase()); reset(); setSuccess(null); }}
-                placeholder="z.B. X7K2-M9QP"
+                placeholder={t('joinCodePlaceholder')}
                 className="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm font-mono tracking-widest focus:outline-none focus:ring-2 focus:ring-gray-400 placeholder:font-sans placeholder:tracking-normal placeholder:text-gray-400"
               />
             </div>
@@ -128,46 +123,45 @@ export function PendingAssignmentClient({ email }: { email: string }) {
               disabled={isPending || !code.trim()}
               className="w-full bg-gray-900 text-white rounded-xl py-2.5 text-sm font-medium hover:bg-gray-700 disabled:opacity-50 transition-colors"
             >
-              {isPending ? 'Prüfen…' : 'Beitreten'}
+              {isPending ? t('joining') : t('joinSubmit')}
             </button>
           </form>
 
-          {/* Instance request */}
           <div className="space-y-2">
             <div className="flex items-center gap-3">
               <div className="flex-1 h-px bg-gray-100" />
-              <span className="text-xs text-gray-400">oder</span>
+              <span className="text-xs text-gray-400">{t('or')}</span>
               <div className="flex-1 h-px bg-gray-100" />
             </div>
 
             {myInstanceRequest?.status === 'PENDING' ? (
               <div className="bg-amber-50 border border-amber-100 rounded-lg px-3 py-2.5 text-sm text-amber-800">
-                Instanz-Anfrage für <strong>&bdquo;{myInstanceRequest.instanceName}&ldquo;</strong> ist in Prüfung.
+                {t('requestFor')} <strong>&bdquo;{myInstanceRequest.instanceName}&ldquo;</strong> {t('requestPending')}.
               </div>
             ) : myInstanceRequest?.status === 'REJECTED' ? (
               <div className="bg-red-50 border border-red-100 rounded-lg px-3 py-2.5 text-sm text-red-700">
-                Instanz-Anfrage für <strong>&bdquo;{myInstanceRequest.instanceName}&ldquo;</strong> wurde abgelehnt.
+                {t('requestFor')} <strong>&bdquo;{myInstanceRequest.instanceName}&ldquo;</strong> {t('requestRejected')}.
               </div>
             ) : showInstanceForm ? (
               <form onSubmit={handleInstanceSubmit} className="space-y-3">
                 <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1.5">Name der Instanz *</label>
+                  <label className="block text-xs font-medium text-gray-600 mb-1.5">{t('instanceName')} *</label>
                   <input
                     required
                     autoFocus
                     value={instanceName}
                     onChange={e => { setInstanceName(e.target.value); resetInstance(); }}
-                    placeholder="z.B. Familie Müller"
+                    placeholder={t('instanceNamePlaceholder')}
                     className="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 placeholder:text-gray-400"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1.5">Beschreibung (optional)</label>
+                  <label className="block text-xs font-medium text-gray-600 mb-1.5">{t('instanceDescription')}</label>
                   <textarea
                     rows={2}
                     value={instanceDesc}
                     onChange={e => setInstanceDesc(e.target.value)}
-                    placeholder="Kurze Beschreibung deiner Gruppe…"
+                    placeholder={t('instanceDescriptionPlaceholder')}
                     className="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 resize-none placeholder:text-gray-400"
                   />
                 </div>
@@ -177,11 +171,11 @@ export function PendingAssignmentClient({ email }: { email: string }) {
                 <div className="flex gap-2">
                   <button type="submit" disabled={instancePending || !instanceName.trim()}
                     className="flex-1 bg-gray-900 text-white rounded-xl py-2.5 text-sm font-medium hover:bg-gray-700 disabled:opacity-50 transition-colors">
-                    {instancePending ? 'Senden…' : 'Anfrage senden'}
+                    {instancePending ? t('requesting') : t('requestSubmit')}
                   </button>
                   <button type="button" onClick={() => { setShowInstanceForm(false); resetInstance(); }}
                     className="px-4 py-2.5 text-sm text-gray-500 hover:text-gray-700 transition-colors">
-                    Abbrechen
+                    {tc('cancel')}
                   </button>
                 </div>
               </form>
@@ -191,49 +185,46 @@ export function PendingAssignmentClient({ email }: { email: string }) {
                 onClick={() => setShowInstanceForm(true)}
                 className="w-full border border-dashed border-gray-300 text-gray-500 hover:border-gray-500 hover:text-gray-700 rounded-xl py-2.5 text-sm font-medium transition-colors"
               >
-                + Eigene Instanz beantragen
+                {t('requestInstance')}
               </button>
             )}
           </div>
 
-          {/* Pending requests */}
           {pendingRequests.length > 0 && (
             <div className="space-y-2">
-              <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Offene Anfragen</p>
+              <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">{t('openRequests')}</p>
               {pendingRequests.map(r => (
                 <div key={r.id} className="flex items-center justify-between bg-amber-50 border border-amber-100 rounded-lg px-3 py-2">
                   <p className="text-sm font-medium text-gray-800">{r.instanceName}</p>
-                  <span className="text-xs text-amber-700 font-medium">Wartend</span>
+                  <span className="text-xs text-amber-700 font-medium">{tc('pending')}</span>
                 </div>
               ))}
             </div>
           )}
 
-          {/* Rejected requests */}
           {rejectedRequests.length > 0 && (
             <div className="space-y-2">
-              <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Abgelehnte Anfragen</p>
+              <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">{t('rejectedRequests')}</p>
               {rejectedRequests.map(r => (
                 <div key={r.id} className="flex items-center justify-between bg-red-50 border border-red-100 rounded-lg px-3 py-2">
                   <p className="text-sm font-medium text-gray-800">{r.instanceName}</p>
-                  <span className="text-xs text-red-600 font-medium">Abgelehnt</span>
+                  <span className="text-xs text-red-600 font-medium">{tc('rejected')}</span>
                 </div>
               ))}
             </div>
           )}
 
           <p className="text-xs text-gray-400 text-center">
-            Eingeloggt als <span className="font-medium text-gray-600">{email}</span>
+            {t('loggedInAs')} <span className="font-medium text-gray-600">{email}</span>
           </p>
         </div>
 
-        {/* Footer */}
         <div className="px-8 pb-8">
           <button
             onClick={signOut}
             className="w-full border border-gray-200 text-gray-600 hover:border-gray-400 hover:text-gray-900 rounded-xl py-2.5 text-sm font-medium transition-colors"
           >
-            Abmelden
+            {t('signOut')}
           </button>
         </div>
 

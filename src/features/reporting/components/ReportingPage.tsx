@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
+import { useTranslations } from 'next-intl';
 import { useAllMonthlyReports } from '../hooks/useAllMonthlyReports';
 import { useAllDailyReports }   from '../hooks/useAllDailyReports';
 import { useCumulativeReport }  from '../hooks/useCumulativeReport';
@@ -20,13 +21,6 @@ import { useCurrentDbUser }     from '@/features/auth/hooks/useCurrentDbUser';
 import type { MonthlyReport }   from '../types/reporting.types';
 
 type View = 'daily' | 'monthly' | 'quarterly' | 'cumulative';
-
-const VIEW_LABELS: Record<View, string> = {
-  daily:      'Täglich',
-  monthly:    'Monatlich',
-  quarterly:  'Quartalsweise',
-  cumulative: 'Kumulativ',
-};
 
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
@@ -208,6 +202,13 @@ function ReportingSkeleton({ count = 4 }: { count?: number }) {
 }
 
 export function ReportingPage() {
+  const t = useTranslations('reporting');
+  const VIEW_LABELS: Record<View, string> = {
+    daily:      t('periodDaily'),
+    monthly:    t('periodMonthly'),
+    quarterly:  t('periodQuarterly'),
+    cumulative: t('periodCumulative'),
+  };
   const { data: currentUser } = useCurrentDbUser();
   const isAdmin = currentUser?.role === 'ADMIN';
 
@@ -235,23 +236,23 @@ export function ReportingPage() {
       {/* ── Header ── */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <h1 className="text-lg font-semibold text-gray-900">Reporting</h1>
+          <h1 className="text-lg font-semibold text-gray-900">{t('title')}</h1>
           <Link
             href="/dashboard/reporting/dashboard"
             className="text-sm text-gray-500 hover:text-gray-900 border border-gray-200 rounded px-3 py-1 transition-colors hover:border-gray-400"
           >
-            Dashboard →
+            {t('dashboardLink')}
           </Link>
         </div>
         {isAdmin && reportableUsers && (
           <div className="flex items-center gap-2">
-            <span className="text-xs text-gray-500 font-medium">Viewing:</span>
+            <span className="text-xs text-gray-500 font-medium">{t('viewingUser')}</span>
             <select
               value={targetUser ?? ''}
               onChange={(e) => update({ userId: e.target.value || undefined, from: null, to: null })}
               className="border rounded px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-black"
             >
-              <option value="">— select user —</option>
+              <option value="">{t('selectUser')}</option>
               {reportableUsers.map((u) => (
                 <option key={u.id} value={u.id}>{u.email}</option>
               ))}
@@ -262,7 +263,7 @@ export function ReportingPage() {
 
       {isAdmin && !targetUser && (
         <div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 text-sm text-amber-800">
-          Select a user above to view their report.
+          {t('selectUserPrompt')}
         </div>
       )}
 

@@ -4,21 +4,27 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
+import { useTranslations } from 'next-intl';
 import { createClient } from '@/shared/lib/supabase/client';
 import { useCurrentUser }    from '../hooks/useCurrentUser';
 import { useCurrentDbUser }  from '../hooks/useCurrentDbUser';
 import { updateDisplayName } from '../actions/updateDisplayName';
 import { useTutorial } from '@/features/tutorial/context/TutorialContext';
+import { useLocale, useSetLocale } from '@/shared/hooks/useLocale';
 
 function initials(email: string) {
   return email.slice(0, 2).toUpperCase();
 }
 
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString('de-DE', { day: '2-digit', month: 'long', year: 'numeric' });
+function formatDate(iso: string, locale: string) {
+  return new Date(iso).toLocaleDateString(locale === 'en' ? 'en-GB' : 'de-DE', { day: '2-digit', month: 'long', year: 'numeric' });
 }
 
 export function UserMenu() {
+  const t = useTranslations('userMenu');
+  const tc = useTranslations('common');
+  const locale = useLocale();
+  const setLocale = useSetLocale();
   const { user, isLoading }   = useCurrentUser();
   const { data: dbUser }      = useCurrentDbUser();
   const router                = useRouter();
@@ -31,7 +37,6 @@ export function UserMenu() {
   const [saveError, setSaveError] = useState('');
   const containerRef          = useRef<HTMLDivElement>(null);
 
-  // Sync input with current displayName whenever popover opens
   useEffect(() => {
     if (open) {
       setNameInput(dbUser?.displayName ?? '');
@@ -40,7 +45,6 @@ export function UserMenu() {
     }
   }, [open, dbUser?.displayName]);
 
-  // Close on outside click or Escape
   useEffect(() => {
     if (!open) return;
     function onKey(e: KeyboardEvent)   { if (e.key === 'Escape') setOpen(false); }
@@ -83,8 +87,13 @@ export function UserMenu() {
   const email      = user.email ?? '';
   const role       = dbUser?.role ?? 'USER';
   const memberId   = dbUser?.id   ?? user.id;
-  const since      = user.created_at ? formatDate(user.created_at) : '—';
+  const since      = user.created_at ? formatDate(user.created_at, locale) : '—';
   const displayLabel = dbUser?.displayName ?? email;
+
+  const roleLabel =
+    role === 'MASTER_ADMIN' ? t('roleMasterAdmin') :
+    role === 'ADMIN'        ? t('roleInstanceOwner') :
+                              t('roleMember');
 
   return (
     <div ref={containerRef} className="relative">
@@ -129,7 +138,7 @@ export function UserMenu() {
                     ? 'bg-amber-100 text-amber-800'
                     : 'bg-gray-100 text-gray-600'
               }`}>
-                {role === 'MASTER_ADMIN' ? 'Master Admin' : role === 'ADMIN' ? 'Instance Owner' : 'Mitglied'}
+                {roleLabel}
               </span>
             </div>
           </div>
@@ -140,7 +149,7 @@ export function UserMenu() {
             {/* Display name edit */}
             <div>
               <div className="flex items-center justify-between mb-1">
-                <p className="text-xs text-gray-400 uppercase tracking-wide">Anzeigename</p>
+                <p className="text-xs text-gray-400 uppercase tracking-wide">{t('displayName')}</p>
                 {!editing && (
                   <button
                     onClick={() => setEditing(true)}
@@ -149,7 +158,7 @@ export function UserMenu() {
                     <svg className="w-3 h-3" viewBox="0 0 20 20" fill="currentColor">
                       <path d="M2.695 14.763l-1.262 3.154a.5.5 0 0 0 .65.65l3.155-1.262a4 4 0 0 0 1.343-.885L17.5 5.5a2.121 2.121 0 0 0-3-3L3.58 13.42a4 4 0 0 0-.885 1.343Z" />
                     </svg>
-                    Bearbeiten
+                    {tc('edit')}
                   </button>
                 )}
               </div>
@@ -162,7 +171,7 @@ export function UserMenu() {
                     onChange={(e) => setNameInput(e.target.value)}
                     onKeyDown={(e) => { if (e.key === 'Enter') handleSaveName(); if (e.key === 'Escape') setEditing(false); }}
                     maxLength={50}
-                    placeholder="z. B. FlohmarktKönig"
+                    placeholder={t('namePlaceholder')}
                     className="w-full border rounded px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-black"
                   />
                   {saveError && <p className="text-xs text-red-600">{saveError}</p>}
@@ -172,32 +181,55 @@ export function UserMenu() {
                       disabled={saving}
                       className="flex-1 bg-gray-900 text-white text-xs rounded py-1.5 font-medium hover:bg-gray-700 disabled:opacity-50 transition-colors"
                     >
-                      {saving ? 'Speichern…' : 'Speichern'}
+                      {saving ? tc('saving') : tc('save')}
                     </button>
                     <button
                       onClick={() => setEditing(false)}
                       disabled={saving}
                       className="px-3 text-xs text-gray-500 hover:text-gray-800 transition-colors"
                     >
-                      Abbrechen
+                      {tc('cancel')}
                     </button>
                   </div>
                 </div>
               ) : (
                 <p className="text-sm text-gray-700">
-                  {dbUser?.displayName ?? <span className="text-gray-400 italic">Noch kein Name gesetzt</span>}
+                  {dbUser?.displayName ?? <span className="text-gray-400 italic">{t('noName')}</span>}
                 </p>
               )}
             </div>
 
             <div>
-              <p className="text-xs text-gray-400 uppercase tracking-wide mb-1">Account-ID</p>
+              <p className="text-xs text-gray-400 uppercase tracking-wide mb-1">{t('accountId')}</p>
               <p className="text-xs font-mono text-gray-600 break-all">{memberId}</p>
             </div>
 
             <div>
-              <p className="text-xs text-gray-400 uppercase tracking-wide mb-1">Mitglied seit</p>
+              <p className="text-xs text-gray-400 uppercase tracking-wide mb-1">{t('memberSince')}</p>
               <p className="text-sm text-gray-700">{since}</p>
+            </div>
+
+            {/* Language switcher */}
+            <div className="border-t border-gray-100 pt-3">
+              <p className="text-xs text-gray-400 mb-2">{t('language')}</p>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setLocale('de')}
+                  className={`flex-1 px-3 py-1.5 text-sm rounded-lg font-medium transition-colors ${
+                    locale === 'de' ? 'bg-gray-900 text-white' : 'text-gray-600 hover:bg-gray-100 border border-gray-200'
+                  }`}
+                >
+                  🇩🇪 Deutsch
+                </button>
+                <button
+                  onClick={() => setLocale('en')}
+                  className={`flex-1 px-3 py-1.5 text-sm rounded-lg font-medium transition-colors ${
+                    locale === 'en' ? 'bg-gray-900 text-white' : 'text-gray-600 hover:bg-gray-100 border border-gray-200'
+                  }`}
+                >
+                  🇬🇧 English
+                </button>
+              </div>
             </div>
           </div>
 
@@ -209,20 +241,20 @@ export function UserMenu() {
                 onClick={() => setOpen(false)}
                 className="block w-full text-center text-sm text-indigo-600 hover:text-indigo-800 border border-indigo-200 hover:border-indigo-400 rounded-lg py-2 font-medium transition-colors"
               >
-                Selber Organisator werden
+                {t('becomeOrganizer')}
               </Link>
             )}
             <button
               onClick={() => { setOpen(false); restartTutorial(); }}
               className="w-full text-sm text-gray-500 hover:text-gray-800 border border-gray-200 hover:border-gray-400 rounded-lg py-2 font-medium transition-colors"
             >
-              Tutorial neu starten
+              {t('restartTutorial')}
             </button>
             <button
               onClick={handleSignOut}
               className="w-full text-sm text-red-600 hover:text-red-800 border border-red-200 hover:border-red-400 rounded-lg py-2 font-medium transition-colors"
             >
-              Abmelden
+              {t('signOut')}
             </button>
           </div>
         </div>

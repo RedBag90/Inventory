@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { ItemManager } from '../services/ItemManager';
 import { SaleManager } from '@/features/sales/services/SaleManager';
 import { formatCurrency, formatDate } from '@/shared/lib/utils';
@@ -10,13 +11,6 @@ type Props = {
   onRecordSale?: (item: ItemWithCosts) => void;
 };
 
-const PLATFORM_LABEL: Record<string, string> = {
-  KLEINANZEIGEN: 'Kleinanzeigen',
-  EBAY:          'eBay',
-  FACEBOOK:      'Facebook',
-  OTHER:         'Sonstige',
-};
-
 const PLATFORM_STYLE: Record<string, string> = {
   KLEINANZEIGEN: 'bg-teal-50 text-teal-700',
   EBAY:          'bg-blue-50 text-blue-700',
@@ -25,6 +19,8 @@ const PLATFORM_STYLE: Record<string, string> = {
 };
 
 export function ItemCard({ item, onRecordSale }: Props) {
+  const t = useTranslations('inventory');
+  const ts = useTranslations('sales.platforms');
   const storageDays = ItemManager.calculateStorageDays(item);
   const profit      = SaleManager.calculateProfit(item);
   const isSold      = item.status === 'SOLD';
@@ -35,19 +31,24 @@ export function ItemCard({ item, onRecordSale }: Props) {
     profit === 0       ? 'text-gray-400' :
                          'text-emerald-600';
 
-  const platformLabel = PLATFORM_LABEL[item.purchasePlatform] ?? item.purchasePlatform;
+  const platformLabelMap: Record<string, string> = {
+    KLEINANZEIGEN: ts('kleinanzeigen'),
+    EBAY:          ts('ebay'),
+    FACEBOOK:      ts('facebook'),
+    OTHER:         ts('other'),
+  };
+
+  const platformLabel = platformLabelMap[item.purchasePlatform] ?? item.purchasePlatform;
   const platformStyle = PLATFORM_STYLE[item.purchasePlatform] ?? 'bg-gray-100 text-gray-500';
 
   return (
     <div className="flex items-center gap-4 px-5 py-4 hover:bg-gray-50/80 transition-colors group">
 
-      {/* Status dot */}
       <span className={[
         'w-2 h-2 rounded-full shrink-0 mt-0.5',
         isSold ? 'bg-gray-300' : 'bg-emerald-400',
       ].join(' ')} />
 
-      {/* Name + meta */}
       <div className="flex-1 min-w-0">
         <p className="text-sm font-semibold text-gray-900 truncate">{item.name}</p>
         <div className="flex items-center gap-2 mt-1 flex-wrap">
@@ -60,13 +61,12 @@ export function ItemCard({ item, onRecordSale }: Props) {
               'text-[11px] font-medium px-1.5 py-0.5 rounded',
               storageDays > 30 ? 'bg-amber-50 text-amber-700' : 'bg-gray-100 text-gray-500',
             ].join(' ')}>
-              {storageDays}d auf Lager
+              {t('daysInStock', { days: storageDays })}
             </span>
           )}
         </div>
       </div>
 
-      {/* Financials */}
       <div className="flex items-center gap-3 shrink-0">
         <div className="text-right">
           <span className="text-sm text-gray-500">{formatCurrency(item.purchasePrice)}</span>
@@ -80,22 +80,20 @@ export function ItemCard({ item, onRecordSale }: Props) {
           )}
         </div>
 
-        {/* Status badge */}
         {isSold ? (
           <span className="inline-flex items-center gap-1 text-xs font-medium text-gray-400 bg-gray-100 px-2.5 py-1 rounded-full">
             <svg className="w-3 h-3" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clipRule="evenodd" />
             </svg>
-            Verkauft
+            {t('statusSold')}
           </span>
         ) : (
           <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-            Auf Lager
+            {t('statusInStock')}
           </span>
         )}
 
-        {/* Action button */}
         {!isSold && onRecordSale && (
           <button
             onClick={(e) => {
@@ -105,7 +103,7 @@ export function ItemCard({ item, onRecordSale }: Props) {
             }}
             className="text-xs font-semibold text-white bg-gray-900 hover:bg-gray-700 px-3 py-1.5 rounded-lg transition-colors shrink-0 opacity-100 pointer-events-auto [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:pointer-events-none [@media(hover:hover)]:group-hover:opacity-100 [@media(hover:hover)]:group-hover:pointer-events-auto"
           >
-            Verkaufen
+            {t('sellButton')}
           </button>
         )}
       </div>

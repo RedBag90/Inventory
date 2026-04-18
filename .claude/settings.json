@@ -56,7 +56,25 @@
       "Bash(DATABASE_URL=\"postgresql://postgres.zfmdsnptgnadnbcwwgkx:Heffalump.90@aws-0-eu-west-1.pooler.supabase.com:5432/postgres\" npx prisma migrate deploy)",
       "Bash(git merge develop --no-ff -m ':*)",
       "Bash(git merge:*)",
-      "Bash(grep -E \"\\\\.\\(ts|tsx\\)$\")"
+      "Bash(grep -E \"\\\\.\\(ts|tsx\\)$\")",
+      "Bash(git stash:*)",
+      "Bash(node_modules/.bin/tsc --noEmit --skipLibCheck)",
+      "Bash(node_modules/.bin/prisma migrate:*)",
+      "Bash(grep -E \"useMonthly|useQuarterly|useCumulative\" /Users/philippkoch/Documents/GitHub/Inventory/src/features/reporting/hooks/*.ts)",
+      "Bash(grep -h \"export\" /Users/philippkoch/Documents/GitHub/Inventory/src/features/reporting/components/charts/*.tsx)",
+      "Bash(grep -h \"export\" /Users/philippkoch/Documents/GitHub/Inventory/src/features/reporting/components/*.tsx)",
+      "Bash(node -e \"require\\('@sentry/nextjs'\\); console.log\\('sentry ok'\\)\")",
+      "Bash(node -e \"require\\('babel-plugin-react-compiler'\\); console.log\\('compiler ok'\\)\")",
+      "Bash(node_modules/.bin/vitest run *)",
+      "Bash(npx vitest *)",
+      "Bash(python3 -c \"import json,sys; p=json.load\\(sys.stdin\\); print\\(p.get\\('version','?'\\)\\)\")",
+      "Bash(node -e \"require\\('msw/node'\\); console.log\\('msw/node ok'\\)\")",
+      "Bash(node -e ' *)",
+      "Bash(echo \"exit: $?\")",
+      "Read(//private/tmp/**)",
+      "Bash(python3 -c \"import json,sys; p=json.load\\(sys.stdin\\); [print\\(k,':',v\\) for k,v in p.get\\('scripts',{}\\).items\\(\\)]\")",
+      "WebFetch(domain:sentry.io)",
+      "Bash(git rm *)"
     ],
     "additionalDirectories": [
       "/Users/philippkoch/Documents/GitHub/Inventory/.git"

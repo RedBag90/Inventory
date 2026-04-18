@@ -2,7 +2,15 @@
 
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslations } from 'next-intl';
 import { QuickSellSchema, type QuickSellInput } from '../types/sales.types';
+
+const PLATFORM_KEYS = {
+  KLEINANZEIGEN: 'kleinanzeigen',
+  EBAY:          'ebay',
+  FACEBOOK:      'facebook',
+  OTHER:         'other',
+} as const;
 
 type Props = {
   onReview: (data: QuickSellInput) => void;
@@ -16,6 +24,8 @@ function todayISO() {
 }
 
 export function QuickSellForm({ onReview, onCancel }: Props) {
+  const t = useTranslations('sales');
+  const tc = useTranslations('common');
   const {
     register,
     handleSubmit,
@@ -30,18 +40,17 @@ export function QuickSellForm({ onReview, onCancel }: Props) {
 
   return (
     <form onSubmit={handleSubmit(onReview)} className="space-y-4">
-      <h2 className="text-sm font-semibold text-gray-700">Schnell verkaufen</h2>
+      <h2 className="text-sm font-semibold text-gray-700">{t('quickSellTitle')}</h2>
 
-      {/* Item name */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          Artikelname <span className="text-red-500">*</span>
+          {t('itemName')} <span className="text-red-500">*</span>
         </label>
         <input
           type="text"
           {...register('name')}
           className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
-          placeholder="z. B. iPhone 12"
+          placeholder={t('itemNamePlaceholder')}
           autoFocus
         />
         {errors.name && (
@@ -49,10 +58,9 @@ export function QuickSellForm({ onReview, onCancel }: Props) {
         )}
       </div>
 
-      {/* Sale price */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          Verkaufspreis (€) <span className="text-red-500">*</span>
+          {t('salePrice')} <span className="text-red-500">*</span>
         </label>
         <input
           type="number"
@@ -67,19 +75,18 @@ export function QuickSellForm({ onReview, onCancel }: Props) {
         )}
       </div>
 
-      {/* Sale platform */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          Plattform <span className="text-red-500">*</span>
+          {t('platform')} <span className="text-red-500">*</span>
         </label>
         <select
           {...register('salePlatform')}
           className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black bg-white"
         >
-          <option value="">Plattform wählen…</option>
+          <option value="">{t('platformPlaceholder')}</option>
           {PLATFORMS.map((p) => (
             <option key={p} value={p}>
-              {p.charAt(0) + p.slice(1).toLowerCase()}
+              {t(`platforms.${PLATFORM_KEYS[p]}`)}
             </option>
           ))}
         </select>
@@ -88,10 +95,9 @@ export function QuickSellForm({ onReview, onCancel }: Props) {
         )}
       </div>
 
-      {/* Shipping out */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          Versandkosten (€)
+          {t('shippingCost')}
         </label>
         <input
           type="number"
@@ -106,10 +112,9 @@ export function QuickSellForm({ onReview, onCancel }: Props) {
         )}
       </div>
 
-      {/* Sale date */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          Verkaufsdatum <span className="text-red-500">*</span>
+          {t('saleDate')} <span className="text-red-500">*</span>
         </label>
         <input
           type="date"
@@ -126,14 +131,14 @@ export function QuickSellForm({ onReview, onCancel }: Props) {
           type="submit"
           className="flex-1 bg-black text-white rounded py-2 text-sm font-medium hover:bg-gray-800 transition-colors"
         >
-          Weiter →
+          {t('nextButton')}
         </button>
         <button
           type="button"
           onClick={onCancel}
           className="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
         >
-          Abbrechen
+          {tc('cancel')}
         </button>
       </div>
     </form>

@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useTutorial } from '../context/TutorialContext';
 
 function IconBox() {
@@ -26,15 +27,16 @@ function IconTrophy() {
   );
 }
 
-const FEATURES = [
-  { icon: <IconBox />,    label: 'Inventar',  desc: 'Kaufpreise & Artikel tracken' },
-  { icon: <IconChart />,  label: 'Berichte',  desc: 'Umsatz & Gewinn im Überblick' },
-  { icon: <IconTrophy />, label: 'Rangliste', desc: 'Messe dich mit allen Teilnehmern' },
-];
-
 export function WelcomeOverlay() {
+  const t = useTranslations('tutorial.welcome');
   const { step, next, skip } = useTutorial();
   if (step !== 'welcome') return null;
+
+  const FEATURES = [
+    { icon: <IconBox />,    title: t('feature1Title'), desc: t('feature1Detail') },
+    { icon: <IconChart />,  title: t('feature2Title'), desc: t('feature2Detail') },
+    { icon: <IconTrophy />, title: t('feature3Title'), desc: t('feature3Detail') },
+  ];
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
@@ -47,26 +49,24 @@ export function WelcomeOverlay() {
               <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
             </svg>
           </div>
-          <h1 className="text-2xl font-bold text-white">Willkommen bei der</h1>
-          <h1 className="text-2xl font-bold text-amber-400">Flohmarkt-Olympiade!</h1>
-          <p className="text-gray-300 text-sm mt-2 leading-relaxed">
-            Tracke deine Flohmarkt-Käufe und Verkäufe — und miss dich mit allen anderen Teilnehmern.
-          </p>
+          <h1 className="text-2xl font-bold text-white">{t('title')}</h1>
+          <h1 className="text-2xl font-bold text-amber-400">{t('appName')}</h1>
+          <p className="text-gray-300 text-sm mt-2 leading-relaxed">{t('subtitle')}</p>
         </div>
 
         {/* Features */}
         <div className="px-8 py-6">
           <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-4">
-            Das steckt drin
+            {t('whatsInside')}
           </p>
           <div className="space-y-3">
-            {FEATURES.map(({ icon, label, desc }) => (
-              <div key={label} className="flex items-center gap-4">
+            {FEATURES.map(({ icon, title, desc }) => (
+              <div key={title} className="flex items-center gap-4">
                 <div className="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center text-gray-600 shrink-0">
                   {icon}
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-gray-900">{label}</p>
+                  <p className="text-sm font-semibold text-gray-900">{title}</p>
                   <p className="text-xs text-gray-400">{desc}</p>
                 </div>
               </div>
@@ -80,13 +80,13 @@ export function WelcomeOverlay() {
             onClick={next}
             className="w-full bg-gray-900 text-white py-2.5 rounded-xl text-sm font-semibold hover:bg-gray-700 transition-colors"
           >
-            Los geht&apos;s →
+            {t('startButton')}
           </button>
           <button
             onClick={skip}
             className="w-full text-gray-400 py-2 text-xs hover:text-gray-600 transition-colors"
           >
-            Tutorial überspringen
+            {t('skipButton')}
           </button>
         </div>
 

@@ -1,8 +1,7 @@
 'use client';
 
-// US-011 — Inventory list page with "Add item" panel and "Record sale" modal.
-
 import { useState, Suspense } from 'react';
+import { useTranslations } from 'next-intl';
 import { ItemTable } from './ItemTable';
 import { ItemForm } from './ItemForm';
 import { SaleModal }      from '@/features/sales/components/SaleModal';
@@ -10,6 +9,7 @@ import { QuickSellModal } from '@/features/sales/components/QuickSellModal';
 import type { ItemWithCosts } from '../types/inventory.types';
 
 export function InventoryPage() {
+  const t = useTranslations('inventory');
   const [showAddForm,    setShowAddForm]    = useState(false);
   const [showQuickSell,  setShowQuickSell]  = useState(false);
   const [sellingItem,    setSellingItem]    = useState<ItemWithCosts | null>(null);
@@ -19,8 +19,8 @@ export function InventoryPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Inventar</h1>
-          <p className="text-sm text-gray-400 mt-0.5">Deine Artikel auf einen Blick</p>
+          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">{t('title')}</h1>
+          <p className="text-sm text-gray-400 mt-0.5">{t('subtitle')}</p>
         </div>
         <div className="flex items-center gap-2">
           <button
@@ -28,20 +28,19 @@ export function InventoryPage() {
             onClick={() => setShowQuickSell(true)}
             className="border border-gray-200 text-gray-700 px-5 py-2 rounded-xl text-sm font-semibold hover:bg-gray-50 hover:border-gray-300 transition-colors"
           >
-            Schnell verkaufen
+            {t('quickSellButton')}
           </button>
           <button
             data-tutorial="buy-button"
             onClick={() => setShowAddForm(true)}
             className="bg-gray-900 text-white px-5 py-2 rounded-xl text-sm font-semibold hover:bg-gray-700 transition-colors"
           >
-            Jetzt kaufen und später verkaufen
+            {t('quickSellDescription')}
           </button>
         </div>
       </div>
 
-      {/* List — wrapped in Suspense because useSearchParams suspends */}
-      <Suspense fallback={<div className="text-sm text-gray-500 py-8 text-center">Loading…</div>}>
+      <Suspense fallback={<div className="text-sm text-gray-500 py-8 text-center">{t('loading')}</div>}>
         <ItemTable onRecordSale={setSellingItem} />
       </Suspense>
 
@@ -55,8 +54,8 @@ export function InventoryPage() {
           <div className="w-full max-w-md bg-white shadow-xl overflow-y-auto">
             <div className="flex items-center justify-between p-5 border-b border-gray-200 bg-gray-50">
               <div>
-                <h2 className="text-base font-semibold text-gray-900">Artikel kaufen</h2>
-                <p className="text-xs text-gray-400 mt-0.5">Kaufpreis dokumentieren, später verkaufen</p>
+                <h2 className="text-base font-semibold text-gray-900">{t('buyButton')}</h2>
+                <p className="text-xs text-gray-400 mt-0.5">{t('buyDescription')}</p>
               </div>
               <button
                 onClick={() => setShowAddForm(false)}
@@ -72,12 +71,10 @@ export function InventoryPage() {
         </div>
       )}
 
-      {/* Quick sell modal */}
       {showQuickSell && (
         <QuickSellModal onClose={() => setShowQuickSell(false)} />
       )}
 
-      {/* Record sale modal */}
       {sellingItem && (
         <SaleModal
           item={sellingItem}
