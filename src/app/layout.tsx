@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
+import { Analytics } from '@vercel/analytics/next';
 import { Providers } from './providers';
 import './globals.css';
 
@@ -19,6 +20,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             {children}
           </Providers>
         </NextIntlClientProvider>
+        <Analytics />
       </body>
     </html>
   );
