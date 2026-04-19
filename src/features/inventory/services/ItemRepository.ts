@@ -5,8 +5,13 @@
 // Every function resolves the authenticated user's local DB id before querying.
 
 import { prisma } from '@/shared/lib/prisma';
-import { createClient } from '@/shared/lib/supabase/server';
+import { getCurrentUserId } from '@/shared/lib/auth/getCurrentUserId';
 import { checkAndAwardBadges } from '@/features/badges/services/BadgeAwardService';
+import {
+  CreateItemSchema,
+  EditItemSchema,
+  UpdateItemCostsSchema,
+} from '../types/inventory.types';
 import type {
   CreateItemInput,
   EditItemInput,
@@ -14,19 +19,6 @@ import type {
   ItemWithCosts,
 } from '../types/inventory.types';
 import type { AwardedBadge } from '@/features/badges/types/badge.types';
-
-// ─── Auth helper ─────────────────────────────────────────────────────────────
-
-async function getLocalUserId(): Promise<string> {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('Unauthenticated');
-
-  const dbUser = await prisma.user.findUnique({ where: { supabaseId: user.id } });
-  if (!dbUser) throw new Error('User record not found');
-
-  return dbUser.id;
-}
 
 // ─── Prisma → plain object ────────────────────────────────────────────────────
 // Prisma returns Decimal objects; we convert to number so the client can use them.
@@ -81,7 +73,7 @@ const ITEM_INCLUDE = {
 export async function getItems(
   filters: { status?: 'IN_STOCK' | 'SOLD' } = {}
 ): Promise<ItemWithCosts[]> {
-  const userId = await getLocalUserId();
+  const userId = await getCurrentUserId();
   const items = await prisma.item.findMany({
     where: { userId, ...(filters.status ? { status: filters.status } : {}) },
     include: ITEM_INCLUDE,
@@ -92,7 +84,7 @@ export async function getItems(
 
 /** US-012 — Fetch a single item. Returns null if not found or not owned by current user. */
 export async function getItemById(id: string): Promise<ItemWithCosts | null> {
-  const userId = await getLocalUserId();
+  const userId = await getCurrentUserId();
   const item = await prisma.item.findFirst({
     where: { id, userId },
     include: ITEM_INCLUDE,
@@ -104,17 +96,18 @@ export async function getItemById(id: string): Promise<ItemWithCosts | null> {
 
 /** US-009 — Create a new inventory item. */
 export async function createItem(data: CreateItemInput): Promise<{ item: ItemWithCosts; newBadges: AwardedBadge[] }> {
-  const userId = await getLocalUserId();
+  const parsed = CreateItemSchema.parse(data);
+  const userId = await getCurrentUserId();
   const raw = await prisma.item.create({
     data: {
       userId,
-      name:             data.name,
-      description:      data.description,
-      purchasePrice:    data.purchasePrice,
-      purchasePlatform: data.purchasePlatform,
-      purchasedAt:      data.purchasedAt,
-      shippingCostIn:   data.shippingCostIn,
-      repairCost:       data.repairCost,
+      name:             parsed.name,
+      description:      parsed.description,
+      purchasePrice:    parsed.purchasePrice,
+      purchasePlatform: parsed.purchasePlatform,
+      purchasedAt:      parsed.purchasedAt,
+      shippingCostIn:   parsed.shippingCostIn,
+      repairCost:       parsed.repairCost,
     },
     include: ITEM_INCLUDE,
   });
@@ -127,7 +120,8 @@ export async function updateItemCosts(
   id: string,
   data: UpdateItemCostsInput
 ): Promise<ItemWithCosts> {
-  const userId = await getLocalUserId();
+  const parsed = UpdateItemCostsSchema.parse(data);
+  const userId = await getCurrentUserId();
 
   // Ownership check
   const existing = await prisma.item.findFirst({ where: { id, userId } });
@@ -136,11 +130,11 @@ export async function updateItemCosts(
   const item = await prisma.item.update({
     where: { id },
     data: {
-      shippingCostIn: data.shippingCostIn,
-      repairCost:     data.repairCost,
+      shippingCostIn: parsed.shippingCostIn,
+      repairCost:     parsed.repairCost,
       costs: {
         deleteMany: {},
-        create: data.additionalCosts.map(c => ({ label: c.label, amount: c.amount })),
+        create: parsed.additionalCosts.map(c => ({ label: c.label, amount: c.amount })),
       },
     },
     include: ITEM_INCLUDE,
@@ -150,7 +144,7 @@ export async function updateItemCosts(
 
 /** Delete an item owned by the current user, including its sale and costs. */
 export async function deleteItem(id: string): Promise<void> {
-  const userId = await getLocalUserId();
+  const userId = await getCurrentUserId();
 
   const existing = await prisma.item.findFirst({ where: { id, userId } });
   if (!existing) throw new Error('Item not found');
@@ -167,7 +161,8 @@ export async function updateItemMetadata(
   id: string,
   data: EditItemInput
 ): Promise<ItemWithCosts> {
-  const userId = await getLocalUserId();
+  const parsed = EditItemSchema.parse(data);
+  const userId = await getCurrentUserId();
 
   const existing = await prisma.item.findFirst({ where: { id, userId } });
   if (!existing) throw new Error('Item not found');
@@ -176,11 +171,11 @@ export async function updateItemMetadata(
   const item = await prisma.item.update({
     where: { id },
     data: {
-      name:             data.name,
-      description:      data.description,
-      purchasePrice:    data.purchasePrice,
-      purchasePlatform: data.purchasePlatform,
-      purchasedAt:      data.purchasedAt,
+      name:             parsed.name,
+      description:      parsed.description,
+      purchasePrice:    parsed.purchasePrice,
+      purchasePlatform: parsed.purchasePlatform,
+      purchasedAt:      parsed.purchasedAt,
     },
     include: ITEM_INCLUDE,
   });

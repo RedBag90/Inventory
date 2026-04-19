@@ -1,22 +1,13 @@
 'use server';
 
 import { prisma } from '@/shared/lib/prisma';
-import { createClient } from '@/shared/lib/supabase/server';
+import { getCurrentDbUser } from '@/shared/lib/auth/getCurrentUserId';
 import type { DailyReport, MonthlyReport, QuarterlyReport, CumulativeReport } from '../types/reporting.types';
 
 async function resolveUserId(targetUserId?: string): Promise<string> {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('Unauthenticated');
-
-  const dbUser = await prisma.user.findUnique({
-    where:  { supabaseId: user.id },
-    select: { id: true, role: true },
-  });
-  if (!dbUser) throw new Error('User record not found');
-
-  if (!targetUserId || targetUserId === dbUser.id) return dbUser.id;
-  if (dbUser.role !== 'ADMIN') throw new Error('Forbidden');
+  const caller = await getCurrentDbUser();
+  if (!targetUserId || targetUserId === caller.id) return caller.id;
+  if (caller.role !== 'ADMIN') throw new Error('Forbidden');
   return targetUserId;
 }
 
