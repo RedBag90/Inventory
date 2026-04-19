@@ -14,8 +14,6 @@ import { useLocale, useSetLocale } from '@/shared/hooks/useLocale';
 import { toast } from 'sonner';
 import { useMyBadgeCount } from '@/features/badges/hooks/useBadges';
 import { badgeKeys } from '@/features/badges/hooks/badgeKeys';
-import { authKeys } from '../hooks/authKeys';
-import { adminKeys } from '@/features/admin/hooks/adminKeys';
 import { BadgeToast } from '@/features/badges/components/BadgeToast';
 import type { AwardedBadge } from '@/features/badges/types/badge.types';
 
@@ -74,12 +72,12 @@ export function UserMenu() {
     setSaveError('');
     try {
       const { newBadges } = await updateDisplayName(nameInput);
-      await queryClient.invalidateQueries({ queryKey: authKeys.currentDbUser() });
-      await queryClient.invalidateQueries({ queryKey: adminKeys.leaderboard() });
+      await queryClient.invalidateQueries({ queryKey: ['auth', 'currentDbUser'] });
+      await queryClient.invalidateQueries({ queryKey: ['admin', 'leaderboard'] });
       if (newBadges.length > 0) {
         queryClient.invalidateQueries({ queryKey: badgeKeys.all });
         for (const badge of newBadges as AwardedBadge[]) {
-          toast.custom(() => BadgeToast({ badge }), { duration: 6000 });
+          toast.custom(() => <BadgeToast badge={badge} />, { duration: 6000 });
         }
       }
       setEditing(false);
