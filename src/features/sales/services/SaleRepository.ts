@@ -6,7 +6,9 @@
 
 import { prisma } from '@/shared/lib/prisma';
 import { createClient } from '@/shared/lib/supabase/server';
+import { checkAndAwardBadges } from '@/features/badges/services/BadgeAwardService';
 import type { RecordSaleInput, QuickSellInput } from '../types/sales.types';
+import type { AwardedBadge } from '@/features/badges/types/badge.types';
 
 // ─── Auth helper ─────────────────────────────────────────────────────────────
 
@@ -28,18 +30,17 @@ async function getLocalUserId(): Promise<string> {
  * Atomically creates the Sale record and transitions the item to SOLD.
  * Throws if the item is not found, not owned by the user, or already SOLD.
  */
-export async function createSale(data: RecordSaleInput): Promise<void> {
+export async function createSale(data: RecordSaleInput): Promise<{ newBadges: AwardedBadge[] }> {
   const userId = await getLocalUserId();
 
-  // Verify ownership and status before writing
-  const item = await prisma.item.findFirst({
-    where: { id: data.itemId, userId },
-  });
-
+  const item = await prisma.item.findFirst({ where: { id: data.itemId, userId } });
   if (!item) throw new Error('Item not found');
   if (item.status === 'SOLD') throw new Error('Item is already sold');
 
-  // Atomic: both writes succeed or neither does
+  const storageDays = Math.floor(
+    (data.soldAt.getTime() - item.purchasedAt.getTime()) / 86_400_000
+  );
+
   await prisma.$transaction([
     prisma.sale.create({
       data: {
@@ -50,18 +51,18 @@ export async function createSale(data: RecordSaleInput): Promise<void> {
         soldAt:          data.soldAt,
       },
     }),
-    prisma.item.update({
-      where: { id: data.itemId },
-      data:  { status: 'SOLD' },
-    }),
+    prisma.item.update({ where: { id: data.itemId }, data: { status: 'SOLD' } }),
   ]);
+
+  const newBadges = await checkAndAwardBadges({ type: 'sale_recorded', userId, storageDays });
+  return { newBadges };
 }
 
 /**
  * Quick sell — atomically creates a new item and its sale in one step.
  * The item is created with purchasePrice=0, purchasedAt=soldAt, status=SOLD.
  */
-export async function createQuickSale(data: QuickSellInput): Promise<void> {
+export async function createQuickSale(data: QuickSellInput): Promise<{ newBadges: AwardedBadge[] }> {
   const userId = await getLocalUserId();
 
   await prisma.$transaction(async (tx) => {
@@ -77,7 +78,6 @@ export async function createQuickSale(data: QuickSellInput): Promise<void> {
         status:           'SOLD',
       },
     });
-
     await tx.sale.create({
       data: {
         itemId:          item.id,
@@ -88,4 +88,8 @@ export async function createQuickSale(data: QuickSellInput): Promise<void> {
       },
     });
   });
+
+  // Quick sell: 0 storage days (bought and sold same day)
+  const newBadges = await checkAndAwardBadges({ type: 'sale_recorded', userId, storageDays: 0 });
+  return { newBadges };
 }

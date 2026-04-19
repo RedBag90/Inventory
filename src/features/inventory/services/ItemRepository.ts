@@ -6,12 +6,14 @@
 
 import { prisma } from '@/shared/lib/prisma';
 import { createClient } from '@/shared/lib/supabase/server';
+import { checkAndAwardBadges } from '@/features/badges/services/BadgeAwardService';
 import type {
   CreateItemInput,
   EditItemInput,
   UpdateItemCostsInput,
   ItemWithCosts,
 } from '../types/inventory.types';
+import type { AwardedBadge } from '@/features/badges/types/badge.types';
 
 // ─── Auth helper ─────────────────────────────────────────────────────────────
 
@@ -101,9 +103,9 @@ export async function getItemById(id: string): Promise<ItemWithCosts | null> {
 // ─── Mutations ────────────────────────────────────────────────────────────────
 
 /** US-009 — Create a new inventory item. */
-export async function createItem(data: CreateItemInput): Promise<ItemWithCosts> {
+export async function createItem(data: CreateItemInput): Promise<{ item: ItemWithCosts; newBadges: AwardedBadge[] }> {
   const userId = await getLocalUserId();
-  const item = await prisma.item.create({
+  const raw = await prisma.item.create({
     data: {
       userId,
       name:             data.name,
@@ -116,7 +118,8 @@ export async function createItem(data: CreateItemInput): Promise<ItemWithCosts> 
     },
     include: ITEM_INCLUDE,
   });
-  return toPlain(item);
+  const newBadges = await checkAndAwardBadges({ type: 'item_created', userId });
+  return { item: toPlain(raw), newBadges };
 }
 
 /** US-010 — Update shipping/repair costs and replace additional costs list. */

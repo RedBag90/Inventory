@@ -11,6 +11,11 @@ import { useCurrentDbUser }  from '../hooks/useCurrentDbUser';
 import { updateDisplayName } from '../actions/updateDisplayName';
 import { useTutorial } from '@/features/tutorial/context/TutorialContext';
 import { useLocale, useSetLocale } from '@/shared/hooks/useLocale';
+import { toast } from 'sonner';
+import { useMyBadgeCount } from '@/features/badges/hooks/useBadges';
+import { badgeKeys } from '@/features/badges/hooks/badgeKeys';
+import { BadgeToast } from '@/features/badges/components/BadgeToast';
+import type { AwardedBadge } from '@/features/badges/types/badge.types';
 
 function initials(email: string) {
   return email.slice(0, 2).toUpperCase();
@@ -27,6 +32,7 @@ export function UserMenu() {
   const setLocale = useSetLocale();
   const { user, isLoading }   = useCurrentUser();
   const { data: dbUser }      = useCurrentDbUser();
+  const { data: badgeCount }  = useMyBadgeCount();
   const router                = useRouter();
   const queryClient           = useQueryClient();
   const { restart: restartTutorial } = useTutorial();
@@ -65,9 +71,15 @@ export function UserMenu() {
     setSaving(true);
     setSaveError('');
     try {
-      await updateDisplayName(nameInput);
+      const { newBadges } = await updateDisplayName(nameInput);
       await queryClient.invalidateQueries({ queryKey: ['auth', 'currentDbUser'] });
       await queryClient.invalidateQueries({ queryKey: ['admin', 'leaderboard'] });
+      if (newBadges.length > 0) {
+        queryClient.invalidateQueries({ queryKey: badgeKeys.all });
+        for (const badge of newBadges as AwardedBadge[]) {
+          toast.custom(() => BadgeToast({ badge }), { duration: 6000 });
+        }
+      }
       setEditing(false);
     } catch (e) {
       setSaveError((e as Error).message);
@@ -131,15 +143,26 @@ export function UserMenu() {
               {dbUser?.displayName && (
                 <p className="text-xs text-gray-400 truncate">{email}</p>
               )}
-              <span className={`inline-block mt-0.5 text-xs font-medium px-2 py-0.5 rounded-full ${
-                role === 'MASTER_ADMIN'
-                  ? 'bg-purple-100 text-purple-800'
-                  : role === 'ADMIN'
-                    ? 'bg-amber-100 text-amber-800'
-                    : 'bg-gray-100 text-gray-600'
-              }`}>
-                {roleLabel}
-              </span>
+              <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                <span className={`inline-block text-xs font-medium px-2 py-0.5 rounded-full ${
+                  role === 'MASTER_ADMIN'
+                    ? 'bg-purple-100 text-purple-800'
+                    : role === 'ADMIN'
+                      ? 'bg-amber-100 text-amber-800'
+                      : 'bg-gray-100 text-gray-600'
+                }`}>
+                  {roleLabel}
+                </span>
+                {badgeCount != null && badgeCount > 0 && (
+                  <Link
+                    href="/dashboard/badges"
+                    onClick={() => setOpen(false)}
+                    className="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 transition-colors"
+                  >
+                    🏅 {badgeCount}
+                  </Link>
+                )}
+              </div>
             </div>
           </div>
 

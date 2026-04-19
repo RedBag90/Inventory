@@ -3,6 +3,11 @@
 import { prisma } from '@/shared/lib/prisma';
 import { createClient } from '@/shared/lib/supabase/server';
 
+export type LeaderboardBadge = {
+  slug: string;
+  tier: string;
+};
+
 export type LeaderboardEntry = {
   id:          string;
   email:       string;
@@ -12,6 +17,7 @@ export type LeaderboardEntry = {
   totalProfit: number;
   /** Positions gained (+) or lost (−) vs last Sunday midnight. 0 = unchanged. */
   rankChange:  number;
+  topBadges:   LeaderboardBadge[];
 };
 
 export type LeaderboardResult = {
@@ -84,8 +90,11 @@ export async function getLeaderboard(instanceIdOverride?: string): Promise<Leade
     where:   userWhere,
     orderBy: { email: 'asc' },
     include: {
-      items: {
-        include: { costs: true, sale: true },
+      items: { include: { costs: true, sale: true } },
+      userBadges: {
+        include: { badge: { select: { slug: true, tier: true, sortOrder: true } } },
+        orderBy: [{ badge: { sortOrder: 'desc' } }],
+        take:    3,
       },
     },
   });
@@ -132,6 +141,7 @@ export async function getLeaderboard(instanceIdOverride?: string): Promise<Leade
       soldCount:      soldItems.length,
       totalProfit,
       snapshotProfit,
+      topBadges: u.userBadges.map((ub) => ({ slug: ub.badge.slug, tier: ub.badge.tier })),
     };
   });
 
@@ -149,6 +159,7 @@ export async function getLeaderboard(instanceIdOverride?: string): Promise<Leade
     soldCount:   e.soldCount,
     totalProfit: e.totalProfit,
     rankChange:  (snapshotRankOf.get(e.id) ?? 0) - (currentRankOf.get(e.id) ?? 0),
+    topBadges:   e.topBadges,
   }));
 
   return {

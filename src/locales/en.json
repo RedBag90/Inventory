@@ -38,6 +38,7 @@
     "leaderboard": "Leaderboard",
     "inventory": "Inventory",
     "reporting": "Reports",
+    "badges": "Badges",
     "collapseSidebar": "Collapse sidebar",
     "expandSidebar": "Expand sidebar"
   },
@@ -287,5 +288,44 @@
       "firstSaleTitle": "Ready for your first sale?",
       "firstSaleDescription": "Document your first sale now — click 'Quick sell' and enter the item, price and platform. Done in 30 seconds."
     }
+  },
+  "badges": {
+    "pageTitle": "My Badges",
+    "earned": "Earned",
+    "locked": "Not yet earned",
+    "newBadgeToast": "New Badge!",
+    "categoryAll": "All",
+    "categories": {
+      "SALES": "Sales",
+      "PROFIT": "Profit",
+      "EFFICIENCY": "Efficiency",
+      "INVENTORY": "Inventory",
+      "LEADERBOARD": "Leaderboard",
+      "ENGAGEMENT": "Engagement",
+      "SPECIAL": "Special"
+    },
+    "tiers": {
+      "BRONZE": "Bronze",
+      "SILVER": "Silver",
+      "GOLD": "Gold"
+    },
+    "first-item":    { "name": "First Haul",         "description": "Added your first item to inventory." },
+    "buyer-10":      { "name": "Shopper",            "description": "Bought 10 items." },
+    "buyer-25":      { "name": "Bulk Buyer",         "description": "Bought 25 items." },
+    "buyer-50":      { "name": "Warehouse",          "description": "Bought 50 items." },
+    "first-sale":    { "name": "First Sale",         "description": "Sold your first item." },
+    "seller-10":     { "name": "Trader",             "description": "Sold 10 items." },
+    "seller-25":     { "name": "Pro Trader",         "description": "Sold 25 items." },
+    "seller-50":     { "name": "Master Trader",      "description": "Sold 50 items." },
+    "profit-100":    { "name": "First Hundred",      "description": "Reached €100 in total profit." },
+    "profit-500":    { "name": "Five Hundred Club",  "description": "Reached €500 in total profit." },
+    "profit-1000":   { "name": "Grand",              "description": "Reached €1,000 in total profit." },
+    "profit-5000":   { "name": "Big Flipper",        "description": "Reached €5,000 in total profit." },
+    "speed-3d":      { "name": "Quick Draw",         "description": "Sold an item within 3 days of buying it." },
+    "speed-1d":      { "name": "Lightning Seller",   "description": "Sold an item the same day." },
+    "top-3":         { "name": "Podium",             "description": "Reached top 3 in a season." },
+    "champion":      { "name": "Champion",           "description": "Finished 1st in a season." },
+    "display-name":  { "name": "Face of the Crowd",  "description": "Set a display name." },
+    "tutorial-done": { "name": "Settled In",         "description": "Completed the tutorial." }
   }
 }
