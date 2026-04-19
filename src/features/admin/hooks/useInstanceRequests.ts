@@ -1,6 +1,7 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { adminKeys } from './adminKeys';
 import {
   getInstanceRequests,
   getPendingInstanceRequestCount,
@@ -11,31 +12,27 @@ import {
   getMyInstanceRequest,
 } from '@/features/olympiad/actions/olympiadActions';
 
-export const instanceRequestKeys = {
-  all:     () => ['instanceRequests'] as const,
-  count:   () => ['instanceRequests', 'count'] as const,
-  mine:    () => ['instanceRequests', 'mine'] as const,
-};
-
 export function useInstanceRequests(statusFilter: 'PENDING' | 'ALL' = 'PENDING') {
   return useQuery({
-    queryKey: [...instanceRequestKeys.all(), statusFilter],
-    queryFn:  () => getInstanceRequests(statusFilter),
+    queryKey:  adminKeys.instanceRequests(statusFilter),
+    queryFn:   () => getInstanceRequests(statusFilter),
+    staleTime: 15_000,
   });
 }
 
 export function usePendingInstanceRequestCount(enabled: boolean) {
   return useQuery({
-    queryKey:       instanceRequestKeys.count(),
-    queryFn:        getPendingInstanceRequestCount,
+    queryKey:        adminKeys.instanceRequestCount(),
+    queryFn:         getPendingInstanceRequestCount,
     enabled,
+    staleTime:       15_000,
     refetchInterval: 60_000,
   });
 }
 
 export function useMyInstanceRequest() {
   return useQuery({
-    queryKey: instanceRequestKeys.mine(),
+    queryKey: adminKeys.instanceRequestMine(),
     queryFn:  getMyInstanceRequest,
   });
 }
@@ -46,9 +43,8 @@ export function useResolveInstanceRequest() {
     mutationFn: ({ requestId, decision }: { requestId: string; decision: 'APPROVED' | 'REJECTED' }) =>
       resolveInstanceRequest(requestId, decision),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: instanceRequestKeys.all() });
-      qc.invalidateQueries({ queryKey: instanceRequestKeys.count() });
-      // Also invalidate olympiads so new instance appears
+      qc.invalidateQueries({ queryKey: adminKeys.instanceRequests() });
+      qc.invalidateQueries({ queryKey: adminKeys.instanceRequestCount() });
       qc.invalidateQueries({ queryKey: ['olympiads'] });
     },
   });
@@ -60,7 +56,7 @@ export function useSubmitInstanceRequest() {
     mutationFn: ({ instanceName, description }: { instanceName: string; description?: string }) =>
       submitInstanceRequest(instanceName, description),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: instanceRequestKeys.mine() });
+      qc.invalidateQueries({ queryKey: adminKeys.instanceRequestMine() });
     },
   });
 }

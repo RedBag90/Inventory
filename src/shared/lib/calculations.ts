@@ -19,3 +19,7 @@ export function computeProfit(sale: SaleForProfit): number {
     - sale.item.costs.reduce((s, c) => s + c.amount.toNumber(), 0)
   );
 }
+
+export function calculateStorageDays(purchasedAt: Date, endDate: Date): number {
+  return Math.floor((endDate.getTime() - purchasedAt.getTime()) / 86_400_000);
+}

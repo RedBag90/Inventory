@@ -25,8 +25,9 @@ export function useQuickSell() {
       queryClient.invalidateQueries({ queryKey: reportingKeys.monthly(year, month) });
       queryClient.invalidateQueries({ queryKey: reportingKeys.quarterly(year, q) });
       queryClient.invalidateQueries({ queryKey: reportingKeys.cumulative() });
-      queryClient.invalidateQueries({ queryKey: ['reporting', 'range'] });
-      queryClient.invalidateQueries({ queryKey: ['reporting', 'dashboard'] });
+      queryClient.invalidateQueries({ queryKey: reportingKeys.rangeAll() });
+      queryClient.invalidateQueries({ queryKey: reportingKeys.dashboardAll() });
+      queryClient.invalidateQueries({ queryKey: reportingKeys.lineItemsAll() });
 
       if (newBadges.length > 0) {
         queryClient.invalidateQueries({ queryKey: badgeKeys.all });

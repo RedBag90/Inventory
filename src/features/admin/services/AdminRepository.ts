@@ -70,9 +70,7 @@ export async function getAllUsers(): Promise<AdminUserRecord[]> {
     orderBy: { createdAt: 'desc' },
     include: {
       items: {
-        include: {
-          sale: { include: { item: { include: { costs: true } } } },
-        },
+        include: { costs: true, sale: true },
       },
     },
   });
@@ -81,7 +79,7 @@ export async function getAllUsers(): Promise<AdminUserRecord[]> {
     const soldItems = u.items.filter((i) => i.status === 'SOLD' && i.sale);
     const totalProfit = soldItems.reduce((sum, item) => {
       if (!item.sale) return sum;
-      return sum + computeProfit(item.sale as Parameters<typeof computeProfit>[0]);
+      return sum + computeProfit({ ...item.sale, item });
     }, 0);
 
     return {

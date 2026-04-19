@@ -1,23 +1,19 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { adminKeys } from './adminKeys';
 import { getAllInstances, getInstanceOlympiads, transferOlympiadOwner } from '../services/AdminRepository';
-
-export const instanceKeys = {
-  all:      () => ['instances'] as const,
-  byOwner:  (ownerId: string) => ['instances', 'byOwner', ownerId] as const,
-};
 
 export function useInstances() {
   return useQuery({
-    queryKey: instanceKeys.all(),
+    queryKey: adminKeys.instances(),
     queryFn:  getAllInstances,
   });
 }
 
 export function useInstanceOlympiads(createdById: string) {
   return useQuery({
-    queryKey: instanceKeys.byOwner(createdById),
+    queryKey: adminKeys.instancesByOwner(createdById),
     queryFn:  () => getInstanceOlympiads(createdById),
     enabled:  !!createdById,
   });
@@ -29,7 +25,7 @@ export function useTransferOlympiadOwner() {
     mutationFn: ({ instanceId, newOwnerEmail }: { instanceId: string; newOwnerEmail: string }) =>
       transferOlympiadOwner(instanceId, newOwnerEmail),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: instanceKeys.all() });
+      qc.invalidateQueries({ queryKey: adminKeys.instances() });
       qc.invalidateQueries({ queryKey: ['olympiads'] });
     },
   });

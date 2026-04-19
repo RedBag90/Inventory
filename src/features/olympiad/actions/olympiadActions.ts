@@ -5,27 +5,12 @@ import { createClient } from '@/shared/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { sendMail } from '@/shared/lib/mailer';
 import { ROLES } from '@/shared/types/auth';
+import { getCurrentUserId, getCurrentDbUser } from '@/shared/lib/auth/getCurrentUserId';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-async function getCurrentUser(): Promise<{ id: string; role: string }> {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('Not authenticated');
-  const dbUser = await prisma.user.findUnique({
-    where:  { supabaseId: user.id },
-    select: { id: true, role: true },
-  });
-  if (!dbUser) throw new Error('User not found');
-  return dbUser;
-}
-
-async function getCurrentUserId(): Promise<string> {
-  return (await getCurrentUser()).id;
-}
-
 async function requireAdminRole(): Promise<string> {
-  const user = await getCurrentUser();
+  const user = await getCurrentDbUser();
   if (user.role !== ROLES.ADMIN && user.role !== ROLES.MASTER_ADMIN) throw new Error('Forbidden');
   return user.id;
 }
@@ -385,7 +370,8 @@ export async function getMyInstanceRequest() {
   });
 }
 
-export async function joinViaToken(token: string, userId: string) {
+export async function joinViaToken(token: string) {
+  const userId = await getCurrentUserId();
   const instance = await prisma.olympiadInstance.findUnique({
     where:  { inviteToken: token },
     select: { id: true, name: true },

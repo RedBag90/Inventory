@@ -2,6 +2,7 @@
 
 import { prisma } from '@/shared/lib/prisma';
 import { createClient } from '@/shared/lib/supabase/server';
+import { computeProfit } from '@/shared/lib/calculations';
 
 export type LeaderboardBadge = {
   slug: string;
@@ -86,11 +87,30 @@ export async function getLeaderboard(instanceIdOverride?: string): Promise<Leade
     ? { isActive: true, memberships: { some: { instanceId: instance.id } } }
     : { isActive: true };
 
+  const winStart = instance?.startsAt ?? null;
+  const winEnd   = instance?.endsAt   ?? null;
+
   const users = await prisma.user.findMany({
     where:   userWhere,
     orderBy: { email: 'asc' },
-    include: {
-      items: { include: { costs: true, sale: true } },
+    select: {
+      id:          true,
+      email:       true,
+      displayName: true,
+      items: {
+        where: (winStart && winEnd) ? {
+          OR: [
+            { purchasedAt: { gte: winStart, lte: winEnd } },
+            { sale: { soldAt: { gte: winStart, lte: winEnd } } },
+          ],
+        } : undefined,
+        select: {
+          purchasePrice: true, shippingCostIn: true, repairCost: true,
+          purchasedAt:   true, status:         true,
+          costs: { select: { amount: true } },
+          sale:  { select: { salePrice: true, shippingCostOut: true, soldAt: true } },
+        },
+      },
       userBadges: {
         include: { badge: { select: { slug: true, tier: true, sortOrder: true } } },
         orderBy: [{ badge: { sortOrder: 'desc' } }],
@@ -98,10 +118,6 @@ export async function getLeaderboard(instanceIdOverride?: string): Promise<Leade
       },
     },
   });
-
-  // Restrict items/sales to instance time window if applicable
-  const winStart = instance?.startsAt ?? null;
-  const winEnd   = instance?.endsAt   ?? null;
 
   function inWindow(date: Date): boolean {
     if (!winStart || !winEnd) return true;
@@ -117,21 +133,9 @@ export async function getLeaderboard(instanceIdOverride?: string): Promise<Leade
       (i) => i.status === 'SOLD' && i.sale && inWindow(i.sale.soldAt),
     );
 
-    function profitOf(item: typeof soldItems[0]): number {
-      const sale = item.sale!;
-      return (
-        sale.salePrice.toNumber()
-        - item.purchasePrice.toNumber()
-        - item.shippingCostIn.toNumber()
-        - item.repairCost.toNumber()
-        - sale.shippingCostOut.toNumber()
-        - item.costs.reduce((s, c) => s + c.amount.toNumber(), 0)
-      );
-    }
-
-    const totalProfit    = soldItems.reduce((s, i) => s + profitOf(i), 0);
+    const totalProfit    = soldItems.reduce((s, i) => s + computeProfit({ ...i.sale!, item: i }), 0);
     const snapshotItems  = soldItems.filter((i) => i.sale!.soldAt < snapshot);
-    const snapshotProfit = snapshotItems.reduce((s, i) => s + profitOf(i), 0);
+    const snapshotProfit = snapshotItems.reduce((s, i) => s + computeProfit({ ...i.sale!, item: i }), 0);
 
     return {
       id:             u.id,

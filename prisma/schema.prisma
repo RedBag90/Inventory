@@ -118,6 +118,8 @@ model AdditionalCost {
   createdAt DateTime @default(now())
   itemId    String
   item      Item     @relation(fields: [itemId], references: [id])
+
+  @@index([itemId])
 }
 
 model Badge {

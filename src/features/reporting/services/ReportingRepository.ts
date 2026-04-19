@@ -3,6 +3,7 @@
 import { prisma } from '@/shared/lib/prisma';
 import { getCurrentDbUser } from '@/shared/lib/auth/getCurrentUserId';
 import { ROLES } from '@/shared/types/auth';
+import { computeProfit, calculateStorageDays } from '@/shared/lib/calculations';
 import type { DailyReport, MonthlyReport, QuarterlyReport, CumulativeReport } from '../types/reporting.types';
 
 async function resolveUserId(targetUserId?: string): Promise<string> {
@@ -42,17 +43,11 @@ type SaleWithItem = {
 };
 
 function computeSaleMetrics(sale: SaleWithItem) {
-  const revenue = sale.salePrice.toNumber();
-  const costs =
-    sale.item.purchasePrice.toNumber() +
-    sale.item.shippingCostIn.toNumber() +
-    sale.item.repairCost.toNumber() +
-    sale.shippingCostOut.toNumber() +
-    sale.item.costs.reduce((sum, c) => sum + c.amount.toNumber(), 0);
-  const storageDays = Math.floor(
-    (sale.soldAt.getTime() - sale.item.purchasedAt.getTime()) / 86_400_000
-  );
-  return { revenue, costs, profit: revenue - costs, storageDays };
+  const revenue     = sale.salePrice.toNumber();
+  const profit      = computeProfit(sale);
+  const costs       = revenue - profit;
+  const storageDays = calculateStorageDays(sale.item.purchasedAt, sale.soldAt);
+  return { revenue, costs, profit, storageDays };
 }
 
 export async function getMonthlyReport(year: number, month: number, targetUserId?: string): Promise<MonthlyReport> {

@@ -7,6 +7,7 @@
 import { prisma } from '@/shared/lib/prisma';
 import { getCurrentUserId } from '@/shared/lib/auth/getCurrentUserId';
 import { checkAndAwardBadges } from '@/features/badges/services/BadgeAwardService';
+import { calculateStorageDays } from '@/shared/lib/calculations';
 import { RecordSaleSchema, QuickSellSchema } from '../types/sales.types';
 import type { RecordSaleInput, QuickSellInput } from '../types/sales.types';
 import type { AwardedBadge } from '@/features/badges/types/badge.types';
@@ -26,9 +27,7 @@ export async function createSale(data: RecordSaleInput): Promise<{ newBadges: Aw
   if (!item) throw new Error('Item not found');
   if (item.status === 'SOLD') throw new Error('Item is already sold');
 
-  const storageDays = Math.floor(
-    (parsed.soldAt.getTime() - item.purchasedAt.getTime()) / 86_400_000
-  );
+  const storageDays = calculateStorageDays(item.purchasedAt, parsed.soldAt);
 
   await prisma.$transaction([
     prisma.sale.create({

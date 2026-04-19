@@ -1,7 +1,9 @@
 'use server';
 
 import { prisma } from '@/shared/lib/prisma';
-import { createClient } from '@/shared/lib/supabase/server';
+import { getCurrentDbUser } from '@/shared/lib/auth/getCurrentUserId';
+import { ROLES } from '@/shared/types/auth';
+import { computeProfit } from '@/shared/lib/calculations';
 
 export type DashboardSale = {
   itemId:      string;
@@ -13,18 +15,20 @@ export type DashboardSale = {
 };
 
 async function resolveUserId(targetUserId?: string): Promise<string> {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('Unauthenticated');
-
-  const dbUser = await prisma.user.findUnique({
-    where:  { supabaseId: user.id },
-    select: { id: true, role: true },
+  const caller = await getCurrentDbUser();
+  if (!targetUserId || targetUserId === caller.id) return caller.id;
+  if (caller.role === ROLES.MASTER_ADMIN) return targetUserId;
+  if (caller.role !== ROLES.ADMIN) throw new Error('Forbidden');
+  const adminMemberships = await prisma.instanceMembership.findMany({
+    where:  { userId: caller.id, memberRole: 'ADMIN' },
+    select: { instanceId: true },
   });
-  if (!dbUser) throw new Error('User record not found');
-
-  if (!targetUserId || targetUserId === dbUser.id) return dbUser.id;
-  if (dbUser.role !== 'ADMIN') throw new Error('Forbidden');
+  const adminInstanceIds = adminMemberships.map(m => m.instanceId);
+  if (adminInstanceIds.length === 0) throw new Error('Forbidden');
+  const targetInInstance = await prisma.instanceMembership.findFirst({
+    where: { userId: targetUserId, instanceId: { in: adminInstanceIds } },
+  });
+  if (!targetInInstance) throw new Error('Forbidden');
   return targetUserId;
 }
 
@@ -61,12 +65,8 @@ export async function getDashboardData(
 
   const soldEntries: DashboardSale[] = sales.map((sale) => {
     const revenue = sale.salePrice.toNumber();
-    const costs =
-      sale.item.purchasePrice.toNumber() +
-      sale.item.shippingCostIn.toNumber() +
-      sale.item.repairCost.toNumber() +
-      sale.shippingCostOut.toNumber() +
-      sale.item.costs.reduce((sum, c) => sum + c.amount.toNumber(), 0);
+    const profit  = computeProfit(sale);
+    const costs   = revenue - profit;
     return {
       itemId:      sale.item.id,
       itemName:    sale.item.name,

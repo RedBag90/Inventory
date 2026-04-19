@@ -69,17 +69,25 @@ export async function checkAndAwardBadges(trigger: BadgeTrigger): Promise<Awarde
 }
 
 async function loadUserStats(userId: string) {
-  const items = await prisma.item.findMany({
-    where:   { userId },
-    include: { costs: true, sale: true },
-  });
+  const [itemsBought, soldSales] = await Promise.all([
+    prisma.item.count({ where: { userId } }),
+    prisma.sale.findMany({
+      where:   { item: { userId } },
+      select: {
+        salePrice:       true,
+        shippingCostOut: true,
+        item: {
+          select: {
+            purchasePrice:  true,
+            shippingCostIn: true,
+            repairCost:     true,
+            costs:          { select: { amount: true } },
+          },
+        },
+      },
+    }),
+  ]);
 
-  const itemsBought = items.length;
-  const soldItems   = items.filter((i) => i.status === 'SOLD' && i.sale);
-
-  const totalProfit = soldItems.reduce((sum, item) => {
-    return sum + computeProfit({ ...item.sale!, item });
-  }, 0);
-
-  return { itemsBought, itemsSold: soldItems.length, totalProfit };
+  const totalProfit = soldSales.reduce((sum, sale) => sum + computeProfit(sale), 0);
+  return { itemsBought, itemsSold: soldSales.length, totalProfit };
 }
