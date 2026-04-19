@@ -7,6 +7,8 @@
 import { prisma } from '@/shared/lib/prisma';
 import { createClient } from '@/shared/lib/supabase/server';
 import { sendMail } from '@/shared/lib/mailer';
+import { ROLES } from '@/shared/types/auth';
+import { computeProfit } from '@/shared/lib/calculations';
 import type { AdminUserRecord, UserRole } from '../types/admin.types';
 
 // ─── Auth + role guards ───────────────────────────────────────────────────────
@@ -36,7 +38,7 @@ async function getCallerCtx(): Promise<CallerCtx> {
 /** Allows ADMIN, MASTER_ADMIN, or any user with instanceMembership.memberRole === 'ADMIN'. */
 async function requireAnyAdmin(): Promise<CallerCtx> {
   const ctx = await getCallerCtx();
-  if (ctx.role !== 'ADMIN' && ctx.role !== 'MASTER_ADMIN' && ctx.adminInstanceIds.length === 0)
+  if (ctx.role !== ROLES.ADMIN && ctx.role !== ROLES.MASTER_ADMIN && ctx.adminInstanceIds.length === 0)
     throw new Error('Forbidden');
   return ctx;
 }
@@ -44,30 +46,8 @@ async function requireAnyAdmin(): Promise<CallerCtx> {
 /** Allows MASTER_ADMIN only. */
 async function requireMasterAdmin(): Promise<CallerCtx> {
   const ctx = await getCallerCtx();
-  if (ctx.role !== 'MASTER_ADMIN') throw new Error('Forbidden');
+  if (ctx.role !== ROLES.MASTER_ADMIN) throw new Error('Forbidden');
   return ctx;
-}
-
-// ─── Profit helper ────────────────────────────────────────────────────────────
-
-function computeProfit(sale: {
-  salePrice:       { toNumber(): number };
-  shippingCostOut: { toNumber(): number };
-  item: {
-    purchasePrice:  { toNumber(): number };
-    shippingCostIn: { toNumber(): number };
-    repairCost:     { toNumber(): number };
-    costs:          Array<{ amount: { toNumber(): number } }>;
-  };
-}): number {
-  return (
-    sale.salePrice.toNumber()
-    - sale.item.purchasePrice.toNumber()
-    - sale.item.shippingCostIn.toNumber()
-    - sale.item.repairCost.toNumber()
-    - sale.shippingCostOut.toNumber()
-    - sale.item.costs.reduce((s, c) => s + c.amount.toNumber(), 0)
-  );
 }
 
 // ─── Queries ──────────────────────────────────────────────────────────────────
@@ -156,7 +136,7 @@ export async function getJoinRequests(statusFilter: 'PENDING' | 'ALL' = 'PENDING
 
   const where: Record<string, unknown> = {};
   if (statusFilter === 'PENDING') where.status = 'PENDING';
-  if (ctx.role === 'MASTER_ADMIN') {
+  if (ctx.role === ROLES.MASTER_ADMIN) {
     // no extra filter
   } else if (ctx.adminInstanceIds.length > 0) {
     where.instanceId = { in: ctx.adminInstanceIds };
@@ -186,12 +166,12 @@ export async function getJoinRequests(statusFilter: 'PENDING' | 'ALL' = 'PENDING
 
 export async function getPendingJoinRequestCount(): Promise<number> {
   const ctx = await getCallerCtx();
-  const isGlobalAdmin   = ctx.role === 'ADMIN' || ctx.role === 'MASTER_ADMIN';
+  const isGlobalAdmin   = ctx.role === ROLES.ADMIN || ctx.role === ROLES.MASTER_ADMIN;
   const isInstanceAdmin = ctx.adminInstanceIds.length > 0;
   if (!isGlobalAdmin && !isInstanceAdmin) return 0;
 
   const where: Record<string, unknown> = { status: 'PENDING' };
-  if (ctx.role === 'MASTER_ADMIN') {
+  if (ctx.role === ROLES.MASTER_ADMIN) {
     // no extra filter
   } else if (isInstanceAdmin) {
     where.instanceId = { in: ctx.adminInstanceIds };
@@ -217,9 +197,9 @@ export async function resolveJoinRequest(
   });
   if (!request) throw new Error('Request not found');
 
-  if (ctx.role !== 'MASTER_ADMIN') {
+  if (ctx.role !== ROLES.MASTER_ADMIN) {
     const canResolve =
-      (ctx.role === 'ADMIN' && request.instance.createdById === ctx.id) ||
+      (ctx.role === ROLES.ADMIN && request.instance.createdById === ctx.id) ||
       ctx.adminInstanceIds.includes(request.instanceId);
     if (!canResolve) throw new Error('Forbidden');
   }
@@ -240,7 +220,7 @@ export async function resolveJoinRequest(
         <p>Du kannst dich jetzt einloggen und loslegen.</p>
       `,
       text: `Deine Anfrage für „${request.instance.name}" wurde akzeptiert. Du kannst dich jetzt einloggen.`,
-    }).catch(err => console.error('[mailer] Failed to send acceptance email:', err));
+    }).catch((err: unknown) => console.error('[mailer] join-request acceptance email failed', { requestId, to: request.user.email, error: err instanceof Error ? err.message : String(err) }));
   } else {
     sendMail({
       to:      request.user.email,
@@ -251,7 +231,7 @@ export async function resolveJoinRequest(
         <p>Du kannst mit einem anderen Code eine neue Anfrage stellen.</p>
       `,
       text: `Deine Anfrage für „${request.instance.name}" wurde abgelehnt.`,
-    }).catch(err => console.error('[mailer] Failed to send rejection email:', err));
+    }).catch((err: unknown) => console.error('[mailer] join-request rejection email failed', { requestId, to: request.user.email, error: err instanceof Error ? err.message : String(err) }));
   }
 
   if (decision === 'ACCEPTED') {
@@ -301,7 +281,7 @@ export async function getInstanceRequests(statusFilter: 'PENDING' | 'ALL' = 'PEN
 
 export async function getPendingInstanceRequestCount(): Promise<number> {
   const ctx = await getCallerCtx();
-  if (ctx.role !== 'MASTER_ADMIN') return 0;
+  if (ctx.role !== ROLES.MASTER_ADMIN) return 0;
   return prisma.instanceRequest.count({ where: { status: 'PENDING' } });
 }
 
@@ -354,7 +334,7 @@ export async function resolveInstanceRequest(
         <p>Du kannst dich jetzt einloggen und deine Instanz verwalten.</p>
       `,
       text: `Deine Instanz „${request.instanceName}" wurde genehmigt. Du kannst dich jetzt einloggen.`,
-    }).catch(err => console.error('[mailer] instance approval email failed:', err));
+    }).catch((err: unknown) => console.error('[mailer] instance-request approval email failed', { requestId, to: request.user.email, error: err instanceof Error ? err.message : String(err) }));
   } else {
     sendMail({
       to:      request.user.email,
@@ -364,7 +344,7 @@ export async function resolveInstanceRequest(
         <p>Deine Anfrage für die Instanz <strong>${request.instanceName}</strong> wurde leider <strong>abgelehnt</strong>.</p>
       `,
       text: `Deine Anfrage für Instanz „${request.instanceName}" wurde abgelehnt.`,
-    }).catch(err => console.error('[mailer] instance rejection email failed:', err));
+    }).catch((err: unknown) => console.error('[mailer] instance-request rejection email failed', { requestId, to: request.user.email, error: err instanceof Error ? err.message : String(err) }));
   }
 }
 

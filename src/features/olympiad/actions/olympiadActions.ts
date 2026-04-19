@@ -4,6 +4,7 @@ import { prisma } from '@/shared/lib/prisma';
 import { createClient } from '@/shared/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { sendMail } from '@/shared/lib/mailer';
+import { ROLES } from '@/shared/types/auth';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -25,7 +26,7 @@ async function getCurrentUserId(): Promise<string> {
 
 async function requireAdminRole(): Promise<string> {
   const user = await getCurrentUser();
-  if (user.role !== 'ADMIN' && user.role !== 'MASTER_ADMIN') throw new Error('Forbidden');
+  if (user.role !== ROLES.ADMIN && user.role !== ROLES.MASTER_ADMIN) throw new Error('Forbidden');
   return user.id;
 }
 
@@ -40,7 +41,7 @@ async function assertOwner(instanceId: string, userId: string) {
   ]);
   if (!instance) throw new Error('Instance not found');
   // MASTER_ADMIN can manage all instances
-  if (user?.role === 'MASTER_ADMIN') return;
+  if (user?.role === ROLES.MASTER_ADMIN) return;
   // Per-instance admin via memberRole
   if (membership?.memberRole === 'ADMIN') return;
   // Legacy: creator via createdById
@@ -351,7 +352,7 @@ export async function submitInstanceRequest(instanceName: string, description?: 
 
   // Notify MASTER_ADMINs (fire-and-forget)
   const admins = await prisma.user.findMany({
-    where:  { role: 'MASTER_ADMIN', isActive: true },
+    where:  { role: ROLES.MASTER_ADMIN, isActive: true },
     select: { email: true },
   });
   for (const admin of admins) {

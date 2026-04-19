@@ -1,6 +1,6 @@
 // Admin module types — user management and per-user stats.
 
-export type UserRole = 'USER' | 'ADMIN' | 'MASTER_ADMIN';
+export type { UserRole } from '@/shared/types/auth';
 
 export type AdminUserRecord = {
   id:          string;

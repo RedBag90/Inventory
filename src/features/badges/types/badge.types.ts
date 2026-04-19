@@ -1,14 +1,19 @@
+import { z } from 'zod';
+
 export type BadgeCategory = 'SALES' | 'PROFIT' | 'EFFICIENCY' | 'INVENTORY' | 'LEADERBOARD' | 'ENGAGEMENT' | 'SPECIAL';
 export type BadgeTier = 'BRONZE' | 'SILVER' | 'GOLD';
 
-export type BadgeCriteria =
-  | { type: 'items_sold';       threshold: number }
-  | { type: 'total_profit';     threshold: number }
-  | { type: 'items_bought';     threshold: number }
-  | { type: 'speed_days';       threshold: number }
-  | { type: 'leaderboard_rank'; threshold: number }
-  | { type: 'engagement';       event: string }
-  | { type: 'manual' };
+export const BadgeCriteriaSchema = z.discriminatedUnion('type', [
+  z.object({ type: z.literal('items_sold'),       threshold: z.number() }),
+  z.object({ type: z.literal('total_profit'),     threshold: z.number() }),
+  z.object({ type: z.literal('items_bought'),     threshold: z.number() }),
+  z.object({ type: z.literal('speed_days'),       threshold: z.number() }),
+  z.object({ type: z.literal('leaderboard_rank'), threshold: z.number() }),
+  z.object({ type: z.literal('engagement'),       event:     z.string() }),
+  z.object({ type: z.literal('manual') }),
+]);
+
+export type BadgeCriteria = z.infer<typeof BadgeCriteriaSchema>;
 
 export type BadgeDefinition = {
   id:        string;

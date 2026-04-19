@@ -2,12 +2,25 @@
 
 import { prisma } from '@/shared/lib/prisma';
 import { getCurrentDbUser } from '@/shared/lib/auth/getCurrentUserId';
+import { ROLES } from '@/shared/types/auth';
 import type { DailyReport, MonthlyReport, QuarterlyReport, CumulativeReport } from '../types/reporting.types';
 
 async function resolveUserId(targetUserId?: string): Promise<string> {
   const caller = await getCurrentDbUser();
   if (!targetUserId || targetUserId === caller.id) return caller.id;
-  if (caller.role !== 'ADMIN') throw new Error('Forbidden');
+  if (caller.role === ROLES.MASTER_ADMIN) return targetUserId;
+  if (caller.role !== ROLES.ADMIN) throw new Error('Forbidden');
+  // ADMIN: verify the target user is in one of the caller's managed instances
+  const adminMemberships = await prisma.instanceMembership.findMany({
+    where:  { userId: caller.id, memberRole: 'ADMIN' },
+    select: { instanceId: true },
+  });
+  const adminInstanceIds = adminMemberships.map(m => m.instanceId);
+  if (adminInstanceIds.length === 0) throw new Error('Forbidden');
+  const targetInInstance = await prisma.instanceMembership.findFirst({
+    where: { userId: targetUserId, instanceId: { in: adminInstanceIds } },
+  });
+  if (!targetInInstance) throw new Error('Forbidden');
   return targetUserId;
 }
 
