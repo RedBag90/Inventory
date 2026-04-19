@@ -2,10 +2,11 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { getCurrentDbUser } from '../actions/getCurrentDbUser';
+import { authKeys } from './authKeys';
 
 export function useCurrentDbUser() {
   return useQuery({
-    queryKey: ['auth', 'currentDbUser'],
+    queryKey: authKeys.currentDbUser(),
     queryFn:  getCurrentDbUser,
     staleTime: 5 * 60_000,
   });

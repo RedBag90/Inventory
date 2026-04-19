@@ -104,7 +104,7 @@ function RangeView({
   const { data: dailyData } = useAllDailyReports(from, to, targetUser);
 
   const { data: lineItems = [] } = useQuery({
-    queryKey: [...reportingKeys.all, 'line-items', from, to, targetUser ?? 'self'],
+    queryKey: reportingKeys.lineItems(from, to, targetUser ?? 'self'),
     queryFn: () => {
       const start  = new Date(from);
       const toDate = new Date(to);
@@ -165,7 +165,7 @@ function RangeView({
 function CumulativeView({ targetUser }: { targetUser?: string }) {
   const { data: report, isLoading } = useCumulativeReport(targetUser);
   const { data: lineItems = [] }    = useQuery({
-    queryKey: [...reportingKeys.all, 'line-items', 'all', targetUser ?? 'self'],
+    queryKey: reportingKeys.lineItems(null, null, targetUser ?? 'self'),
     queryFn:  () => getSaleLineItems(new Date(0), null, targetUser),
     staleTime: 5 * 60_000,
   });

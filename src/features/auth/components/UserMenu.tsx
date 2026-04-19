@@ -77,7 +77,7 @@ export function UserMenu() {
       if (newBadges.length > 0) {
         queryClient.invalidateQueries({ queryKey: badgeKeys.all });
         for (const badge of newBadges as AwardedBadge[]) {
-          toast.custom(() => BadgeToast({ badge }), { duration: 6000 });
+          toast.custom(() => <BadgeToast badge={badge} />, { duration: 6000 });
         }
       }
       setEditing(false);

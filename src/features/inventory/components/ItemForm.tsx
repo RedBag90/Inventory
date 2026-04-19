@@ -6,8 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CreateItemSchema, type CreateItemInput } from '../types/inventory.types';
 import { useCreateItem } from '../hooks/useCreateItem';
-
-const PLATFORMS = ['KLEINANZEIGEN', 'EBAY', 'FACEBOOK', 'OTHER'] as const;
+import { PLATFORMS } from '@/shared/constants/platforms';
 
 type Props = { onSuccess?: () => void };
 
@@ -134,7 +133,15 @@ export function ItemForm({ onSuccess }: Props) {
         disabled={isPending}
         className="w-full bg-gray-900 text-white py-2 px-4 rounded-md text-sm font-medium hover:bg-gray-700 disabled:opacity-50 transition-colors"
       >
-        {isPending ? 'Saving…' : 'Add item'}
+        {isPending ? (
+        <>
+          <svg className="animate-spin h-4 w-4 mr-2 inline" viewBox="0 0 24 24" fill="none">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+          </svg>
+          Speichert…
+        </>
+      ) : 'Add item'}
       </button>
     </form>
   );

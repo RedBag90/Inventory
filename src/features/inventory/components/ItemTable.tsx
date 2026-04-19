@@ -1,13 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { useQuery } from '@tanstack/react-query';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useItems } from '../hooks/useItems';
 import { ItemCard } from './ItemCard';
-import { inventoryKeys } from '../hooks/inventoryKeys';
-import { getItems } from '../services/ItemRepository';
 import { SaleManager } from '@/features/sales/services/SaleManager';
 import { formatCurrency } from '@/shared/lib/utils';
 import type { ItemWithCosts } from '../types/inventory.types';
@@ -22,7 +19,7 @@ type Props = {
 
 export function ItemTable({ onRecordSale }: Props) {
   const t = useTranslations('inventory');
-  const { data: items, isLoading, isError } = useItems();
+  const { data: allItems, isLoading, isError } = useItems();
   const { step: tutorialStep } = useTutorial();
   const searchParams = useSearchParams();
   const pathname     = usePathname();
@@ -34,13 +31,11 @@ export function ItemTable({ onRecordSale }: Props) {
     { label: t('filterSold'),    value: 'SOLD' },
   ];
 
-  const { data: allItems } = useQuery({
-    queryKey: inventoryKeys.list({}),
-    queryFn:  () => getItems({}),
-    staleTime: 60_000,
-  });
-
   const activeFilter = (searchParams.get('status') as FilterTab) ?? 'ALL';
+
+  const items = allItems && activeFilter !== 'ALL'
+    ? allItems.filter((i) => i.status === activeFilter)
+    : allItems;
 
   function setFilter(value: FilterTab) {
     const params = new URLSearchParams(searchParams.toString());
@@ -108,7 +103,11 @@ export function ItemTable({ onRecordSale }: Props) {
         </div>
 
         {isLoading && (
-          <div className="py-12 text-center text-sm text-gray-400">{t('loading')}</div>
+          <div className="p-4 space-y-2">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="h-14 rounded-lg bg-gray-100 animate-pulse" />
+            ))}
+          </div>
         )}
 
         {isError && (

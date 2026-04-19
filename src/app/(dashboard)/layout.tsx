@@ -6,6 +6,7 @@ import { Sidebar } from '@/shared/components/Sidebar';
 import { UserMenu } from '@/features/auth/components/UserMenu';
 import { TutorialShell } from '@/features/tutorial/components/TutorialShell';
 import { ActiveOlympiadProvider } from '@/features/olympiad/context/ActiveOlympiadContext';
+import { AppErrorBoundary } from '@/shared/components/AppErrorBoundary';
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
@@ -28,7 +29,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
             <UserMenu />
           </header>
           <main className="flex-1 overflow-auto p-6">
-            {children}
+            <AppErrorBoundary>
+              {children}
+            </AppErrorBoundary>
           </main>
         </div>
       </div>

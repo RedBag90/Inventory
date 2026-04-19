@@ -1,7 +1,9 @@
 'use server';
 
 import { prisma } from '@/shared/lib/prisma';
-import type { BadgeCriteria, AwardedBadge } from '../types/badge.types';
+import { computeProfit } from '@/shared/lib/calculations';
+import { BadgeCriteriaSchema } from '../types/badge.types';
+import type { AwardedBadge } from '../types/badge.types';
 
 export type BadgeTrigger =
   | { type: 'sale_recorded';    userId: string; storageDays?: number }
@@ -30,7 +32,7 @@ export async function checkAndAwardBadges(trigger: BadgeTrigger): Promise<Awarde
   for (const badge of allBadges) {
     if (earnedIds.has(badge.id)) continue;
 
-    const criteria = badge.criteria as BadgeCriteria;
+    const criteria = BadgeCriteriaSchema.parse(badge.criteria);
     let qualifies = false;
 
     if (criteria.type === 'items_bought' && trigger.type === 'item_created') {
@@ -56,7 +58,7 @@ export async function checkAndAwardBadges(trigger: BadgeTrigger): Promise<Awarde
         slug:       badge.slug,
         category:   badge.category as AwardedBadge['category'],
         tier:       badge.tier     as AwardedBadge['tier'],
-        criteria:   badge.criteria as BadgeCriteria,
+        criteria,
         sortOrder:  badge.sortOrder,
         unlockedAt: userBadge.unlockedAt,
       });
@@ -67,26 +69,25 @@ export async function checkAndAwardBadges(trigger: BadgeTrigger): Promise<Awarde
 }
 
 async function loadUserStats(userId: string) {
-  const items = await prisma.item.findMany({
-    where:   { userId },
-    include: { costs: true, sale: true },
-  });
+  const [itemsBought, soldSales] = await Promise.all([
+    prisma.item.count({ where: { userId } }),
+    prisma.sale.findMany({
+      where:   { item: { userId } },
+      select: {
+        salePrice:       true,
+        shippingCostOut: true,
+        item: {
+          select: {
+            purchasePrice:  true,
+            shippingCostIn: true,
+            repairCost:     true,
+            costs:          { select: { amount: true } },
+          },
+        },
+      },
+    }),
+  ]);
 
-  const itemsBought = items.length;
-  const soldItems   = items.filter((i) => i.status === 'SOLD' && i.sale);
-
-  const totalProfit = soldItems.reduce((sum, item) => {
-    const sale = item.sale!;
-    return (
-      sum
-      + sale.salePrice.toNumber()
-      - item.purchasePrice.toNumber()
-      - item.shippingCostIn.toNumber()
-      - item.repairCost.toNumber()
-      - sale.shippingCostOut.toNumber()
-      - item.costs.reduce((s, c) => s + c.amount.toNumber(), 0)
-    );
-  }, 0);
-
-  return { itemsBought, itemsSold: soldItems.length, totalProfit };
+  const totalProfit = soldSales.reduce((sum, sale) => sum + computeProfit(sale), 0);
+  return { itemsBought, itemsSold: soldSales.length, totalProfit };
 }

@@ -5,23 +5,12 @@
 // Auth check happens before every mutation.
 
 import { prisma } from '@/shared/lib/prisma';
-import { createClient } from '@/shared/lib/supabase/server';
+import { getCurrentUserId } from '@/shared/lib/auth/getCurrentUserId';
 import { checkAndAwardBadges } from '@/features/badges/services/BadgeAwardService';
+import { calculateStorageDays } from '@/shared/lib/calculations';
+import { RecordSaleSchema, QuickSellSchema } from '../types/sales.types';
 import type { RecordSaleInput, QuickSellInput } from '../types/sales.types';
 import type { AwardedBadge } from '@/features/badges/types/badge.types';
-
-// ─── Auth helper ─────────────────────────────────────────────────────────────
-
-async function getLocalUserId(): Promise<string> {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('Unauthenticated');
-
-  const dbUser = await prisma.user.findUnique({ where: { supabaseId: user.id } });
-  if (!dbUser) throw new Error('User record not found');
-
-  return dbUser.id;
-}
 
 // ─── Mutations ────────────────────────────────────────────────────────────────
 
@@ -31,27 +20,26 @@ async function getLocalUserId(): Promise<string> {
  * Throws if the item is not found, not owned by the user, or already SOLD.
  */
 export async function createSale(data: RecordSaleInput): Promise<{ newBadges: AwardedBadge[] }> {
-  const userId = await getLocalUserId();
+  const parsed = RecordSaleSchema.parse(data);
+  const userId = await getCurrentUserId();
 
-  const item = await prisma.item.findFirst({ where: { id: data.itemId, userId } });
+  const item = await prisma.item.findFirst({ where: { id: parsed.itemId, userId } });
   if (!item) throw new Error('Item not found');
   if (item.status === 'SOLD') throw new Error('Item is already sold');
 
-  const storageDays = Math.floor(
-    (data.soldAt.getTime() - item.purchasedAt.getTime()) / 86_400_000
-  );
+  const storageDays = calculateStorageDays(item.purchasedAt, parsed.soldAt);
 
   await prisma.$transaction([
     prisma.sale.create({
       data: {
-        itemId:          data.itemId,
-        salePrice:       data.salePrice,
-        salePlatform:    data.salePlatform,
-        shippingCostOut: data.shippingCostOut ?? 0,
-        soldAt:          data.soldAt,
+        itemId:          parsed.itemId,
+        salePrice:       parsed.salePrice,
+        salePlatform:    parsed.salePlatform,
+        shippingCostOut: parsed.shippingCostOut ?? 0,
+        soldAt:          parsed.soldAt,
       },
     }),
-    prisma.item.update({ where: { id: data.itemId }, data: { status: 'SOLD' } }),
+    prisma.item.update({ where: { id: parsed.itemId }, data: { status: 'SOLD' } }),
   ]);
 
   const newBadges = await checkAndAwardBadges({ type: 'sale_recorded', userId, storageDays });
@@ -63,16 +51,17 @@ export async function createSale(data: RecordSaleInput): Promise<{ newBadges: Aw
  * The item is created with purchasePrice=0, purchasedAt=soldAt, status=SOLD.
  */
 export async function createQuickSale(data: QuickSellInput): Promise<{ newBadges: AwardedBadge[] }> {
-  const userId = await getLocalUserId();
+  const parsed = QuickSellSchema.parse(data);
+  const userId = await getCurrentUserId();
 
   await prisma.$transaction(async (tx) => {
     const item = await tx.item.create({
       data: {
         userId,
-        name:             data.name,
+        name:             parsed.name,
         purchasePrice:    0,
-        purchasePlatform: data.salePlatform,
-        purchasedAt:      data.soldAt,
+        purchasePlatform: parsed.salePlatform,
+        purchasedAt:      parsed.soldAt,
         shippingCostIn:   0,
         repairCost:       0,
         status:           'SOLD',
@@ -81,10 +70,10 @@ export async function createQuickSale(data: QuickSellInput): Promise<{ newBadges
     await tx.sale.create({
       data: {
         itemId:          item.id,
-        salePrice:       data.salePrice,
-        salePlatform:    data.salePlatform,
-        shippingCostOut: data.shippingCostOut ?? 0,
-        soldAt:          data.soldAt,
+        salePrice:       parsed.salePrice,
+        salePlatform:    parsed.salePlatform,
+        shippingCostOut: parsed.shippingCostOut ?? 0,
+        soldAt:          parsed.soldAt,
       },
     });
   });

@@ -1,31 +1,18 @@
 'use server';
 
+import { z } from 'zod';
 import { prisma } from '@/shared/lib/prisma';
 import { createClient } from '@/shared/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { sendMail } from '@/shared/lib/mailer';
+import { ROLES } from '@/shared/types/auth';
+import { getCurrentUserId, getCurrentDbUser } from '@/shared/lib/auth/getCurrentUserId';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-async function getCurrentUser(): Promise<{ id: string; role: string }> {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('Not authenticated');
-  const dbUser = await prisma.user.findUnique({
-    where:  { supabaseId: user.id },
-    select: { id: true, role: true },
-  });
-  if (!dbUser) throw new Error('User not found');
-  return dbUser;
-}
-
-async function getCurrentUserId(): Promise<string> {
-  return (await getCurrentUser()).id;
-}
-
 async function requireAdminRole(): Promise<string> {
-  const user = await getCurrentUser();
-  if (user.role !== 'ADMIN' && user.role !== 'MASTER_ADMIN') throw new Error('Forbidden');
+  const user = await getCurrentDbUser();
+  if (user.role !== ROLES.ADMIN && user.role !== ROLES.MASTER_ADMIN) throw new Error('Forbidden');
   return user.id;
 }
 
@@ -40,7 +27,7 @@ async function assertOwner(instanceId: string, userId: string) {
   ]);
   if (!instance) throw new Error('Instance not found');
   // MASTER_ADMIN can manage all instances
-  if (user?.role === 'MASTER_ADMIN') return;
+  if (user?.role === ROLES.MASTER_ADMIN) return;
   // Per-instance admin via memberRole
   if (membership?.memberRole === 'ADMIN') return;
   // Legacy: creator via createdById
@@ -55,6 +42,13 @@ function revalidate() {
 
 // ── Actions ───────────────────────────────────────────────────────────────────
 
+const CreateOlympiadSchema = z.object({
+  name:        z.string().min(1).max(200),
+  description: z.string().max(1000).optional(),
+  startsAt:    z.coerce.date(),
+  endsAt:      z.coerce.date(),
+}).refine(d => d.startsAt < d.endsAt, { message: 'startsAt must be before endsAt' });
+
 export async function createOlympiad(data: {
   name: string;
   description?: string;
@@ -62,8 +56,9 @@ export async function createOlympiad(data: {
   endsAt: Date;
 }) {
   const userId = await requireAdminRole();
+  const parsed = CreateOlympiadSchema.parse(data);
   await prisma.olympiadInstance.create({
-    data: { ...data, createdById: userId },
+    data: { ...parsed, createdById: userId },
   });
   revalidate();
 }
@@ -351,7 +346,7 @@ export async function submitInstanceRequest(instanceName: string, description?: 
 
   // Notify MASTER_ADMINs (fire-and-forget)
   const admins = await prisma.user.findMany({
-    where:  { role: 'MASTER_ADMIN', isActive: true },
+    where:  { role: ROLES.MASTER_ADMIN, isActive: true },
     select: { email: true },
   });
   for (const admin of admins) {
@@ -384,7 +379,8 @@ export async function getMyInstanceRequest() {
   });
 }
 
-export async function joinViaToken(token: string, userId: string) {
+export async function joinViaToken(token: string) {
+  const userId = await getCurrentUserId();
   const instance = await prisma.olympiadInstance.findUnique({
     where:  { inviteToken: token },
     select: { id: true, name: true },
@@ -407,6 +403,9 @@ export async function joinViaToken(token: string, userId: string) {
  * even if the user confirms their email on a different device/browser.
  */
 export async function storePendingEmailInvite(email: string, instanceId: string): Promise<void> {
+  const callerId = await getCurrentUserId();
+  await assertOwner(instanceId, callerId);
+  z.string().email().parse(email);
   await prisma.pendingEmailInvite.upsert({
     where:  { email_instanceId: { email, instanceId } },
     update: {},

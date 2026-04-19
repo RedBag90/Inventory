@@ -1,47 +1,38 @@
 'use server';
 
+import { z } from 'zod';
 import { prisma } from '@/shared/lib/prisma';
-import { createClient } from '@/shared/lib/supabase/server';
+import { getCurrentUserId, getCurrentDbUser } from '@/shared/lib/auth/getCurrentUserId';
+import { ROLES } from '@/shared/types/auth';
 import { getAllBadges, getUserBadges, getUnnotifiedBadges, markBadgesNotified, awardBadgeManual } from '../services/BadgeRepository';
 import type { BadgesPageData, UserBadgeWithDefinition } from '../types/badge.types';
 
-async function getCallerDbId(): Promise<string> {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('Unauthenticated');
-  const dbUser = await prisma.user.findUnique({ where: { supabaseId: user.id } });
-  if (!dbUser) throw new Error('User not found');
-  return dbUser.id;
-}
-
 export async function getMyBadgesPageData(): Promise<BadgesPageData> {
-  const userId = await getCallerDbId();
+  const userId = await getCurrentUserId();
   const [all, earned] = await Promise.all([getAllBadges(), getUserBadges(userId)]);
   return { all, earned };
 }
 
 export async function getMyUnnotifiedBadges(): Promise<UserBadgeWithDefinition[]> {
-  const userId = await getCallerDbId();
+  const userId = await getCurrentUserId();
   return getUnnotifiedBadges(userId);
 }
 
 export async function markMyBadgesNotified(): Promise<void> {
-  const userId = await getCallerDbId();
+  const userId = await getCurrentUserId();
   return markBadgesNotified(userId);
 }
 
 export async function getMyBadgeCount(): Promise<number> {
-  const userId = await getCallerDbId();
+  const userId = await getCurrentUserId();
   return prisma.userBadge.count({ where: { userId } });
 }
 
 export async function adminAwardSpecialBadge(targetUserId: string, badgeSlug: string): Promise<void> {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('Unauthenticated');
-
-  const caller = await prisma.user.findUnique({ where: { supabaseId: user.id } });
-  if (!caller || (caller.role !== 'ADMIN' && caller.role !== 'MASTER_ADMIN')) {
+  z.string().min(1).parse(targetUserId);
+  z.string().min(1).parse(badgeSlug);
+  const caller = await getCurrentDbUser();
+  if (caller.role !== ROLES.ADMIN && caller.role !== ROLES.MASTER_ADMIN) {
     throw new Error('Unauthorized');
   }
 

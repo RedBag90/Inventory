@@ -7,8 +7,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { EditItemSchema, type EditItemInput, type ItemWithCosts } from '../types/inventory.types';
 import { useEditItem } from '../hooks/useEditItem';
-
-const PLATFORMS = ['KLEINANZEIGEN', 'EBAY', 'FACEBOOK', 'OTHER'] as const;
+import { PLATFORMS } from '@/shared/constants/platforms';
 
 type Props = { item: ItemWithCosts; onSuccess?: () => void };
 
@@ -101,7 +100,15 @@ export function ItemEditForm({ item, onSuccess }: Props) {
         disabled={isPending}
         className="bg-gray-900 text-white py-2 px-4 rounded-md text-sm font-medium hover:bg-gray-700 disabled:opacity-50 transition-colors"
       >
-        {isPending ? 'Saving…' : 'Save changes'}
+        {isPending ? (
+          <>
+            <svg className="animate-spin h-4 w-4 mr-2 inline" viewBox="0 0 24 24" fill="none">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+            </svg>
+            Speichert…
+          </>
+        ) : 'Save changes'}
       </button>
     </form>
   );

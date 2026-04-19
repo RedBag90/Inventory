@@ -7,16 +7,12 @@
 //   - validateStatusTransition(from, to)
 
 import type { ItemWithCosts, ItemStatus } from '../types/inventory.types';
+import { calculateStorageDays } from '@/shared/lib/calculations';
 
 export class ItemManager {
-  /**
-   * US-013 — Storage duration in whole days.
-   * IN_STOCK: purchasedAt → today
-   * SOLD:     purchasedAt → soldAt
-   */
   static calculateStorageDays(item: Pick<ItemWithCosts, 'purchasedAt' | 'status' | 'sale'>): number {
     const endDate = item.status === 'SOLD' && item.sale ? item.sale.soldAt : new Date();
-    return Math.floor((endDate.getTime() - item.purchasedAt.getTime()) / 86_400_000);
+    return calculateStorageDays(item.purchasedAt, endDate);
   }
 
   /**
