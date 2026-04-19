@@ -1,5 +1,6 @@
 'use server';
 
+import { z } from 'zod';
 import { prisma } from '@/shared/lib/prisma';
 import { getCurrentUserId, getCurrentDbUser } from '@/shared/lib/auth/getCurrentUserId';
 import { ROLES } from '@/shared/types/auth';
@@ -28,6 +29,8 @@ export async function getMyBadgeCount(): Promise<number> {
 }
 
 export async function adminAwardSpecialBadge(targetUserId: string, badgeSlug: string): Promise<void> {
+  z.string().min(1).parse(targetUserId);
+  z.string().min(1).parse(badgeSlug);
   const caller = await getCurrentDbUser();
   if (caller.role !== ROLES.ADMIN && caller.role !== ROLES.MASTER_ADMIN) {
     throw new Error('Unauthorized');

@@ -7,8 +7,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { EditItemSchema, type EditItemInput, type ItemWithCosts } from '../types/inventory.types';
 import { useEditItem } from '../hooks/useEditItem';
-
-const PLATFORMS = ['KLEINANZEIGEN', 'EBAY', 'FACEBOOK', 'OTHER'] as const;
+import { PLATFORMS } from '@/shared/constants/platforms';
 
 type Props = { item: ItemWithCosts; onSuccess?: () => void };
 

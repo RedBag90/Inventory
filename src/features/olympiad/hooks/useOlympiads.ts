@@ -24,8 +24,10 @@ import {
 } from '../actions/olympiadActions';
 
 export const olympiadKeys = {
-  all:     ['olympiads'] as const,
-  members: (id: string) => ['olympiads', id, 'members'] as const,
+  all:            ['olympiads'] as const,
+  members:        (id: string) => ['olympiads', id, 'members'] as const,
+  myJoinRequests: () => ['olympiads', 'joinRequests', 'mine'] as const,
+  myMemberships:  () => ['olympiads', 'memberships', 'mine'] as const,
 };
 
 export function useOlympiads() {
@@ -131,7 +133,7 @@ export function useSubmitJoinRequest() {
 
 export function useMyJoinRequests() {
   return useQuery({
-    queryKey: ['joinRequests', 'mine'],
+    queryKey: olympiadKeys.myJoinRequests(),
     queryFn:  getMyJoinRequests,
     staleTime: 30_000,
   });
@@ -139,7 +141,7 @@ export function useMyJoinRequests() {
 
 export function useMyMemberships() {
   return useQuery({
-    queryKey: ['memberships', 'mine'],
+    queryKey: olympiadKeys.myMemberships(),
     queryFn:  getMyMemberships,
     staleTime: 30_000,
   });

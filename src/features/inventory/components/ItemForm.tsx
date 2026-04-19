@@ -6,8 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CreateItemSchema, type CreateItemInput } from '../types/inventory.types';
 import { useCreateItem } from '../hooks/useCreateItem';
-
-const PLATFORMS = ['KLEINANZEIGEN', 'EBAY', 'FACEBOOK', 'OTHER'] as const;
+import { PLATFORMS } from '@/shared/constants/platforms';
 
 type Props = { onSuccess?: () => void };
 

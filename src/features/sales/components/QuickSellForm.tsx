@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
 import { QuickSellSchema, type QuickSellInput } from '../types/sales.types';
+import { PLATFORMS } from '@/shared/constants/platforms';
 
 const PLATFORM_KEYS = {
   KLEINANZEIGEN: 'kleinanzeigen',
@@ -16,8 +17,6 @@ type Props = {
   onReview: (data: QuickSellInput) => void;
   onCancel: () => void;
 };
-
-const PLATFORMS = ['KLEINANZEIGEN', 'EBAY', 'FACEBOOK', 'OTHER'] as const;
 
 function todayISO() {
   return new Date().toISOString().split('T')[0];

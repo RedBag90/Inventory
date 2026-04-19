@@ -7,14 +7,13 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { RecordSaleSchema, type RecordSaleInput } from '../types/sales.types';
+import { PLATFORMS } from '@/shared/constants/platforms';
 
 type Props = {
   itemId: string;
   onReview: (data: RecordSaleInput) => void;
   onCancel: () => void;
 };
-
-const PLATFORMS = ['KLEINANZEIGEN', 'EBAY', 'FACEBOOK', 'OTHER'] as const;
 
 function todayISO() {
   return new Date().toISOString().split('T')[0];
