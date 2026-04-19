@@ -5,6 +5,7 @@ import { syncUser } from '@/features/auth/actions/syncUser';
 import { Sidebar } from '@/shared/components/Sidebar';
 import { UserMenu } from '@/features/auth/components/UserMenu';
 import { TutorialShell } from '@/features/tutorial/components/TutorialShell';
+import { ActiveOlympiadProvider } from '@/features/olympiad/context/ActiveOlympiadContext';
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
@@ -17,6 +18,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const syncedUser = await syncUser(user.id, user.email!);
 
   return (
+    <ActiveOlympiadProvider>
     <TutorialShell tutorialCompleted={syncedUser.tutorialCompletedAt !== null}>
       <div className="flex h-screen overflow-hidden bg-gray-50">
         <Sidebar role={syncedUser.role} />
@@ -31,5 +33,6 @@ export default async function DashboardLayout({ children }: { children: React.Re
         </div>
       </div>
     </TutorialShell>
+    </ActiveOlympiadProvider>
   );
 }
