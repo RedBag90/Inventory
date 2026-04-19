@@ -7,7 +7,7 @@ import type { JoinRequestRecord } from '../../services/AdminRepository';
 
 export function JoinRequestsTab() {
   const [filter, setFilter] = useState<'PENDING' | 'ALL'>('PENDING');
-  const { data: requests, isLoading, isError } = useJoinRequests(filter);
+  const { data: requests, isLoading, isError, refetch } = useJoinRequests(filter);
   const { mutate: resolve, isPending: resolving, variables } = useResolveJoinRequest();
 
   return (
@@ -27,7 +27,12 @@ export function JoinRequestsTab() {
       </div>
 
       {isLoading && <p className="text-sm text-gray-400 py-6 text-center">Lade Anfragen…</p>}
-      {isError   && <p className="text-sm text-red-600  py-6 text-center">Fehler beim Laden.</p>}
+      {isError   && (
+        <div className="py-6 text-center space-y-2">
+          <p className="text-sm text-red-600">Fehler beim Laden.</p>
+          <button onClick={() => refetch()} className="text-xs text-gray-500 underline hover:text-gray-800">Erneut versuchen</button>
+        </div>
+      )}
       {requests && requests.length === 0 && (
         <p className="text-sm text-gray-400 py-6 text-center">
           {filter === 'PENDING' ? 'Keine offenen Anfragen.' : 'Keine Anfragen vorhanden.'}

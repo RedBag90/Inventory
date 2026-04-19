@@ -103,7 +103,11 @@ export function ItemTable({ onRecordSale }: Props) {
         </div>
 
         {isLoading && (
-          <div className="py-12 text-center text-sm text-gray-400">{t('loading')}</div>
+          <div className="p-4 space-y-2">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="h-14 rounded-lg bg-gray-100 animate-pulse" />
+            ))}
+          </div>
         )}
 
         {isError && (

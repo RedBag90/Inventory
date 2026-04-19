@@ -39,7 +39,22 @@ export function ItemDetailPage({ id }: Props) {
     });
   }
 
-  if (isLoading) return <div className="text-sm text-gray-500 py-12 text-center">Loading…</div>;
+  if (isLoading) return (
+    <div className="max-w-2xl space-y-4 animate-pulse">
+      <div className="h-4 w-20 bg-gray-100 rounded" />
+      <div className="h-6 w-48 bg-gray-200 rounded" />
+      <div className="bg-white rounded-lg border border-gray-200 p-5 space-y-3">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <div key={i} className="h-5 bg-gray-100 rounded" />
+        ))}
+      </div>
+      <div className="bg-white rounded-lg border border-gray-200 p-5 space-y-3">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div key={i} className="h-5 bg-gray-100 rounded" />
+        ))}
+      </div>
+    </div>
+  );
   if (isError || !item) return <div className="text-sm text-red-600 py-12 text-center">Item not found.</div>;
 
   const storageDays = ItemManager.calculateStorageDays(item);

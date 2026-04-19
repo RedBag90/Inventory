@@ -14,13 +14,15 @@ import {
   toBenefitVelocityData, toCostDistributionData, toRoiData,
   toGainedValueData, toCumulativeCostData, toCashFlowData, toBreakEvenData,
 } from '../lib/dashboardUtils';
-import { BenefitVelocityChart } from './charts/BenefitVelocityChart';
-import { CostDistributionChart } from './charts/CostDistributionChart';
-import { RoiChart }              from './charts/RoiChart';
-import { GainedValueChart }      from './charts/GainedValueChart';
-import { CumulativeCostChart }   from './charts/CumulativeCostChart';
-import { CashFlowChart }         from './charts/CashFlowChart';
-import { BreakEvenChart }        from './charts/BreakEvenChart';
+import dynamic from 'next/dynamic';
+
+const BenefitVelocityChart  = dynamic(() => import('./charts/BenefitVelocityChart').then(m => ({ default: m.BenefitVelocityChart })),   { ssr: false });
+const CostDistributionChart = dynamic(() => import('./charts/CostDistributionChart').then(m => ({ default: m.CostDistributionChart })), { ssr: false });
+const RoiChart              = dynamic(() => import('./charts/RoiChart').then(m => ({ default: m.RoiChart })),                           { ssr: false });
+const GainedValueChart      = dynamic(() => import('./charts/GainedValueChart').then(m => ({ default: m.GainedValueChart })),           { ssr: false });
+const CumulativeCostChart   = dynamic(() => import('./charts/CumulativeCostChart').then(m => ({ default: m.CumulativeCostChart })),     { ssr: false });
+const CashFlowChart         = dynamic(() => import('./charts/CashFlowChart').then(m => ({ default: m.CashFlowChart })),                 { ssr: false });
+const BreakEvenChart        = dynamic(() => import('./charts/BreakEvenChart').then(m => ({ default: m.BreakEvenChart })),               { ssr: false });
 
 function ChartCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -66,7 +68,7 @@ export function DashboardPage() {
   const { filters, update } = useDashboardFilters(earliestDate ?? undefined);
   const { granularity, from, to, targetUser } = filters;
 
-  const { data: sales = [], isLoading, isError } = useDashboardData(from, to, targetUser);
+  const { data: sales = [], isLoading, isError, refetch } = useDashboardData(from, to, targetUser);
 
   // All chart data derived client-side — only recomputes when inputs change
   const periods = useMemo(() => generatePeriods(from, to, granularity), [from, to, granularity]);
@@ -161,8 +163,11 @@ export function DashboardPage() {
 
       {/* ── Error state ── */}
       {isError && (
-        <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-sm text-red-800">
-          Failed to load dashboard data. Please try refreshing the page.
+        <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-sm text-red-800 flex items-center justify-between">
+          <span>Failed to load dashboard data.</span>
+          <button onClick={() => refetch()} className="underline text-red-700 hover:text-red-900">
+            Retry
+          </button>
         </div>
       )}
 

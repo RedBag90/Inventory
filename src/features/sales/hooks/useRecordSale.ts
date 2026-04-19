@@ -1,6 +1,7 @@
 'use client';
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import { salesKeys } from './salesKeys';
 import { inventoryKeys } from '@/features/inventory/hooks/inventoryKeys';
 import { reportingKeys } from '@/features/reporting/hooks/reportingKeys';
@@ -29,10 +30,12 @@ export function useRecordSale() {
       queryClient.invalidateQueries({ queryKey: reportingKeys.dashboardAll() });
       queryClient.invalidateQueries({ queryKey: reportingKeys.lineItemsAll() });
 
+      toast.success('Verkauf erfasst');
       if (newBadges.length > 0) {
         queryClient.invalidateQueries({ queryKey: badgeKeys.all });
         showBadgeToasts(newBadges);
       }
     },
+    onError: (err) => toast.error(err instanceof Error ? err.message : 'Fehler beim Speichern'),
   });
 }

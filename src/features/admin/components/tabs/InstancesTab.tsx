@@ -6,7 +6,7 @@ import { useOlympiadMembers, useUpdateOlympiad } from '@/features/olympiad/hooks
 import type { AdminInstanceRecord } from '../../services/AdminRepository';
 
 export function InstancesTab() {
-  const { data: instances, isLoading, isError } = useInstances();
+  const { data: instances, isLoading, isError, refetch } = useInstances();
   const [selectedInstance, setSelectedInstance] = useState<AdminInstanceRecord | null>(null);
 
   if (selectedInstance) {
@@ -22,7 +22,12 @@ export function InstancesTab() {
   return (
     <div className="space-y-6">
       {isLoading && <p className="text-sm text-gray-400 py-8 text-center">Lade Instanzen…</p>}
-      {isError   && <p className="text-sm text-red-600  py-8 text-center">Fehler beim Laden.</p>}
+      {isError   && (
+        <div className="py-8 text-center space-y-2">
+          <p className="text-sm text-red-600">Fehler beim Laden.</p>
+          <button onClick={() => refetch()} className="text-xs text-gray-500 underline hover:text-gray-800">Erneut versuchen</button>
+        </div>
+      )}
       {instances?.length === 0 && (
         <p className="text-sm text-gray-400 py-8 text-center">Keine Instanzen vorhanden.</p>
       )}

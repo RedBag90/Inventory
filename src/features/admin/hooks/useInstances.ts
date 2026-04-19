@@ -15,9 +15,10 @@ export function useInstances() {
 
 export function useInstanceOlympiads(createdById: string) {
   return useQuery({
-    queryKey: adminKeys.instancesByOwner(createdById),
-    queryFn:  () => getInstanceOlympiads(createdById),
-    enabled:  !!createdById,
+    queryKey:  adminKeys.instancesByOwner(createdById),
+    queryFn:   () => getInstanceOlympiads(createdById),
+    enabled:   !!createdById,
+    staleTime: 5 * 60_000,
   });
 }
 

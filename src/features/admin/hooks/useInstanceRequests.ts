@@ -32,8 +32,9 @@ export function usePendingInstanceRequestCount(enabled: boolean) {
 
 export function useMyInstanceRequest() {
   return useQuery({
-    queryKey: adminKeys.instanceRequestMine(),
-    queryFn:  getMyInstanceRequest,
+    queryKey:  adminKeys.instanceRequestMine(),
+    queryFn:   getMyInstanceRequest,
+    staleTime: 30_000,
   });
 }
 

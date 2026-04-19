@@ -102,7 +102,15 @@ export function SaleConfirmation({ item, pendingSale, onBack, onSuccess }: Props
           disabled={isPending}
           className="flex-1 bg-black text-white rounded py-2 text-sm font-medium hover:bg-gray-800 disabled:opacity-50 transition-colors"
         >
-          {isPending ? 'Saving…' : 'Confirm sale'}
+          {isPending ? (
+            <>
+              <svg className="animate-spin h-4 w-4 mr-2 inline" viewBox="0 0 24 24" fill="none">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+              </svg>
+              Speichert…
+            </>
+          ) : 'Confirm sale'}
         </button>
         <button
           type="button"
