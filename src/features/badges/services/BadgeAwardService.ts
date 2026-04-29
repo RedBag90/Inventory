@@ -6,7 +6,7 @@ import { BadgeCriteriaSchema } from '../types/badge.types';
 import type { AwardedBadge } from '../types/badge.types';
 
 export type BadgeTrigger =
-  | { type: 'sale_recorded';    userId: string; storageDays?: number }
+  | { type: 'sale_recorded';    userId: string; storageDays?: number; isQuickSell?: boolean }
   | { type: 'item_created';     userId: string }
   | { type: 'engagement';       userId: string; event: string }
   | { type: 'leaderboard_check'; userId: string; rank: number };
@@ -41,7 +41,7 @@ export async function checkAndAwardBadges(trigger: BadgeTrigger): Promise<Awarde
       qualifies = stats.itemsSold >= criteria.threshold;
     } else if (criteria.type === 'total_profit' && trigger.type === 'sale_recorded') {
       qualifies = stats.totalProfit >= criteria.threshold;
-    } else if (criteria.type === 'speed_days' && trigger.type === 'sale_recorded') {
+    } else if (criteria.type === 'speed_days' && trigger.type === 'sale_recorded' && !trigger.isQuickSell) {
       qualifies = trigger.storageDays !== undefined && trigger.storageDays <= criteria.threshold;
     } else if (criteria.type === 'leaderboard_rank' && trigger.type === 'leaderboard_check') {
       qualifies = trigger.rank <= criteria.threshold;
@@ -70,7 +70,7 @@ export async function checkAndAwardBadges(trigger: BadgeTrigger): Promise<Awarde
 
 async function loadUserStats(userId: string) {
   const [itemsBought, soldSales] = await Promise.all([
-    prisma.item.count({ where: { userId } }),
+    prisma.item.count({ where: { userId, NOT: { AND: [{ purchasePrice: 0 }, { status: 'SOLD' }] } } }),
     prisma.sale.findMany({
       where:   { item: { userId } },
       select: {

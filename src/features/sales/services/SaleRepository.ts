@@ -79,6 +79,6 @@ export async function createQuickSale(data: QuickSellInput): Promise<{ newBadges
   });
 
   // Quick sell: 0 storage days (bought and sold same day)
-  const newBadges = await checkAndAwardBadges({ type: 'sale_recorded', userId, storageDays: 0 });
+  const newBadges = await checkAndAwardBadges({ type: 'sale_recorded', userId, storageDays: 0, isQuickSell: true });
   return { newBadges };
 }
