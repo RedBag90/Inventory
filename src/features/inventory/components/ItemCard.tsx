@@ -47,7 +47,7 @@ export function ItemCard({ item, onRecordSale, onPreMarkSale, onConfirmSale, onC
 
   // Pending sale profit preview
   const pendingProfit = isReserved && item.pendingSale
-    ? SaleManager.calculateProfit({ ...item, sale: { id: '', ...item.pendingSale } })
+    ? SaleManager.calculateProfit({ ...item, sale: item.pendingSale })
     : null;
 
   const pendingProfitColor =

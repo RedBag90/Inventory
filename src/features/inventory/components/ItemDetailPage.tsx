@@ -74,7 +74,7 @@ export function ItemDetailPage({ id }: Props) {
     : 'text-green-700';
 
   const pendingProfit = item.pendingSale
-    ? SaleManager.calculateProfit({ ...item, sale: { id: '', ...item.pendingSale } })
+    ? SaleManager.calculateProfit({ ...item, sale: item.pendingSale })
     : null;
 
   const pendingProfitColor = pendingProfit === null
