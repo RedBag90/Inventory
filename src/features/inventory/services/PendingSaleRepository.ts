@@ -23,8 +23,9 @@ export async function createPendingSale(data: CreatePendingSaleInput): Promise<v
 
   const item = await prisma.item.findFirst({ where: { id: parsed.itemId, userId } });
   if (!item) throw new Error('Item not found');
-  if (item.status === 'SOLD')     throw new Error('Item is already sold');
-  if (item.status === 'RESERVED') throw new Error('Item already has a pending sale');
+  if (item.status !== 'IN_STOCK') throw new Error(
+    item.status === 'SOLD' ? 'Item is already sold' : 'Item already has a pending sale'
+  );
 
   await prisma.$transaction([
     prisma.pendingSale.create({
@@ -86,8 +87,8 @@ export async function cancelPendingSale(itemId: string): Promise<void> {
   const userId = await getCurrentUserId();
 
   const item = await prisma.item.findFirst({ where: { id: itemId, userId } });
-  if (!item)                   throw new Error('Item not found');
-  if (item.status !== 'RESERVED') throw new Error('Item has no pending sale');
+  if (!item) throw new Error('Item not found');
+  if (item.status === 'IN_STOCK' || item.status === 'SOLD') throw new Error('Item has no pending sale');
 
   await prisma.$transaction([
     prisma.pendingSale.delete({ where: { itemId } }),
@@ -102,8 +103,8 @@ export async function updatePendingSale(itemId: string, data: UpdatePendingSaleI
   const userId = await getCurrentUserId();
 
   const item = await prisma.item.findFirst({ where: { id: itemId, userId } });
-  if (!item)                   throw new Error('Item not found');
-  if (item.status !== 'RESERVED') throw new Error('Item has no pending sale');
+  if (!item) throw new Error('Item not found');
+  if (item.status === 'IN_STOCK' || item.status === 'SOLD') throw new Error('Item has no pending sale');
 
   await prisma.pendingSale.update({
     where: { itemId },
