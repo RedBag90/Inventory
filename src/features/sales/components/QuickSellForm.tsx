@@ -14,15 +14,16 @@ const PLATFORM_KEYS = {
 } as const;
 
 type Props = {
-  onReview: (data: QuickSellInput) => void;
-  onCancel: () => void;
+  onReview:   (data: QuickSellInput) => void;
+  onPreMark?: (data: QuickSellInput) => void;
+  onCancel:   () => void;
 };
 
 function todayISO() {
   return new Date().toISOString().split('T')[0];
 }
 
-export function QuickSellForm({ onReview, onCancel }: Props) {
+export function QuickSellForm({ onReview, onPreMark, onCancel }: Props) {
   const t = useTranslations('sales');
   const tc = useTranslations('common');
   const {
@@ -125,13 +126,22 @@ export function QuickSellForm({ onReview, onCancel }: Props) {
         )}
       </div>
 
-      <div className="flex gap-3 pt-1">
+      <div className="flex gap-2 pt-1 flex-wrap">
         <button
           type="submit"
           className="flex-1 bg-black text-white rounded py-2 text-sm font-medium hover:bg-gray-800 transition-colors"
         >
           {t('nextButton')}
         </button>
+        {onPreMark && (
+          <button
+            type="button"
+            onClick={handleSubmit(onPreMark)}
+            className="flex-1 bg-amber-500 text-white rounded py-2 text-sm font-medium hover:bg-amber-400 transition-colors"
+          >
+            Vormerken
+          </button>
+        )}
         <button
           type="button"
           onClick={onCancel}

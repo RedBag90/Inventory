@@ -42,7 +42,7 @@ export type AdditionalCostInput = z.infer<typeof AdditionalCostSchema>;
 export type UpdateItemCostsInput = z.infer<typeof UpdateItemCostsSchema>;
 
 // Runtime types — shape returned by ItemRepository queries
-export type ItemStatus = 'IN_STOCK' | 'SOLD';
+export type ItemStatus = 'IN_STOCK' | 'RESERVED' | 'SOLD';
 
 export type AdditionalCostRecord = {
   id:     string;
@@ -52,6 +52,14 @@ export type AdditionalCostRecord = {
 };
 
 export type SaleRecord = {
+  id:              string;
+  salePrice:       number;
+  salePlatform:    string;
+  shippingCostOut: number;
+  soldAt:          Date;
+};
+
+export type PendingSaleRecord = {
   id:              string;
   salePrice:       number;
   salePlatform:    string;
@@ -74,4 +82,5 @@ export type ItemWithCosts = {
   userId:           string;
   costs:            AdditionalCostRecord[];
   sale:             SaleRecord | null;
+  pendingSale:      PendingSaleRecord | null;
 };

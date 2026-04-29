@@ -15,11 +15,11 @@ export class ItemManager {
     return calculateStorageDays(item.purchasedAt, endDate);
   }
 
-  /**
-   * Status transitions are one-way in v1.
-   * Only IN_STOCK → SOLD is valid.
-   */
   static validateStatusTransition(from: ItemStatus, to: ItemStatus): boolean {
-    return from === 'IN_STOCK' && to === 'SOLD';
+    if (from === 'IN_STOCK'  && to === 'RESERVED') return true;
+    if (from === 'IN_STOCK'  && to === 'SOLD')     return true;
+    if (from === 'RESERVED'  && to === 'SOLD')     return true;
+    if (from === 'RESERVED'  && to === 'IN_STOCK') return true;
+    return false;
   }
 }

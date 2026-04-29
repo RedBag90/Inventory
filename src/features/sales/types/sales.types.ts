@@ -22,3 +22,34 @@ export const QuickSellSchema = z.object({
 });
 
 export type QuickSellInput = z.infer<typeof QuickSellSchema>;
+
+const PlatformEnum = z.enum(['KLEINANZEIGEN', 'EBAY', 'FACEBOOK', 'OTHER'], { errorMap: () => ({ message: 'Bitte eine Plattform auswählen.' }) });
+
+export const CreatePendingSaleSchema = z.object({
+  itemId:          z.string().cuid(),
+  salePrice:       z.number().min(0),
+  salePlatform:    PlatformEnum,
+  shippingCostOut: z.number().min(0).default(0),
+  soldAt:          z.coerce.date(),
+});
+
+export type CreatePendingSaleInput = z.infer<typeof CreatePendingSaleSchema>;
+
+export const UpdatePendingSaleSchema = z.object({
+  salePrice:       z.number().min(0),
+  salePlatform:    PlatformEnum,
+  shippingCostOut: z.number().min(0).default(0),
+  soldAt:          z.coerce.date(),
+});
+
+export type UpdatePendingSaleInput = z.infer<typeof UpdatePendingSaleSchema>;
+
+export const QuickPendingSaleSchema = z.object({
+  name:            z.string().min(1).max(200),
+  salePrice:       z.number().min(0),
+  salePlatform:    PlatformEnum,
+  shippingCostOut: z.number().min(0).default(0),
+  soldAt:          z.coerce.date(),
+});
+
+export type QuickPendingSaleInput = z.infer<typeof QuickPendingSaleSchema>;
