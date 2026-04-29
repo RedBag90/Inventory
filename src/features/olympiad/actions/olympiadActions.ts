@@ -379,21 +379,47 @@ export async function getMyInstanceRequest() {
   });
 }
 
-export async function joinViaToken(token: string) {
+export async function joinViaToken(token: string): Promise<{ autoAccepted: boolean; instanceName: string }> {
   const userId = await getCurrentUserId();
   const instance = await prisma.olympiadInstance.findUnique({
     where:  { inviteToken: token },
-    select: { id: true, name: true },
+    select: { id: true, name: true, inviteLinkAutoAccept: true, createdBy: { select: { email: true } } },
   });
   if (!instance) throw new Error('Ungültiger Einladungslink.');
 
-  await prisma.instanceMembership.upsert({
-    where:  { userId_instanceId: { userId, instanceId: instance.id } },
-    update: {},
-    create: { userId, instanceId: instance.id },
+  const alreadyMember = await prisma.instanceMembership.findUnique({
+    where: { userId_instanceId: { userId, instanceId: instance.id } },
   });
+  if (alreadyMember) return { autoAccepted: true, instanceName: instance.name };
+
+  if (instance.inviteLinkAutoAccept) {
+    await prisma.instanceMembership.create({ data: { userId, instanceId: instance.id } });
+    revalidate();
+    return { autoAccepted: true, instanceName: instance.name };
+  }
+
+  const pendingRequest = await prisma.joinRequest.findFirst({
+    where: { userId, instanceId: instance.id, status: 'PENDING' },
+  });
+  if (!pendingRequest) {
+    const dbUser = await prisma.user.findUnique({ where: { id: userId }, select: { email: true } });
+    await prisma.joinRequest.create({ data: { userId, instanceId: instance.id } });
+    sendMail({
+      to:      instance.createdBy.email,
+      subject: `Neue Beitrittsanfrage für „${instance.name}"`,
+      html:    `<p>Hallo,</p><p><strong>${dbUser?.email}</strong> möchte der Olympiade <strong>${instance.name}</strong> via Einladungslink beitreten.</p><p>Bitte melde dich im Admin-Bereich an, um die Anfrage zu bearbeiten.</p>`,
+      text:    `${dbUser?.email} möchte „${instance.name}" beitreten (Einladungslink). Bitte öffne den Admin-Bereich.`,
+    }).catch(err => console.error('[mailer] Failed to send join-request notification:', err));
+  }
   revalidate();
-  return instance.name;
+  return { autoAccepted: false, instanceName: instance.name };
+}
+
+export async function updateInviteLinkAutoAccept(instanceId: string, autoAccept: boolean): Promise<void> {
+  const userId = await getCurrentUserId();
+  await assertOwner(instanceId, userId);
+  await prisma.olympiadInstance.update({ where: { id: instanceId }, data: { inviteLinkAutoAccept: autoAccept } });
+  revalidate();
 }
 
 // ── Pending email invite ──────────────────────────────────────────────────────

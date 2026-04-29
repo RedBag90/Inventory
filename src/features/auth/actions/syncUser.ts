@@ -67,15 +67,28 @@ export async function syncUser(supabaseId: string, email: string): Promise<Synce
     where: { email: user.email },
   });
   if (pendingEmailInvite) {
-    await prisma.instanceMembership.upsert({
-      where:  { userId_instanceId: { userId: user.id, instanceId: pendingEmailInvite.instanceId } },
-      update: {},
-      create: { userId: user.id, instanceId: pendingEmailInvite.instanceId },
-    });
     await prisma.pendingEmailInvite.deleteMany({ where: { email: user.email } });
     const alreadyMember = user.memberships.some(m => m.instanceId === pendingEmailInvite.instanceId);
     if (!alreadyMember) {
-      user = { ...user, memberships: [...user.memberships, { instanceId: pendingEmailInvite.instanceId }] };
+      const instance = await prisma.olympiadInstance.findUnique({
+        where:  { id: pendingEmailInvite.instanceId },
+        select: { inviteLinkAutoAccept: true },
+      });
+      if (instance?.inviteLinkAutoAccept !== false) {
+        await prisma.instanceMembership.create({
+          data: { userId: user.id, instanceId: pendingEmailInvite.instanceId },
+        });
+        user = { ...user, memberships: [...user.memberships, { instanceId: pendingEmailInvite.instanceId }] };
+      } else {
+        const existingRequest = await prisma.joinRequest.findFirst({
+          where: { userId: user.id, instanceId: pendingEmailInvite.instanceId, status: 'PENDING' },
+        });
+        if (!existingRequest) {
+          await prisma.joinRequest.create({
+            data: { userId: user.id, instanceId: pendingEmailInvite.instanceId },
+          });
+        }
+      }
     }
   }
 

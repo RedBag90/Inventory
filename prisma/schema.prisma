@@ -40,7 +40,8 @@ model OlympiadInstance {
   createdById  String
   inviteToken  String?              @unique
   joinCode     String?              @unique
-  autoAccept   Boolean              @default(true)
+  autoAccept            Boolean              @default(true)
+  inviteLinkAutoAccept  Boolean              @default(true)
   createdBy    User                 @relation(fields: [createdById], references: [id])
   memberships  InstanceMembership[]
   joinRequests JoinRequest[]

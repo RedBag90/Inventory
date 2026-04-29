@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/shared/lib/supabase/server';
 import { prisma } from '@/shared/lib/prisma';
+import { joinViaToken } from '@/features/olympiad/actions/olympiadActions';
 import { JoinAuthClient } from './JoinAuthClient';
 
 export default async function JoinPage({ params }: { params: Promise<{ token: string }> }) {
@@ -44,21 +45,8 @@ export default async function JoinPage({ params }: { params: Promise<{ token: st
   const { data: { user: authUser } } = await supabase.auth.getUser();
 
   if (authUser) {
-    // Already logged in — look up the DB user and join immediately
-    const dbUser = await prisma.user.findUnique({
-      where:  { supabaseId: authUser.id },
-      select: { id: true, memberships: { select: { instanceId: true } } },
-    });
-
-    if (dbUser) {
-      const alreadyMember = dbUser.memberships.some(m => m.instanceId === instance.id);
-      if (!alreadyMember) {
-        await prisma.instanceMembership.create({
-          data: { userId: dbUser.id, instanceId: instance.id },
-        });
-      }
-      redirect('/dashboard/leaderboard');
-    }
+    const { autoAccepted } = await joinViaToken(token);
+    redirect(autoAccepted ? '/dashboard/leaderboard' : '/pending-assignment');
   }
 
   // Not logged in — show branded auth page

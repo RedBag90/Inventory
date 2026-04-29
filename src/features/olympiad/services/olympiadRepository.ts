@@ -13,9 +13,10 @@ export type OlympiadRecord = {
   createdAt:      Date;
   createdById:    string;
   createdByEmail: string;
-  inviteToken:    string | null;
-  joinCode:       string | null;
-  autoAccept:     boolean;
+  inviteToken:          string | null;
+  joinCode:             string | null;
+  autoAccept:           boolean;
+  inviteLinkAutoAccept: boolean;
   memberCount:    number;
 };
 
@@ -64,8 +65,9 @@ export async function getOlympiads(): Promise<OlympiadRecord[]> {
     createdByEmail: i.createdBy.email,
     inviteToken:    i.inviteToken,
     joinCode:       i.joinCode,
-    autoAccept:     i.autoAccept,
-    memberCount:    i._count.memberships,
+    autoAccept:           i.autoAccept,
+    inviteLinkAutoAccept: i.inviteLinkAutoAccept,
+    memberCount:          i._count.memberships,
   }));
 }
 
