@@ -47,7 +47,7 @@ export function QuickSellForm({ onReview, onPreMark, onCancel }: Props) {
         <input
           type="text"
           {...register('name')}
-          className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+          className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
           placeholder={t('itemNamePlaceholder')}
           autoFocus
         />
@@ -65,7 +65,7 @@ export function QuickSellForm({ onReview, onPreMark, onCancel }: Props) {
           step="0.01"
           min="0"
           {...register('salePrice', { valueAsNumber: true })}
-          className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+          className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
           placeholder="0.00"
         />
         {errors.salePrice && (
@@ -79,7 +79,7 @@ export function QuickSellForm({ onReview, onPreMark, onCancel }: Props) {
         </label>
         <select
           {...register('salePlatform')}
-          className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black bg-white"
+          className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 bg-white"
         >
           <option value="">{t('platformPlaceholder')}</option>
           {PLATFORMS.map((p) => (
@@ -102,7 +102,7 @@ export function QuickSellForm({ onReview, onPreMark, onCancel }: Props) {
           step="0.01"
           min="0"
           {...register('shippingCostOut', { valueAsNumber: true })}
-          className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+          className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
           placeholder="0.00"
         />
         {errors.shippingCostOut && (
@@ -117,7 +117,7 @@ export function QuickSellForm({ onReview, onPreMark, onCancel }: Props) {
         <input
           type="date"
           {...register('soldAt', { valueAsDate: true })}
-          className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+          className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
         />
         {errors.soldAt && (
           <p className="text-xs text-red-600 mt-1">{errors.soldAt.message}</p>
@@ -127,7 +127,7 @@ export function QuickSellForm({ onReview, onPreMark, onCancel }: Props) {
       <div className="flex gap-2 pt-1 flex-wrap">
         <button
           type="submit"
-          className="flex-1 bg-black text-white rounded py-2 text-sm font-medium hover:bg-gray-800 transition-colors"
+          className="flex-1 bg-gray-900 text-white rounded-md py-2 text-sm font-medium hover:bg-gray-700 transition-colors"
         >
           {t('sellButton')}
         </button>
@@ -135,7 +135,7 @@ export function QuickSellForm({ onReview, onPreMark, onCancel }: Props) {
           <button
             type="button"
             onClick={handleSubmit(onPreMark)}
-            className="flex-1 bg-amber-500 text-white rounded py-2 text-sm font-medium hover:bg-amber-400 transition-colors"
+            className="flex-1 bg-amber-500 text-white rounded-md py-2 text-sm font-medium hover:bg-amber-400 transition-colors"
           >
             {t('preMarkButton')}
           </button>
