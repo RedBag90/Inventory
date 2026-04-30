@@ -87,7 +87,7 @@ export function ItemDetailPage({ id }: Props) {
 
   const statusBadge =
     item.status === 'SOLD'     ? { label: 'Verkauft',    cls: 'bg-gray-100 text-gray-600'   } :
-    item.status === 'RESERVED' ? { label: 'Vorgemerkt',  cls: 'bg-amber-100 text-amber-700' } :
+    item.status === 'RESERVED' ? { label: 'Inseriert',   cls: 'bg-amber-100 text-amber-700' } :
                                  { label: 'In stock',    cls: 'bg-green-100 text-green-800'  };
 
   return (
@@ -144,7 +144,7 @@ export function ItemDetailPage({ id }: Props) {
       {/* Pending sale — RESERVED */}
       {item.status === 'RESERVED' && item.pendingSale && (
         <section className="bg-amber-50 rounded-lg border border-amber-200 p-5 mb-4">
-          <h2 className="text-sm font-semibold text-amber-800 mb-3">Vorgemerkter Verkauf</h2>
+          <h2 className="text-sm font-semibold text-amber-800 mb-3">Inserierter Verkauf</h2>
           <Row label="Plattform"         value={item.pendingSale.salePlatform.charAt(0) + item.pendingSale.salePlatform.slice(1).toLowerCase()} />
           <Row label="Geplantes Datum"   value={formatDate(new Date(item.pendingSale.soldAt))} />
           <Row label="Verkaufspreis"     value={formatCurrency(item.pendingSale.salePrice)} />

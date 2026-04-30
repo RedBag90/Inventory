@@ -204,7 +204,7 @@ export function ConfirmPendingSaleModal({ item, onClose }: Props) {
               disabled={isConfirming || isCancelling}
               className="text-xs text-gray-400 hover:text-red-600 underline transition-colors"
             >
-              {isCancelling ? 'Wird aufgehoben…' : 'Vormerkung aufheben'}
+              {isCancelling ? 'Wird aufgehoben…' : 'Inserat aufheben'}
             </button>
           </div>
         </form>

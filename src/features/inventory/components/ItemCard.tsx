@@ -83,7 +83,7 @@ export function ItemCard({ item, onRecordSale, onPreMarkSale, onConfirmSale, onC
           )}
           {isReserved && item.pendingSale && (
             <span className="text-[11px] text-gray-400">
-              vorgemerkt {formatCurrency(item.pendingSale.salePrice)}
+              inseriert {formatCurrency(item.pendingSale.salePrice)}
             </span>
           )}
         </div>
@@ -122,7 +122,7 @@ export function ItemCard({ item, onRecordSale, onPreMarkSale, onConfirmSale, onC
         {isReserved && (
           <span className="inline-flex items-center gap-1 text-xs font-medium text-amber-700 bg-amber-50 px-2.5 py-1 rounded-full">
             <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-            Vorgemerkt
+            Inseriert
           </span>
         )}
 
@@ -141,7 +141,7 @@ export function ItemCard({ item, onRecordSale, onPreMarkSale, onConfirmSale, onC
                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); onPreMarkSale(item); }}
                 className="text-xs font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-lg transition-colors shrink-0"
               >
-                Vormerken
+                Inserieren
               </button>
             )}
             {onRecordSale && (

@@ -31,7 +31,7 @@ export function ItemTable({ onRecordSale, onPreMarkSale, onConfirmSale, onCancel
   const TABS: { label: string; value: FilterTab }[] = [
     { label: t('filterAll'),      value: 'ALL' },
     { label: t('filterInStock'),  value: 'IN_STOCK' },
-    { label: 'Vorgemerkt',        value: 'RESERVED' },
+    { label: 'Inseriert',          value: 'RESERVED' },
     { label: t('filterSold'),     value: 'SOLD' },
   ];
 
@@ -68,7 +68,7 @@ export function ItemTable({ onRecordSale, onPreMarkSale, onConfirmSale, onCancel
           {[
             { label: t('totalItems'), value: String(stats.total) },
             { label: t('inStock'),    value: String(stats.inStock) },
-            { label: 'Vorgemerkt',    value: String(stats.reserved), color: stats.reserved > 0 ? 'text-amber-600' : undefined },
+            { label: 'Inseriert',     value: String(stats.reserved), color: stats.reserved > 0 ? 'text-amber-600' : undefined },
             {
               label: t('profit'),
               value: formatCurrency(stats.profit),

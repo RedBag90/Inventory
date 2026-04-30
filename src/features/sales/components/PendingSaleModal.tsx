@@ -89,7 +89,7 @@ export function PendingSaleModal({ item, onClose }: Props) {
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="p-5 space-y-4">
-          <h3 className="text-sm font-semibold text-gray-700">Verkauf vormerken</h3>
+          <h3 className="text-sm font-semibold text-gray-700">Artikel inserieren</h3>
 
           <input type="hidden" {...register('itemId')} />
 
@@ -160,7 +160,7 @@ export function PendingSaleModal({ item, onClose }: Props) {
               disabled={isPending}
               className="flex-1 bg-amber-500 text-white rounded py-2 text-sm font-medium hover:bg-amber-400 disabled:opacity-50 transition-colors"
             >
-              {isPending ? 'Speichert…' : 'Vormerken'}
+              {isPending ? 'Speichert…' : 'Inserieren'}
             </button>
             <button type="button" onClick={onClose} className="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors">
               Abbrechen

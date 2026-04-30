@@ -88,9 +88,9 @@ export function QuickSellModal({ onClose }: Props) {
 
           {step === 'confirm' && pendingSale && mode === 'premark' && (
             <div className="space-y-4">
-              <h3 className="text-sm font-semibold text-gray-700">Schnellverkauf vormerken</h3>
+              <h3 className="text-sm font-semibold text-gray-700">Schnellverkauf inserieren</h3>
               <p className="text-sm text-gray-500">
-                Der Artikel wird als <span className="font-medium text-amber-700">Vorgemerkt</span> gespeichert.
+                Der Artikel wird als <span className="font-medium text-amber-700">Inseriert</span> gespeichert.
                 Du kannst den Verkauf später mit einem Klick bestätigen.
               </p>
               <div className="bg-gray-50 rounded-lg border border-gray-200 p-4 text-sm text-gray-700 space-y-1.5">
@@ -113,7 +113,7 @@ export function QuickSellModal({ onClose }: Props) {
                   disabled={isPreMarking}
                   className="flex-1 bg-amber-500 text-white rounded py-2 text-sm font-medium hover:bg-amber-400 disabled:opacity-50 transition-colors"
                 >
-                  {isPreMarking ? 'Speichert…' : 'Vormerken'}
+                  {isPreMarking ? 'Speichert…' : 'Inserieren'}
                 </button>
                 <button
                   type="button"

@@ -20,10 +20,10 @@ export function useCreatePendingSale() {
   return useMutation({
     mutationFn: (data: CreatePendingSaleInput) => createPendingSale(data),
     onSuccess: () => {
-      toast.success('Verkauf vorgemerkt');
+      toast.success('Inserat erstellt');
       queryClient.invalidateQueries({ queryKey: inventoryKeys.all });
     },
-    onError: (err) => toast.error(err instanceof Error ? err.message : 'Fehler beim Vormerken'),
+    onError: (err) => toast.error(err instanceof Error ? err.message : 'Fehler beim Inserieren'),
   });
 }
 
@@ -51,7 +51,7 @@ export function useCancelPendingSale() {
   return useMutation({
     mutationFn: (itemId: string) => cancelPendingSale(itemId),
     onSuccess: () => {
-      toast.success('Vormerkung aufgehoben');
+      toast.success('Inserat aufgehoben');
       queryClient.invalidateQueries({ queryKey: inventoryKeys.all });
     },
     onError: (err) => toast.error(err instanceof Error ? err.message : 'Fehler beim Aufheben'),
@@ -64,7 +64,7 @@ export function useUpdatePendingSale() {
     mutationFn: ({ itemId, data }: { itemId: string; data: UpdatePendingSaleInput }) =>
       updatePendingSale(itemId, data),
     onSuccess: () => {
-      toast.success('Vormerkung aktualisiert');
+      toast.success('Inserat aktualisiert');
       queryClient.invalidateQueries({ queryKey: inventoryKeys.all });
     },
     onError: (err) => toast.error(err instanceof Error ? err.message : 'Fehler beim Aktualisieren'),
@@ -76,9 +76,9 @@ export function useCreateQuickPendingSale() {
   return useMutation({
     mutationFn: (data: QuickPendingSaleInput) => createQuickPendingSale(data),
     onSuccess: () => {
-      toast.success('Schnellverkauf vorgemerkt');
+      toast.success('Schnellverkauf inseriert');
       queryClient.invalidateQueries({ queryKey: inventoryKeys.all });
     },
-    onError: (err) => toast.error(err instanceof Error ? err.message : 'Fehler beim Vormerken'),
+    onError: (err) => toast.error(err instanceof Error ? err.message : 'Fehler beim Inserieren'),
   });
 }
