@@ -131,7 +131,7 @@ export function QuickSellForm({ onReview, onPreMark, onCancel }: Props) {
           type="submit"
           className="flex-1 bg-black text-white rounded py-2 text-sm font-medium hover:bg-gray-800 transition-colors"
         >
-          Verkaufen
+          {t('sellButton')}
         </button>
         {onPreMark && (
           <button
@@ -139,7 +139,7 @@ export function QuickSellForm({ onReview, onPreMark, onCancel }: Props) {
             onClick={handleSubmit(onPreMark)}
             className="flex-1 bg-amber-500 text-white rounded py-2 text-sm font-medium hover:bg-amber-400 transition-colors"
           >
-            Inserieren
+            {t('preMarkButton')}
           </button>
         )}
         <button
