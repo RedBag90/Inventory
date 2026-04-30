@@ -42,35 +42,24 @@ export function QuickSellModal({ onClose }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/40"
-        onClick={onClose}
-        aria-hidden="true"
-      />
+    <div className="fixed inset-0 z-50 flex">
+      <div className="flex-1 bg-black/30" onClick={onClose} aria-hidden="true" />
 
-      {/* Dialog */}
-      <div className="relative z-10 w-full max-w-lg bg-white rounded-xl shadow-2xl overflow-hidden">
-
-        {/* Header */}
-        <div className="flex items-start justify-between p-5 border-b border-gray-200">
+      <div className="w-full max-w-md bg-white shadow-xl overflow-y-auto">
+        <div className="flex items-center justify-between p-5 border-b border-gray-200 bg-gray-50">
           <div>
             <h2 className="text-base font-semibold text-gray-900">{t('modalTitle')}</h2>
-            <p className="text-xs text-gray-500 mt-0.5">
-              {t('modalSubtitle')}
-            </p>
+            <p className="text-xs text-gray-400 mt-0.5">{t('modalSubtitle')}</p>
           </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-700 text-xl leading-none ml-4 mt-0.5"
+            className="w-7 h-7 flex items-center justify-center rounded-full text-gray-400 hover:text-gray-700 hover:bg-gray-200 transition-colors text-sm"
             aria-label="Schließen"
           >
             ✕
           </button>
         </div>
 
-        {/* Body */}
         <div className="p-5">
           {step === 'form' && (
             <QuickSellForm
@@ -95,7 +84,7 @@ export function QuickSellModal({ onClose }: Props) {
                 Der Artikel wird als <span className="font-medium text-amber-700">Inseriert</span> gespeichert.
                 Du kannst den Verkauf später mit einem Klick bestätigen.
               </p>
-              <div className="bg-gray-50 rounded-lg border border-gray-200 p-4 text-sm text-gray-700 space-y-1.5">
+              <div className="bg-gray-50 rounded-md border border-gray-200 p-4 text-sm text-gray-700 space-y-1.5">
                 <div className="flex justify-between">
                   <span className="text-gray-500">Artikel</span>
                   <span className="font-medium">{pendingSale.name}</span>
@@ -113,7 +102,7 @@ export function QuickSellModal({ onClose }: Props) {
                 <button
                   onClick={handlePreMark}
                   disabled={isPreMarking}
-                  className="flex-1 bg-amber-500 text-white rounded py-2 text-sm font-medium hover:bg-amber-400 disabled:opacity-50 transition-colors"
+                  className="flex-1 bg-amber-500 text-white rounded-md py-2 text-sm font-medium hover:bg-amber-400 disabled:opacity-50 transition-colors"
                 >
                   {isPreMarking ? 'Speichert…' : 'Inserieren'}
                 </button>
