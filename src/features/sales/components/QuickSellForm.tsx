@@ -40,8 +40,6 @@ export function QuickSellForm({ onReview, onPreMark, onCancel }: Props) {
 
   return (
     <form onSubmit={handleSubmit(onReview)} className="space-y-4">
-      <h2 className="text-sm font-semibold text-gray-700">{t('quickSellTitle')}</h2>
-
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
           {t('itemName')} <span className="text-red-500">*</span>
