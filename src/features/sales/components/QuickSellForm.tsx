@@ -131,7 +131,7 @@ export function QuickSellForm({ onReview, onPreMark, onCancel }: Props) {
           type="submit"
           className="flex-1 bg-black text-white rounded py-2 text-sm font-medium hover:bg-gray-800 transition-colors"
         >
-          {t('nextButton')}
+          Verkaufen
         </button>
         {onPreMark && (
           <button
