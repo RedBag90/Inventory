@@ -1,6 +1,6 @@
 // Singleton PrismaClient — prevents connection exhaustion in development (hot reload).
 // Import this everywhere — never instantiate PrismaClient directly.
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@/generated/prisma';
 
 const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
 
