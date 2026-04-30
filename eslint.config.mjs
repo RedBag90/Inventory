@@ -9,6 +9,8 @@ const __dirname = dirname(__filename);
 const compat = new FlatCompat({ baseDirectory: __dirname });
 
 const eslintConfig = [
+  // Ignore Prisma generated client — it uses require(), any, etc. intentionally
+  { ignores: ['src/generated/**'] },
   ...compat.extends('next/core-web-vitals', 'next/typescript'),
   // TanStack Query rules: catches missing queryKey deps, invalid query options, etc.
   // TODO (US-004): add a custom rule or lint plugin that enforces explicit `staleTime`
