@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { QuickSellForm } from './QuickSellForm';
 import { QuickSellConfirmation } from './QuickSellConfirmation';
 import { useCreateQuickPendingSale } from '@/features/inventory/hooks/usePendingSale';
@@ -14,6 +15,7 @@ type Step = 'form' | 'confirm';
 type Mode = 'sell' | 'premark';
 
 export function QuickSellModal({ onClose }: Props) {
+  const t = useTranslations('sales');
   const [step, setStep]       = useState<Step>('form');
   const [mode, setMode]       = useState<Mode>('sell');
   const [pendingSale, setPendingSale] = useState<QuickSellInput | null>(null);
@@ -54,9 +56,9 @@ export function QuickSellModal({ onClose }: Props) {
         {/* Header */}
         <div className="flex items-start justify-between p-5 border-b border-gray-200">
           <div>
-            <h2 className="text-base font-semibold text-gray-900">Schnell verkaufen</h2>
+            <h2 className="text-base font-semibold text-gray-900">{t('modalTitle')}</h2>
             <p className="text-xs text-gray-500 mt-0.5">
-              Artikel anlegen und direkt verkaufen
+              {t('modalSubtitle')}
             </p>
           </div>
           <button

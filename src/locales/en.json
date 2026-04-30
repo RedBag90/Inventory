@@ -163,6 +163,8 @@
     "ghostItemBadge": "Example"
   },
   "sales": {
+    "modalTitle": "Quick sell",
+    "modalSubtitle": "Create an item and sell it right away",
     "quickSellTitle": "Quick sell",
     "itemName": "Item name",
     "itemNamePlaceholder": "e.g. iPhone 12",
