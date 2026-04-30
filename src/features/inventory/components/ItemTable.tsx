@@ -11,13 +11,16 @@ import type { ItemWithCosts } from '../types/inventory.types';
 import { useTutorial } from '@/features/tutorial/context/TutorialContext';
 import { GhostItemCard } from '@/features/tutorial/components/GhostItemCard';
 
-type FilterTab = 'ALL' | 'IN_STOCK' | 'SOLD';
+type FilterTab = 'ALL' | 'IN_STOCK' | 'RESERVED' | 'SOLD';
 
 type Props = {
-  onRecordSale: (item: ItemWithCosts) => void;
+  onRecordSale:       (item: ItemWithCosts) => void;
+  onPreMarkSale:      (item: ItemWithCosts) => void;
+  onConfirmSale:      (item: ItemWithCosts) => void;
+  onCancelPendingSale:(item: ItemWithCosts) => void;
 };
 
-export function ItemTable({ onRecordSale }: Props) {
+export function ItemTable({ onRecordSale, onPreMarkSale, onConfirmSale, onCancelPendingSale }: Props) {
   const t = useTranslations('inventory');
   const { data: allItems, isLoading, isError } = useItems();
   const { step: tutorialStep } = useTutorial();
@@ -26,9 +29,10 @@ export function ItemTable({ onRecordSale }: Props) {
   const router       = useRouter();
 
   const TABS: { label: string; value: FilterTab }[] = [
-    { label: t('filterAll'),     value: 'ALL' },
-    { label: t('filterInStock'), value: 'IN_STOCK' },
-    { label: t('filterSold'),    value: 'SOLD' },
+    { label: t('filterAll'),      value: 'ALL' },
+    { label: t('filterInStock'),  value: 'IN_STOCK' },
+    { label: 'Inseriert',          value: 'RESERVED' },
+    { label: t('filterSold'),     value: 'SOLD' },
   ];
 
   const activeFilter = (searchParams.get('status') as FilterTab) ?? 'ALL';
@@ -45,10 +49,11 @@ export function ItemTable({ onRecordSale }: Props) {
   }
 
   const stats = allItems ? {
-    total:   allItems.length,
-    inStock: allItems.filter((i) => i.status === 'IN_STOCK').length,
-    sold:    allItems.filter((i) => i.status === 'SOLD').length,
-    profit:  allItems.reduce((sum, i) => {
+    total:    allItems.length,
+    inStock:  allItems.filter((i) => i.status === 'IN_STOCK').length,
+    reserved: allItems.filter((i) => i.status === 'RESERVED').length,
+    sold:     allItems.filter((i) => i.status === 'SOLD').length,
+    profit:   allItems.reduce((sum, i) => {
       const p = SaleManager.calculateProfit(i);
       return p !== null ? sum + p : sum;
     }, 0),
@@ -63,7 +68,7 @@ export function ItemTable({ onRecordSale }: Props) {
           {[
             { label: t('totalItems'), value: String(stats.total) },
             { label: t('inStock'),    value: String(stats.inStock) },
-            { label: t('sold'),       value: String(stats.sold) },
+            { label: 'Inseriert',     value: String(stats.reserved), color: stats.reserved > 0 ? 'text-amber-600' : undefined },
             {
               label: t('profit'),
               value: formatCurrency(stats.profit),
@@ -97,6 +102,7 @@ export function ItemTable({ onRecordSale }: Props) {
               {tab.label}
               {stats && tab.value === 'ALL'      && <span className="ml-1.5 text-xs text-gray-400">{stats.total}</span>}
               {stats && tab.value === 'IN_STOCK' && <span className="ml-1.5 text-xs text-gray-400">{stats.inStock}</span>}
+              {stats && tab.value === 'RESERVED' && <span className="ml-1.5 text-xs text-amber-500">{stats.reserved}</span>}
               {stats && tab.value === 'SOLD'     && <span className="ml-1.5 text-xs text-gray-400">{stats.sold}</span>}
             </button>
           ))}
@@ -139,7 +145,13 @@ export function ItemTable({ onRecordSale }: Props) {
             {items.map((item) => (
               <li key={item.id}>
                 <Link href={`/dashboard/inventory/${item.id}`} className="block">
-                  <ItemCard item={item} onRecordSale={onRecordSale} />
+                  <ItemCard
+                    item={item}
+                    onRecordSale={onRecordSale}
+                    onPreMarkSale={onPreMarkSale}
+                    onConfirmSale={onConfirmSale}
+                    onCancelPendingSale={onCancelPendingSale}
+                  />
                 </Link>
               </li>
             ))}

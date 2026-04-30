@@ -1,9 +1,5 @@
 'use client';
 
-// US-012 — Full item detail view.
-// Shows all costs, storage duration, CostEditor (IN_STOCK only), ItemEditForm (IN_STOCK only),
-// and profit block for SOLD items.
-
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -13,6 +9,8 @@ import { ItemManager } from '../services/ItemManager';
 import { CostEditor } from './CostEditor';
 import { ItemEditForm } from './ItemEditForm';
 import { SaleManager } from '@/features/sales/services/SaleManager';
+import { ConfirmPendingSaleModal } from '@/features/sales/components/ConfirmPendingSaleModal';
+import { useCancelPendingSale } from '../hooks/usePendingSale';
 import { formatCurrency, formatDate } from '@/shared/lib/utils';
 
 type Props = { id: string };
@@ -30,7 +28,9 @@ export function ItemDetailPage({ id }: Props) {
   const { data: item, isLoading, isError } = useItem(id);
   const [showEdit, setShowEdit] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
   const { mutate: deleteItem, isPending: isDeleting } = useDeleteItem();
+  const { mutate: cancelPending, isPending: isCancelling } = useCancelPendingSale();
   const router = useRouter();
 
   function handleDelete() {
@@ -73,24 +73,36 @@ export function ItemDetailPage({ id }: Props) {
     ? 'text-gray-500'
     : 'text-green-700';
 
+  const pendingProfit = item.pendingSale
+    ? SaleManager.calculateProfit({ ...item, sale: item.pendingSale })
+    : null;
+
+  const pendingProfitColor = pendingProfit === null
+    ? ''
+    : pendingProfit < 0
+    ? 'text-red-600'
+    : pendingProfit === 0
+    ? 'text-gray-500'
+    : 'text-emerald-700';
+
+  const statusBadge =
+    item.status === 'SOLD'     ? { label: 'Verkauft',    cls: 'bg-gray-100 text-gray-600'   } :
+    item.status === 'RESERVED' ? { label: 'Inseriert',   cls: 'bg-amber-100 text-amber-700' } :
+                                 { label: 'In stock',    cls: 'bg-green-100 text-green-800'  };
+
   return (
     <div className="max-w-2xl">
-      {/* Back */}
       <Link href="/dashboard/inventory" className="text-sm text-gray-500 hover:text-gray-800 mb-4 inline-block">
         ← Inventory
       </Link>
 
-      {/* Title + status */}
       <div className="flex items-start justify-between mb-6">
         <div>
           <h1 className="text-lg font-semibold text-gray-900">{item.name}</h1>
           {item.description && <p className="text-sm text-gray-500 mt-1">{item.description}</p>}
         </div>
-        <span className={[
-          'inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium',
-          item.status === 'IN_STOCK' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600',
-        ].join(' ')}>
-          {item.status === 'IN_STOCK' ? 'In stock' : 'Sold'}
+        <span className={['inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium', statusBadge.cls].join(' ')}>
+          {statusBadge.label}
         </span>
       </div>
 
@@ -112,7 +124,7 @@ export function ItemDetailPage({ id }: Props) {
         </div>
       </section>
 
-      {/* Sale details — SOLD items */}
+      {/* Sale details — SOLD */}
       {item.status === 'SOLD' && item.sale && (
         <section className="bg-white rounded-lg border border-gray-200 p-5 mb-4">
           <h2 className="text-sm font-semibold text-gray-700 mb-3">Sale</h2>
@@ -129,6 +141,40 @@ export function ItemDetailPage({ id }: Props) {
         </section>
       )}
 
+      {/* Pending sale — RESERVED */}
+      {item.status === 'RESERVED' && item.pendingSale && (
+        <section className="bg-amber-50 rounded-lg border border-amber-200 p-5 mb-4">
+          <h2 className="text-sm font-semibold text-amber-800 mb-3">Inserierter Verkauf</h2>
+          <Row label="Plattform"         value={item.pendingSale.salePlatform.charAt(0) + item.pendingSale.salePlatform.slice(1).toLowerCase()} />
+          <Row label="Geplantes Datum"   value={formatDate(new Date(item.pendingSale.soldAt))} />
+          <Row label="Verkaufspreis"     value={formatCurrency(item.pendingSale.salePrice)} />
+          <Row label="Versandkosten (A)" value={formatCurrency(item.pendingSale.shippingCostOut)} />
+          {pendingProfit !== null && (
+            <div className="flex justify-between pt-2 mt-1 border-t border-amber-200">
+              <span className="text-sm font-semibold text-amber-800">Erwarteter Gewinn</span>
+              <span className={`text-sm font-semibold ${pendingProfitColor}`}>
+                {pendingProfit > 0 ? '+' : ''}{formatCurrency(pendingProfit)}
+              </span>
+            </div>
+          )}
+          <div className="flex gap-3 mt-4">
+            <button
+              onClick={() => setShowConfirmModal(true)}
+              className="flex-1 bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-emerald-500 transition-colors"
+            >
+              Bestätigen
+            </button>
+            <button
+              onClick={() => cancelPending(id)}
+              disabled={isCancelling}
+              className="px-4 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 transition-colors"
+            >
+              {isCancelling ? 'Wird aufgehoben…' : 'Aufheben'}
+            </button>
+          </div>
+        </section>
+      )}
+
       {/* Cost editor — IN_STOCK only */}
       {item.status === 'IN_STOCK' && (
         <section className="bg-white rounded-lg border border-gray-200 p-5 mb-4">
@@ -136,8 +182,8 @@ export function ItemDetailPage({ id }: Props) {
         </section>
       )}
 
-      {/* Edit metadata — IN_STOCK only */}
-      {item.status === 'IN_STOCK' && (
+      {/* Edit metadata — IN_STOCK or RESERVED */}
+      {(item.status === 'IN_STOCK' || item.status === 'RESERVED') && (
         <section className="bg-white rounded-lg border border-gray-200 p-5 mb-4">
           {showEdit ? (
             <ItemEditForm item={item} onSuccess={() => setShowEdit(false)} />
@@ -181,6 +227,12 @@ export function ItemDetailPage({ id }: Props) {
         )}
       </section>
 
+      {showConfirmModal && (
+        <ConfirmPendingSaleModal
+          item={item}
+          onClose={() => setShowConfirmModal(false)}
+        />
+      )}
     </div>
   );
 }

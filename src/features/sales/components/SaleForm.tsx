@@ -45,7 +45,7 @@ export function SaleForm({ itemId, onReview, onCancel }: Props) {
         <input
           type="number"
           step="0.01"
-          min="0.01"
+          min="0"
           {...register('salePrice', { valueAsNumber: true })}
           className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
           placeholder="0.00"

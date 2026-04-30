@@ -18,6 +18,7 @@ import {
   generateJoinCode,
   revokeJoinCode,
   updateAutoAccept,
+  updateInviteLinkAutoAccept,
   submitJoinRequest,
   getMyJoinRequests,
   getMyMemberships,
@@ -123,6 +124,15 @@ export function useUpdateAutoAccept() {
   return useMutation({
     mutationFn: ({ instanceId, autoAccept }: { instanceId: string; autoAccept: boolean }) =>
       updateAutoAccept(instanceId, autoAccept),
+    onSuccess: invalidate,
+  });
+}
+
+export function useUpdateInviteLinkAutoAccept() {
+  const invalidate = useInvalidate();
+  return useMutation({
+    mutationFn: ({ instanceId, autoAccept }: { instanceId: string; autoAccept: boolean }) =>
+      updateInviteLinkAutoAccept(instanceId, autoAccept),
     onSuccess: invalidate,
   });
 }

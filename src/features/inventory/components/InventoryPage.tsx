@@ -4,15 +4,26 @@ import { useState, Suspense } from 'react';
 import { useTranslations } from 'next-intl';
 import { ItemTable } from './ItemTable';
 import { ItemForm } from './ItemForm';
-import { SaleModal }      from '@/features/sales/components/SaleModal';
-import { QuickSellModal } from '@/features/sales/components/QuickSellModal';
+import { SaleModal }              from '@/features/sales/components/SaleModal';
+import { QuickSellModal }         from '@/features/sales/components/QuickSellModal';
+import { PendingSaleModal }       from '@/features/sales/components/PendingSaleModal';
+import { ConfirmPendingSaleModal } from '@/features/sales/components/ConfirmPendingSaleModal';
+import { useCancelPendingSale }   from '../hooks/usePendingSale';
 import type { ItemWithCosts } from '../types/inventory.types';
 
 export function InventoryPage() {
   const t = useTranslations('inventory');
-  const [showAddForm,    setShowAddForm]    = useState(false);
-  const [showQuickSell,  setShowQuickSell]  = useState(false);
-  const [sellingItem,    setSellingItem]    = useState<ItemWithCosts | null>(null);
+  const [showAddForm,       setShowAddForm]       = useState(false);
+  const [showQuickSell,     setShowQuickSell]     = useState(false);
+  const [sellingItem,       setSellingItem]       = useState<ItemWithCosts | null>(null);
+  const [preMarkItem,       setPreMarkItem]       = useState<ItemWithCosts | null>(null);
+  const [confirmItem,       setConfirmItem]       = useState<ItemWithCosts | null>(null);
+
+  const { mutate: cancelPendingSale } = useCancelPendingSale();
+
+  function handleCancelPendingSale(item: ItemWithCosts) {
+    cancelPendingSale(item.id);
+  }
 
   return (
     <div>
@@ -41,7 +52,12 @@ export function InventoryPage() {
       </div>
 
       <Suspense fallback={<div className="text-sm text-gray-500 py-8 text-center">{t('loading')}</div>}>
-        <ItemTable onRecordSale={setSellingItem} />
+        <ItemTable
+          onRecordSale={setSellingItem}
+          onPreMarkSale={setPreMarkItem}
+          onConfirmSale={setConfirmItem}
+          onCancelPendingSale={handleCancelPendingSale}
+        />
       </Suspense>
 
       {/* Add item panel */}
@@ -79,6 +95,20 @@ export function InventoryPage() {
         <SaleModal
           item={sellingItem}
           onClose={() => setSellingItem(null)}
+        />
+      )}
+
+      {preMarkItem && (
+        <PendingSaleModal
+          item={preMarkItem}
+          onClose={() => setPreMarkItem(null)}
+        />
+      )}
+
+      {confirmItem && (
+        <ConfirmPendingSaleModal
+          item={confirmItem}
+          onClose={() => setConfirmItem(null)}
         />
       )}
     </div>

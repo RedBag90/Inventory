@@ -44,13 +44,20 @@ function toPlain(item: {
     shippingCostOut: { toNumber(): number };
     soldAt: Date;
   } | null;
+  pendingSale: {
+    id: string;
+    salePrice: { toNumber(): number };
+    salePlatform: string;
+    shippingCostOut: { toNumber(): number };
+    soldAt: Date;
+  } | null;
 }): ItemWithCosts {
   return {
     ...item,
     purchasePrice:  item.purchasePrice.toNumber(),
     shippingCostIn: item.shippingCostIn.toNumber(),
     repairCost:     item.repairCost.toNumber(),
-    status:         item.status as 'IN_STOCK' | 'SOLD',
+    status:         item.status as 'IN_STOCK' | 'RESERVED' | 'SOLD',
     costs: item.costs.map(c => ({ ...c, amount: c.amount.toNumber() })),
     sale: item.sale
       ? {
@@ -59,12 +66,20 @@ function toPlain(item: {
           shippingCostOut: item.sale.shippingCostOut.toNumber(),
         }
       : null,
+    pendingSale: item.pendingSale
+      ? {
+          ...item.pendingSale,
+          salePrice:       item.pendingSale.salePrice.toNumber(),
+          shippingCostOut: item.pendingSale.shippingCostOut.toNumber(),
+        }
+      : null,
   };
 }
 
 const ITEM_INCLUDE = {
-  costs: true,
-  sale: true,
+  costs:       true,
+  sale:        true,
+  pendingSale: true,
 } as const;
 
 // ─── Queries ──────────────────────────────────────────────────────────────────

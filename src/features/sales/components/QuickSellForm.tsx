@@ -14,15 +14,16 @@ const PLATFORM_KEYS = {
 } as const;
 
 type Props = {
-  onReview: (data: QuickSellInput) => void;
-  onCancel: () => void;
+  onReview:   (data: QuickSellInput) => void;
+  onPreMark?: (data: QuickSellInput) => void;
+  onCancel:   () => void;
 };
 
 function todayISO() {
   return new Date().toISOString().split('T')[0];
 }
 
-export function QuickSellForm({ onReview, onCancel }: Props) {
+export function QuickSellForm({ onReview, onPreMark, onCancel }: Props) {
   const t = useTranslations('sales');
   const tc = useTranslations('common');
   const {
@@ -39,8 +40,6 @@ export function QuickSellForm({ onReview, onCancel }: Props) {
 
   return (
     <form onSubmit={handleSubmit(onReview)} className="space-y-4">
-      <h2 className="text-sm font-semibold text-gray-700">{t('quickSellTitle')}</h2>
-
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
           {t('itemName')} <span className="text-red-500">*</span>
@@ -64,7 +63,7 @@ export function QuickSellForm({ onReview, onCancel }: Props) {
         <input
           type="number"
           step="0.01"
-          min="0.01"
+          min="0"
           {...register('salePrice', { valueAsNumber: true })}
           className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
           placeholder="0.00"
@@ -125,13 +124,22 @@ export function QuickSellForm({ onReview, onCancel }: Props) {
         )}
       </div>
 
-      <div className="flex gap-3 pt-1">
+      <div className="flex gap-2 pt-1 flex-wrap">
         <button
           type="submit"
           className="flex-1 bg-black text-white rounded py-2 text-sm font-medium hover:bg-gray-800 transition-colors"
         >
-          {t('nextButton')}
+          {t('sellButton')}
         </button>
+        {onPreMark && (
+          <button
+            type="button"
+            onClick={handleSubmit(onPreMark)}
+            className="flex-1 bg-amber-500 text-white rounded py-2 text-sm font-medium hover:bg-amber-400 transition-colors"
+          >
+            {t('preMarkButton')}
+          </button>
+        )}
         <button
           type="button"
           onClick={onCancel}

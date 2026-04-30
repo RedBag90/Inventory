@@ -11,6 +11,7 @@ import {
   useGenerateJoinCode,
   useRevokeJoinCode,
   useUpdateAutoAccept,
+  useUpdateInviteLinkAutoAccept,
 } from '../hooks/useOlympiads';
 import type { OlympiadRecord } from '../services/olympiadRepository';
 
@@ -78,8 +79,9 @@ function EditableField({
 // ── Invite link section ───────────────────────────────────────────────────────
 
 function InviteLinkSection({ instance, isOwner }: { instance: OlympiadRecord; isOwner: boolean }) {
-  const { mutate: generate, isPending: generating } = useGenerateInviteToken();
-  const { mutate: revoke,   isPending: revoking   } = useRevokeInviteToken();
+  const { mutate: generate,        isPending: generating } = useGenerateInviteToken();
+  const { mutate: revoke,          isPending: revoking   } = useRevokeInviteToken();
+  const { mutate: setInviteAutoAccept }                    = useUpdateInviteLinkAutoAccept();
   const [copied, setCopied] = useState(false);
 
   const origin = typeof window !== 'undefined' ? window.location.origin : '';
@@ -107,16 +109,27 @@ function InviteLinkSection({ instance, isOwner }: { instance: OlympiadRecord; is
             </button>
           </div>
           {isOwner && (
-            <div className="flex gap-3">
-              <button onClick={() => generate(instance.id)} disabled={generating}
-                className="text-xs text-gray-400 hover:text-gray-700 underline disabled:opacity-40 transition-colors">
-                Neu generieren
-              </button>
-              <button onClick={() => { if (confirm('Link deaktivieren?')) revoke(instance.id); }} disabled={revoking}
-                className="text-xs text-red-500 hover:text-red-700 underline disabled:opacity-40 transition-colors">
-                Deaktivieren
-              </button>
-            </div>
+            <>
+              <label className="flex items-center gap-2.5 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={instance.inviteLinkAutoAccept}
+                  onChange={e => setInviteAutoAccept({ instanceId: instance.id, autoAccept: e.target.checked })}
+                  className="w-4 h-4 rounded border-gray-300 text-gray-900 focus:ring-gray-400"
+                />
+                <span className="text-xs text-gray-600">Anfragen automatisch akzeptieren</span>
+              </label>
+              <div className="flex gap-3">
+                <button onClick={() => generate(instance.id)} disabled={generating}
+                  className="text-xs text-gray-400 hover:text-gray-700 underline disabled:opacity-40 transition-colors">
+                  Neu generieren
+                </button>
+                <button onClick={() => { if (confirm('Link deaktivieren?')) revoke(instance.id); }} disabled={revoking}
+                  className="text-xs text-red-500 hover:text-red-700 underline disabled:opacity-40 transition-colors">
+                  Deaktivieren
+                </button>
+              </div>
+            </>
           )}
         </>
       ) : (

@@ -163,6 +163,8 @@
     "ghostItemBadge": "Beispiel"
   },
   "sales": {
+    "modalTitle": "Schnell verkaufen",
+    "modalSubtitle": "Artikel anlegen und direkt verkaufen",
     "quickSellTitle": "Schnell verkaufen",
     "itemName": "Artikelname",
     "itemNamePlaceholder": "z. B. iPhone 12",
@@ -171,7 +173,8 @@
     "platformPlaceholder": "Plattform wählen…",
     "shippingCost": "Versandkosten (€)",
     "saleDate": "Verkaufsdatum",
-    "nextButton": "Weiter →",
+    "sellButton": "Verkaufen",
+    "preMarkButton": "Inserieren",
     "confirmTitle": "Verkauf bestätigen",
     "confirmSalePrice": "Verkaufspreis",
     "confirmCosts": "Kosten",

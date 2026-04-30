@@ -77,11 +77,11 @@ export async function getDashboardData(
     };
   });
 
-  // IN_STOCK items purchased in the date range — contribute costs but no revenue
+  // IN_STOCK and RESERVED items purchased in the date range — contribute costs but no revenue
   const inStockItems = await prisma.item.findMany({
     where: {
       id:          { in: itemIds },
-      status:      'IN_STOCK',
+      status:      { in: ['IN_STOCK', 'RESERVED'] },
       purchasedAt: { gte: fromDate, lte: toDate },
     },
     include: { costs: true },

@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -40,7 +41,8 @@ model OlympiadInstance {
   createdById  String
   inviteToken  String?              @unique
   joinCode     String?              @unique
-  autoAccept   Boolean              @default(true)
+  autoAccept            Boolean              @default(true)
+  inviteLinkAutoAccept  Boolean              @default(true)
   createdBy    User                 @relation(fields: [createdById], references: [id])
   memberships  InstanceMembership[]
   joinRequests JoinRequest[]
@@ -92,6 +94,7 @@ model Item {
   userId           String
   user             User             @relation(fields: [userId], references: [id])
   sale             Sale?
+  pendingSale      PendingSale?
   costs            AdditionalCost[]
 
   @@index([userId, status])
@@ -118,6 +121,19 @@ model AdditionalCost {
   createdAt DateTime @default(now())
   itemId    String
   item      Item     @relation(fields: [itemId], references: [id])
+
+  @@index([itemId])
+}
+
+model PendingSale {
+  id              String   @id @default(cuid())
+  itemId          String   @unique
+  salePrice       Decimal  @db.Decimal(10, 2)
+  salePlatform    Platform
+  shippingCostOut Decimal  @db.Decimal(10, 2) @default(0)
+  soldAt          DateTime
+  createdAt       DateTime @default(now())
+  item            Item     @relation(fields: [itemId], references: [id], onDelete: Cascade)
 
   @@index([itemId])
 }
@@ -199,6 +215,7 @@ enum MemberRole {
 
 enum ItemStatus {
   IN_STOCK
+  RESERVED
   SOLD
 }
 
