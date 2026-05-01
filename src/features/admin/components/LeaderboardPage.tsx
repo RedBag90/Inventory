@@ -62,49 +62,19 @@ const PODIUM_CONFIG = [
   { rank: 3, medal: '🥉', card: 'bg-gradient-to-b from-orange-50 to-orange-100 ring-1 ring-orange-300 shadow-lg shadow-orange-100/60',  avatarRing: 'ring-2 ring-orange-400 ring-offset-2', rankNum: 'text-orange-200', order: 'order-last',  h: 'h-[180px]' },
 ] as const;
 
-function PreStartBanner({ startsAt, entries }: { startsAt: Date; entries: Entry[] }) {
+function PreStartBanner({ startsAt }: { startsAt: Date }) {
   return (
-    <div className="space-y-6">
-      <div className="rounded-xl bg-indigo-50 border border-indigo-100 px-5 py-4 flex items-start gap-3">
-        <span className="text-2xl mt-0.5 shrink-0">⏳</span>
-        <div>
-          <p className="font-semibold text-indigo-900 text-sm">
-            Startet am{' '}
-            {new Date(startsAt).toLocaleDateString('de-DE', {
-              weekday: 'long', day: '2-digit', month: 'long', year: 'numeric',
-            })}
-          </p>
-          <p className="text-xs text-indigo-600 mt-0.5">
-            Die Wertung beginnt dann automatisch.
-          </p>
-        </div>
-      </div>
-
-      {entries.length > 0 && (
-        <div className="card-section space-y-2">
-          <p className="text-sm font-semibold text-slate-700">
-            Teilnehmer ({entries.length})
-          </p>
-          <ul className="divide-y divide-slate-100">
-            {entries.map((e) => {
-              const label = e.displayName ?? e.email;
-              return (
-                <li key={e.id} className="flex items-center gap-3 py-2.5">
-                  <span className="w-8 h-8 rounded-full bg-indigo-700 text-white text-xs font-semibold flex items-center justify-center shrink-0">
-                    {initials(label)}
-                  </span>
-                  <div className="min-w-0">
-                    <p className="text-sm text-slate-800 truncate">{label}</p>
-                    {e.displayName && (
-                      <p className="text-xs text-slate-400 truncate">{e.email}</p>
-                    )}
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      )}
+    <div className="absolute inset-0 rounded-2xl bg-indigo-50/50 border border-indigo-200 flex flex-col items-center justify-center gap-3 text-center px-6 backdrop-blur-[1px]">
+      <span className="text-4xl">⏳</span>
+      <p className="font-bold text-indigo-900 text-base drop-shadow-sm">
+        Startet am{' '}
+        {new Date(startsAt).toLocaleDateString('de-DE', {
+          weekday: 'long', day: '2-digit', month: 'long', year: 'numeric',
+        })}
+      </p>
+      <p className="text-sm text-indigo-700 drop-shadow-sm">
+        Die Wertung beginnt dann automatisch.
+      </p>
     </div>
   );
 }
@@ -237,7 +207,16 @@ export function LeaderboardPage() {
       )}
 
       {!isLoading && !isError && isNotStarted && (
-        <PreStartBanner startsAt={result!.startsAt!} entries={ranked} />
+        <div className="relative">
+          <div className="grid grid-cols-3 gap-3 items-end pointer-events-none select-none">
+            {PODIUM_CONFIG.map((config) => {
+              const user = top3[config.rank - 1];
+              if (!user) return <div key={config.rank} className={['rounded-2xl', config.card, config.h].join(' ')} />;
+              return <PodiumCard key={user.id} user={user} config={config} />;
+            })}
+          </div>
+          <PreStartBanner startsAt={result!.startsAt!} />
+        </div>
       )}
 
       {!isLoading && !isError && !isNotStarted && ranked.length > 0 && (
