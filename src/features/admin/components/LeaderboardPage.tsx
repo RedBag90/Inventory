@@ -64,7 +64,7 @@ const PODIUM_CONFIG = [
 
 function PreStartBanner({ startsAt, entries }: { startsAt: Date; entries: Entry[] }) {
   return (
-    <div className="absolute inset-0 rounded-2xl bg-indigo-50/90 border border-indigo-200 flex flex-col items-center justify-center gap-4 px-8 py-10">
+    <div className="flex flex-col items-center gap-4">
       <span className="text-5xl">⏳</span>
       <div className="text-center space-y-1">
         <p className="font-bold text-indigo-900 text-lg">
@@ -235,14 +235,7 @@ export function LeaderboardPage() {
       )}
 
       {!isLoading && !isError && isNotStarted && (
-        <div className="relative min-h-[420px]">
-          <div className="grid grid-cols-3 gap-3 items-end pointer-events-none select-none opacity-25">
-            {PODIUM_CONFIG.map((config) => {
-              const user = top3[config.rank - 1];
-              if (!user) return <div key={config.rank} className={['rounded-2xl', config.card, config.h].join(' ')} />;
-              return <PodiumCard key={user.id} user={user} config={config} />;
-            })}
-          </div>
+        <div className="rounded-2xl bg-indigo-50 border border-indigo-200 min-h-[420px] flex flex-col items-center justify-center gap-4 px-8 py-10">
           <PreStartBanner startsAt={result!.startsAt!} entries={ranked} />
         </div>
       )}
