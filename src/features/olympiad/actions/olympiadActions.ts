@@ -71,6 +71,17 @@ export async function updateOlympiad(instanceId: string, data: {
 }) {
   const userId = await getCurrentUserId();
   await assertOwner(instanceId, userId);
+
+  if (data.startsAt !== undefined || data.endsAt !== undefined) {
+    const current = await prisma.olympiadInstance.findUniqueOrThrow({
+      where:  { id: instanceId },
+      select: { startsAt: true, endsAt: true },
+    });
+    const newStart = data.startsAt ?? current.startsAt;
+    const newEnd   = data.endsAt   ?? current.endsAt;
+    if (newStart >= newEnd) throw new Error('Startdatum muss vor dem Enddatum liegen');
+  }
+
   await prisma.olympiadInstance.update({
     where: { id: instanceId },
     data,
