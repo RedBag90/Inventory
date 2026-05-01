@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { useMyBadgesPageData } from '../hooks/useBadges';
 import { BadgeCard } from './BadgeCard';
@@ -23,16 +23,18 @@ export function BadgePage() {
     );
   }
 
-  const earnedMap   = new Map(data.earned.map((e) => [e.badge.id, e]));
+  const earnedMap   = useMemo(() => new Map(data.earned.map((e) => [e.badge.id, e])), [data.earned]);
   const earnedCount = data.earned.length;
 
-  const categories = CATEGORY_ORDER.filter((c) =>
-    data.all.some((b) => b.category === c)
+  const categories = useMemo(
+    () => CATEGORY_ORDER.filter((c) => data.all.some((b) => b.category === c)),
+    [data.all]
   );
 
-  const filteredBadges = activeCategory === 'ALL'
-    ? data.all
-    : data.all.filter((b) => b.category === activeCategory);
+  const filteredBadges = useMemo(
+    () => activeCategory === 'ALL' ? data.all : data.all.filter((b) => b.category === activeCategory),
+    [data.all, activeCategory]
+  );
 
   return (
     <div className="space-y-6">

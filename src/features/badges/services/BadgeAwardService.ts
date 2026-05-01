@@ -29,31 +29,34 @@ export async function checkAndAwardBadges(trigger: BadgeTrigger): Promise<Awarde
   // Load user stats needed for evaluation
   const stats = await loadUserStats(userId);
 
-  const newBadges: AwardedBadge[] = [];
-
-  for (const badge of allBadges) {
-    if (earnedIds.has(badge.id)) continue;
-
+  const qualifying = allBadges.filter((badge) => {
+    if (earnedIds.has(badge.id)) return false;
     const criteria = BadgeCriteriaSchema.parse(badge.criteria);
-    const qualifies = evaluateCriteria(criteria, trigger, stats);
+    return evaluateCriteria(criteria, trigger, stats);
+  });
 
-    if (qualifies) {
-      const userBadge = await prisma.userBadge.create({
-        data: { userId, badgeId: badge.id, notified: false },
-      });
-      newBadges.push({
-        id:         badge.id,
-        slug:       badge.slug,
-        category:   badge.category as AwardedBadge['category'],
-        tier:       badge.tier     as AwardedBadge['tier'],
-        criteria,
-        sortOrder:  badge.sortOrder,
-        unlockedAt: userBadge.unlockedAt,
-      });
-    }
-  }
+  if (qualifying.length === 0) return [];
 
-  return newBadges;
+  await prisma.userBadge.createMany({
+    data:           qualifying.map((b) => ({ userId, badgeId: b.id, notified: false })),
+    skipDuplicates: true,
+  });
+
+  const created = await prisma.userBadge.findMany({
+    where:  { userId, badgeId: { in: qualifying.map((b) => b.id) } },
+    select: { badgeId: true, unlockedAt: true },
+  });
+  const unlockedAtMap = new Map(created.map((c) => [c.badgeId, c.unlockedAt]));
+
+  return qualifying.map((badge) => ({
+    id:         badge.id,
+    slug:       badge.slug,
+    category:   badge.category as AwardedBadge['category'],
+    tier:       badge.tier     as AwardedBadge['tier'],
+    criteria:   BadgeCriteriaSchema.parse(badge.criteria),
+    sortOrder:  badge.sortOrder,
+    unlockedAt: unlockedAtMap.get(badge.id) ?? new Date(),
+  }));
 }
 
 async function loadUserStats(userId: string) {

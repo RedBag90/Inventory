@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useMemo } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useItems } from '../hooks/useItems';
@@ -28,12 +29,12 @@ export function ItemTable({ onRecordSale, onPreMarkSale, onConfirmSale, onCancel
   const pathname     = usePathname();
   const router       = useRouter();
 
-  const TABS: { label: string; value: FilterTab }[] = [
-    { label: t('filterAll'),      value: 'ALL' },
-    { label: t('filterInStock'),  value: 'IN_STOCK' },
-    { label: 'Inseriert',          value: 'RESERVED' },
-    { label: t('filterSold'),     value: 'SOLD' },
-  ];
+  const TABS = useMemo(() => [
+    { label: t('filterAll'),     value: 'ALL'      as FilterTab },
+    { label: t('filterInStock'), value: 'IN_STOCK' as FilterTab },
+    { label: 'Inseriert',        value: 'RESERVED' as FilterTab },
+    { label: t('filterSold'),    value: 'SOLD'     as FilterTab },
+  ], [t]);
 
   const activeFilter = (searchParams.get('status') as FilterTab) ?? 'ALL';
 
@@ -48,7 +49,7 @@ export function ItemTable({ onRecordSale, onPreMarkSale, onConfirmSale, onCancel
     router.push(`${pathname}?${params.toString()}`);
   }
 
-  const stats = allItems ? {
+  const stats = useMemo(() => allItems ? {
     total:    allItems.length,
     inStock:  allItems.filter((i) => i.status === 'IN_STOCK').length,
     reserved: allItems.filter((i) => i.status === 'RESERVED').length,
@@ -57,7 +58,7 @@ export function ItemTable({ onRecordSale, onPreMarkSale, onConfirmSale, onCancel
       const p = SaleManager.calculateProfit(i);
       return p !== null ? sum + p : sum;
     }, 0),
-  } : null;
+  } : null, [allItems]);
 
   return (
     <div className="space-y-5">

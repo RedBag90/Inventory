@@ -11,7 +11,7 @@ export function useLeaderboard(instanceIdOverride?: string) {
   return useQuery({
     queryKey:       [...adminKeys.leaderboard(), instanceIdOverride ?? ''],
     queryFn:        () => getLeaderboard(instanceIdOverride),
-    staleTime:      5 * 60_000,
-    refetchInterval: 5 * 60_000,
+    staleTime:      15 * 60_000,
+    refetchInterval: 15 * 60_000,
   });
 }
