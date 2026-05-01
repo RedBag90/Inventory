@@ -7,6 +7,7 @@
 import { prisma } from '@/shared/lib/prisma';
 import { getCurrentUserId } from '@/shared/lib/auth/getCurrentUserId';
 import { checkAndAwardBadges } from '@/features/badges/services/BadgeAwardService';
+import { checkLeaderboardBadges } from '@/features/badges/services/leaderboardBadgeService';
 import { calculateStorageDays } from '@/shared/lib/calculations';
 import { RecordSaleSchema, QuickSellSchema } from '../types/sales.types';
 import type { RecordSaleInput, QuickSellInput } from '../types/sales.types';
@@ -42,8 +43,9 @@ export async function createSale(data: RecordSaleInput): Promise<{ newBadges: Aw
     prisma.item.update({ where: { id: parsed.itemId }, data: { status: 'SOLD' } }),
   ]);
 
-  const newBadges = await checkAndAwardBadges({ type: 'sale_recorded', userId, storageDays });
-  return { newBadges };
+  const saleBadges        = await checkAndAwardBadges({ type: 'sale_recorded', userId, storageDays });
+  const leaderboardBadges = await checkLeaderboardBadges(userId);
+  return { newBadges: [...saleBadges, ...leaderboardBadges] };
 }
 
 /**
@@ -79,6 +81,7 @@ export async function createQuickSale(data: QuickSellInput): Promise<{ newBadges
   });
 
   // Quick sell: 0 storage days (bought and sold same day)
-  const newBadges = await checkAndAwardBadges({ type: 'sale_recorded', userId, storageDays: 0, isQuickSell: true });
-  return { newBadges };
+  const saleBadges        = await checkAndAwardBadges({ type: 'sale_recorded', userId, storageDays: 0, isQuickSell: true });
+  const leaderboardBadges = await checkLeaderboardBadges(userId);
+  return { newBadges: [...saleBadges, ...leaderboardBadges] };
 }

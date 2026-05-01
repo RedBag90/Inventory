@@ -3,6 +3,7 @@
 import { prisma } from '@/shared/lib/prisma';
 import { getCurrentUserId } from '@/shared/lib/auth/getCurrentUserId';
 import { checkAndAwardBadges } from '@/features/badges/services/BadgeAwardService';
+import { checkLeaderboardBadges } from '@/features/badges/services/leaderboardBadgeService';
 import { calculateStorageDays } from '@/shared/lib/calculations';
 import { revalidatePath } from 'next/cache';
 import {
@@ -75,12 +76,13 @@ export async function confirmPendingSale(
     prisma.item.update({ where: { id: itemId }, data: { status: 'SOLD' } }),
   ]);
 
-  const newBadges = await checkAndAwardBadges({ type: 'sale_recorded', userId, storageDays });
+  const saleBadges        = await checkAndAwardBadges({ type: 'sale_recorded', userId, storageDays });
+  const leaderboardBadges = await checkLeaderboardBadges(userId);
 
   revalidatePath('/dashboard/inventory');
   revalidatePath('/dashboard');
 
-  return { newBadges };
+  return { newBadges: [...saleBadges, ...leaderboardBadges] };
 }
 
 export async function cancelPendingSale(itemId: string): Promise<void> {
