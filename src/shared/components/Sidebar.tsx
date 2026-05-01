@@ -97,9 +97,9 @@ export function Sidebar({ role }: Props) {
       collapsed ? 'w-16' : 'w-56',
     ].join(' ')}>
 
-      {/* Logo + collapse toggle */}
-      <div className="h-14 flex items-center justify-between px-3 border-b border-[var(--sidebar-border)] overflow-hidden">
-        {!collapsed && (
+      {/* Logo */}
+      <div className="h-14 flex items-center px-3 border-b border-[var(--sidebar-border)] overflow-hidden">
+        {!collapsed ? (
           <div className="flex items-center gap-2.5 min-w-0">
             <div className="w-7 h-7 bg-amber-400 rounded-md flex items-center justify-center shrink-0">
               <svg className="w-4 h-4 text-slate-900" fill="currentColor" viewBox="0 0 24 24">
@@ -110,22 +110,12 @@ export function Sidebar({ role }: Props) {
               Flohmarkt-<br/>Olympiade
             </span>
           </div>
-        )}
-        {collapsed && (
+        ) : (
           <div className="w-7 h-7 bg-amber-400 rounded-md flex items-center justify-center mx-auto">
             <svg className="w-4 h-4 text-slate-900" fill="currentColor" viewBox="0 0 24 24">
               <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
             </svg>
           </div>
-        )}
-        {!collapsed && (
-          <button
-            onClick={() => setCollapsed(true)}
-            className="text-indigo-300 hover:text-white p-1 rounded transition-colors shrink-0"
-            title={t('collapseSidebar')}
-          >
-            <IconChevronLeft />
-          </button>
         )}
       </div>
 
@@ -221,18 +211,16 @@ export function Sidebar({ role }: Props) {
         )}
       </nav>
 
-      {/* Expand button at bottom when collapsed */}
-      {collapsed && (
-        <div className="px-2 pb-4">
-          <button
-            onClick={() => setCollapsed(false)}
-            className="w-full flex items-center justify-center p-2 rounded-lg text-indigo-300 hover:text-white hover:bg-[var(--sidebar-active-bg)] transition-colors"
-            title={t('expandSidebar')}
-          >
-            <IconChevronRight />
-          </button>
-        </div>
-      )}
+      {/* Collapse / expand button at bottom */}
+      <div className="px-2 pb-4">
+        <button
+          onClick={() => setCollapsed(v => !v)}
+          className="w-full flex items-center justify-center p-2 rounded-lg text-indigo-300 hover:text-white hover:bg-[var(--sidebar-active-bg)] transition-colors"
+          title={collapsed ? t('expandSidebar') : t('collapseSidebar')}
+        >
+          {collapsed ? <IconChevronRight /> : <IconChevronLeft />}
+        </button>
+      </div>
     </aside>
   );
 }
