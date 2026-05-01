@@ -7,7 +7,6 @@ import { useOlympiads } from '@/features/olympiad/hooks/useOlympiads';
 import { useActiveOlympiad } from '@/features/olympiad/hooks/useActiveOlympiad';
 import { formatCurrency } from '@/shared/lib/utils';
 import { BadgeChip } from '@/features/badges/components/BadgeChip';
-import { getUserRank } from '@/features/badges/lib/rankSystem';
 import { useTranslations } from 'next-intl';
 
 function initials(name: string) {
@@ -53,7 +52,6 @@ type Entry = {
   itemCount: number;
   soldCount: number;
   totalProfit: number;
-  badgeXP: number;
   rankChange: number;
   topBadges: { slug: string; tier: string }[];
 };
@@ -254,14 +252,9 @@ export function LeaderboardPage() {
                           <BadgeChip key={b.slug} slug={b.slug} tier={b.tier as 'BRONZE' | 'SILVER' | 'GOLD'} label={tb(`${b.slug}.name`)} size="sm" />
                         ))}
                       </div>
-                      <div className="flex items-center gap-2">
-                        {user.displayName && (
-                          <p className="text-xs text-slate-400 truncate">{user.email}</p>
-                        )}
-                        <p className="text-[10px] text-slate-400">
-                          {(() => { const r = getUserRank(user.badgeXP); return `${r.icon} ${r.title}`; })()}
-                        </p>
-                      </div>
+                      {user.displayName && (
+                        <p className="text-xs text-slate-400 truncate">{user.email}</p>
+                      )}
                     </div>
 
                     <span className="text-sm text-slate-400 tabular-nums text-right">{user.itemCount} Items</span>
