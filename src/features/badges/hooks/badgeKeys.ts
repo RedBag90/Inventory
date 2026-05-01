@@ -4,5 +4,4 @@ export const badgeKeys = {
   myCount:    () => ['badges', 'count'] as const,
   pageData:   () => ['badges', 'page'] as const,
   unnotified: () => ['badges', 'unnotified'] as const,
-  myXP:       () => ['badges', 'xp'] as const,
 };

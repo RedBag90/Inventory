@@ -5,23 +5,12 @@ import { prisma } from '@/shared/lib/prisma';
 import { getCurrentUserId, getCurrentDbUser } from '@/shared/lib/auth/getCurrentUserId';
 import { ROLES } from '@/shared/types/auth';
 import { getAllBadges, getUserBadges, getUnnotifiedBadges, markBadgesNotified, awardBadgeManual } from '../services/BadgeRepository';
-import { computeTotalXP } from '../lib/xpSystem';
 import type { BadgesPageData, UserBadgeWithDefinition } from '../types/badge.types';
 
 export async function getMyBadgesPageData(): Promise<BadgesPageData> {
   const userId = await getCurrentUserId();
   const [all, earned] = await Promise.all([getAllBadges(), getUserBadges(userId)]);
-  const totalXP = computeTotalXP(earned);
-  return { all, earned, totalXP };
-}
-
-export async function getMyXP(): Promise<number> {
-  const userId = await getCurrentUserId();
-  const earned = await prisma.userBadge.findMany({
-    where:  { userId },
-    select: { badge: { select: { tier: true } } },
-  });
-  return computeTotalXP(earned);
+  return { all, earned };
 }
 
 export async function getMyUnnotifiedBadges(): Promise<UserBadgeWithDefinition[]> {

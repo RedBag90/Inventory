@@ -3,7 +3,6 @@
 import { prisma } from '@/shared/lib/prisma';
 import { createClient } from '@/shared/lib/supabase/server';
 import { computeProfit } from '@/shared/lib/calculations';
-import { getBadgeXP } from '@/features/badges/lib/xpSystem';
 
 export type LeaderboardBadge = {
   slug: string;
@@ -17,7 +16,6 @@ export type LeaderboardEntry = {
   itemCount:   number;
   soldCount:   number;
   totalProfit: number;
-  badgeXP:     number;
   /** Positions gained (+) or lost (−) vs last Sunday midnight. 0 = unchanged. */
   rankChange:  number;
   topBadges:   LeaderboardBadge[];
@@ -138,8 +136,6 @@ export async function getLeaderboard(instanceIdOverride?: string): Promise<Leade
     const snapshotItems  = soldItems.filter((i) => i.sale!.soldAt < snapshot);
     const snapshotProfit = snapshotItems.reduce((s, i) => s + computeProfit({ ...i.sale!, item: i }), 0);
 
-    const badgeXP = u.userBadges.reduce((sum, ub) => sum + getBadgeXP(ub.badge.tier as Parameters<typeof getBadgeXP>[0]), 0);
-
     return {
       id:             u.id,
       email:          u.email,
@@ -147,7 +143,6 @@ export async function getLeaderboard(instanceIdOverride?: string): Promise<Leade
       itemCount:      windowItems.length,
       soldCount:      soldItems.length,
       totalProfit,
-      badgeXP,
       snapshotProfit,
       topBadges: u.userBadges.slice(0, 3).map((ub) => ({ slug: ub.badge.slug, tier: ub.badge.tier })),
     };
@@ -166,7 +161,6 @@ export async function getLeaderboard(instanceIdOverride?: string): Promise<Leade
     itemCount:   e.itemCount,
     soldCount:   e.soldCount,
     totalProfit: e.totalProfit,
-    badgeXP:     e.badgeXP,
     rankChange:  (snapshotRankOf.get(e.id) ?? 0) - (currentRankOf.get(e.id) ?? 0),
     topBadges:   e.topBadges,
   }));

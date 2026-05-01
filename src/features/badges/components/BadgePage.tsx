@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useMyBadgesPageData } from '../hooks/useBadges';
 import { BadgeCard } from './BadgeCard';
-import { RankProgressionTrack } from './RankProgressionTrack';
 import type { BadgeCategory } from '../types/badge.types';
 
 const CATEGORY_ORDER: BadgeCategory[] = ['SALES', 'PROFIT', 'BIG_DEAL', 'EFFICIENCY', 'STREAK', 'INVENTORY', 'PORTFOLIO', 'LEADERBOARD', 'ENGAGEMENT', 'SPECIAL'];
@@ -24,7 +23,7 @@ export function BadgePage() {
     );
   }
 
-  const earnedMap = new Map(data.earned.map((e) => [e.badge.id, e]));
+  const earnedMap   = new Map(data.earned.map((e) => [e.badge.id, e]));
   const earnedCount = data.earned.length;
 
   const categories = CATEGORY_ORDER.filter((c) =>
@@ -45,8 +44,6 @@ export function BadgePage() {
           </p>
         </div>
       </div>
-
-      <RankProgressionTrack totalXP={data.totalXP} />
 
       <div className="flex flex-wrap gap-2">
         <button

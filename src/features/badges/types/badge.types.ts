@@ -38,7 +38,6 @@ export type UserBadgeWithDefinition = {
 };
 
 export type BadgesPageData = {
-  all:      BadgeDefinition[];
-  earned:   UserBadgeWithDefinition[];
-  totalXP:  number;
+  all:    BadgeDefinition[];
+  earned: UserBadgeWithDefinition[];
 };
