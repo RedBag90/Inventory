@@ -13,6 +13,19 @@ export function BadgePage() {
   const { data, isLoading } = useMyBadgesPageData();
   const [activeCategory, setActiveCategory] = useState<BadgeCategory | 'ALL'>('ALL');
 
+  const earnedMap = useMemo(
+    () => new Map((data?.earned ?? []).map((e) => [e.badge.id, e])),
+    [data?.earned]
+  );
+  const categories = useMemo(
+    () => CATEGORY_ORDER.filter((c) => (data?.all ?? []).some((b) => b.category === c)),
+    [data?.all]
+  );
+  const filteredBadges = useMemo(
+    () => !data ? [] : activeCategory === 'ALL' ? data.all : data.all.filter((b) => b.category === activeCategory),
+    [data, activeCategory]
+  );
+
   if (isLoading || !data) {
     return (
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -23,18 +36,7 @@ export function BadgePage() {
     );
   }
 
-  const earnedMap   = useMemo(() => new Map(data.earned.map((e) => [e.badge.id, e])), [data.earned]);
   const earnedCount = data.earned.length;
-
-  const categories = useMemo(
-    () => CATEGORY_ORDER.filter((c) => data.all.some((b) => b.category === c)),
-    [data.all]
-  );
-
-  const filteredBadges = useMemo(
-    () => activeCategory === 'ALL' ? data.all : data.all.filter((b) => b.category === activeCategory),
-    [data.all, activeCategory]
-  );
 
   return (
     <div className="space-y-6">
