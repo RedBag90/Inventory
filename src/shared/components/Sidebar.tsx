@@ -159,7 +159,7 @@ export function Sidebar({ role }: Props) {
                   >
                     {memberships.map(m => (
                       <option key={m.instanceId} value={m.instanceId}>
-                        {m.instanceName}{!m.isActive ? ' (archiviert)' : ''}
+                        {m.instanceName}{!m.isActive ? ` ${t('olympiadArchived')}` : ''}
                       </option>
                     ))}
                   </select>

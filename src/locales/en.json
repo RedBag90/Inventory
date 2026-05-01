@@ -40,7 +40,8 @@
     "reporting": "Reports",
     "badges": "Badges",
     "collapseSidebar": "Collapse sidebar",
-    "expandSidebar": "Expand sidebar"
+    "expandSidebar": "Expand sidebar",
+    "olympiadArchived": "(archived)"
   },
   "auth": {
     "signIn": {
@@ -206,7 +207,18 @@
     "selectUserPrompt": "Select a user above to view their report"
   },
   "leaderboard": {
-    "title": "Leaderboard"
+    "title": "Leaderboard",
+    "defaultSubtitle": "Profit ranking · Change since last Sunday",
+    "risen": "Rising",
+    "fallen": "Falling",
+    "unchanged": "Unchanged",
+    "participants": "Participants",
+    "noEntries": "No entries yet.",
+    "loadError": "Leaderboard could not be loaded.",
+    "you": "You",
+    "sold": "sold",
+    "preStartsOn": "Starts on",
+    "preStartSubtitle": "Scoring begins automatically."
   },
   "admin": {
     "title": "Admin",
