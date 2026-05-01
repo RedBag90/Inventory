@@ -20,16 +20,16 @@ export function GhostItemCard() {
         </span>
 
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-gray-900 truncate">{t('ghostItemName')}</p>
-          <p className="text-xs text-gray-400 mt-0.5">{t('ghostItemBoughtFor')}</p>
+          <p className="text-sm font-semibold text-slate-900 truncate">{t('ghostItemName')}</p>
+          <p className="text-xs text-slate-400 mt-0.5">{t('ghostItemBoughtFor')}</p>
         </div>
 
         <div className="flex items-center gap-1.5 shrink-0">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-          <span className="text-xs text-gray-500 font-medium">{t('statusInStock')}</span>
+          <span className="text-xs text-slate-500 font-medium">{t('statusInStock')}</span>
         </div>
 
-        <div className="bg-gray-900 text-white px-3 py-1.5 rounded-lg text-xs font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="bg-slate-900 text-white px-3 py-1.5 rounded-lg text-xs font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
           {t('sellButton')}
         </div>
       </div>

@@ -112,25 +112,25 @@ export function SpotlightOverlay({
                 key={i}
                 className={[
                   'h-1.5 rounded-full transition-all',
-                  i + 1 === step ? 'w-4 bg-gray-900' : 'w-1.5 bg-gray-200',
+                  i + 1 === step ? 'w-4 bg-slate-900' : 'w-1.5 bg-slate-200',
                 ].join(' ')}
               />
             ))}
           </div>
 
-          <h3 className="text-sm font-bold text-gray-900 mb-1">{title}</h3>
-          <p className="text-xs text-gray-500 leading-relaxed mb-4">{description}</p>
+          <h3 className="text-sm font-bold text-slate-900 mb-1">{title}</h3>
+          <p className="text-xs text-slate-500 leading-relaxed mb-4">{description}</p>
 
           <div className="flex items-center justify-between gap-3">
             <button
               onClick={onSkip}
-              className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
+              className="text-xs text-slate-400 hover:text-slate-600 transition-colors"
             >
               {t('skip')}
             </button>
             <button
               onClick={onNext}
-              className="bg-gray-900 text-white px-4 py-1.5 rounded-lg text-xs font-semibold hover:bg-gray-700 transition-colors"
+              className="btn-primary btn-sm"
             >
               {nextLabel ?? t('understood')}
             </button>

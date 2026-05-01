@@ -37,7 +37,7 @@ export default function SignUpPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="w-full max-w-sm p-8 text-center space-y-3">
           <h1 className="text-2xl font-semibold">Check your email</h1>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-slate-500">
             We sent a confirmation link to <strong>{email}</strong>. Click it to activate your account.
           </p>
         </div>
@@ -62,7 +62,7 @@ export default function SignUpPage() {
               autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+              className="input-base"
             />
           </div>
 
@@ -78,7 +78,7 @@ export default function SignUpPage() {
               autoComplete="new-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+              className="input-base"
             />
           </div>
 
@@ -87,13 +87,13 @@ export default function SignUpPage() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-black text-white rounded py-2 text-sm font-medium hover:bg-gray-800 disabled:opacity-50 transition-colors"
+            className="btn-primary w-full py-2"
           >
             {isLoading ? 'Creating account…' : 'Create account'}
           </button>
         </form>
 
-        <p className="text-center text-sm text-gray-500">
+        <p className="text-center text-sm text-slate-500">
           Already have an account?{' '}
           <Link href="/sign-in" className="underline text-black">
             Sign in

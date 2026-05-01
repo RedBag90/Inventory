@@ -97,10 +97,7 @@ function RangeView({
 
   const { data: report, isLoading } = useRangeReport(from, to, targetUser);
 
-  // Always fetch monthly data — used by both monthly and quarterly chart
   const { data: allMonths } = useAllMonthlyReports(year, targetUser);
-
-  // Daily data — only fetched when in daily view
   const { data: dailyData } = useAllDailyReports(from, to, targetUser);
 
   const { data: lineItems = [] } = useQuery({
@@ -114,7 +111,6 @@ function RangeView({
     staleTime: 5 * 60_000,
   });
 
-  // Derive chart entries based on active view
   const chartEntries: ChartEntry[] | null = (() => {
     if (view === 'daily') {
       if (!dailyData) return null;
@@ -149,13 +145,13 @@ function RangeView({
         <KPICard label="Items sold" value={String(report.itemsSold)} />
       </div>
       {chartEntries && (
-        <div className="bg-white rounded-lg border border-gray-200 p-5">
-          <p className="text-sm font-semibold text-gray-700 mb-4">{chartTitle}</p>
+        <div className="card-section">
+          <p className="text-sm font-semibold text-slate-700 mb-4">{chartTitle}</p>
           <RevenueChart data={chartEntries} />
         </div>
       )}
-      <div className="bg-white rounded-lg border border-gray-200 p-5">
-        <p className="text-sm font-semibold text-gray-700 mb-4">Sales in period</p>
+      <div className="card-section">
+        <p className="text-sm font-semibold text-slate-700 mb-4">Sales in period</p>
         <ProfitTable items={lineItems} />
       </div>
     </div>
@@ -180,8 +176,8 @@ function CumulativeView({ targetUser }: { targetUser?: string }) {
         <KPICard label="Items sold"  value={String(report.itemsSold)} />
         <KPICard label="Avg storage" value={`${report.avgStorageDays}d`} />
       </div>
-      <div className="bg-white rounded-lg border border-gray-200 p-5">
-        <p className="text-sm font-semibold text-gray-700 mb-4">All sales</p>
+      <div className="card-section">
+        <p className="text-sm font-semibold text-slate-700 mb-4">All sales</p>
         <ProfitTable items={lineItems} />
       </div>
     </div>
@@ -192,9 +188,9 @@ function ReportingSkeleton({ count = 4 }: { count?: number }) {
   return (
     <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
       {Array.from({ length: count }).map((_, i) => (
-        <div key={i} className="bg-white rounded-lg border border-gray-200 p-5 animate-pulse">
-          <div className="h-3 w-16 bg-gray-200 rounded mb-3" />
-          <div className="h-7 w-24 bg-gray-200 rounded" />
+        <div key={i} className="card-section animate-pulse">
+          <div className="h-3 w-16 bg-slate-200 rounded mb-3" />
+          <div className="h-7 w-24 bg-slate-200 rounded" />
         </div>
       ))}
     </div>
@@ -233,24 +229,23 @@ export function ReportingPage() {
 
   return (
     <div className="space-y-6">
-      {/* ── Header ── */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <h1 className="text-lg font-semibold text-gray-900">{t('title')}</h1>
+          <h1 className="page-title">{t('title')}</h1>
           <Link
             href="/dashboard/reporting/dashboard"
-            className="text-sm text-gray-500 hover:text-gray-900 border border-gray-200 rounded px-3 py-1 transition-colors hover:border-gray-400"
+            className="text-sm text-slate-500 hover:text-slate-900 border border-slate-200 rounded-lg px-3 py-1 transition-colors hover:border-slate-400"
           >
             {t('dashboardLink')}
           </Link>
         </div>
         {isAdmin && reportableUsers && (
           <div className="flex items-center gap-2">
-            <span className="text-xs text-gray-500 font-medium">{t('viewingUser')}</span>
+            <span className="text-xs text-slate-500 font-medium">{t('viewingUser')}</span>
             <select
               value={targetUser ?? ''}
               onChange={(e) => update({ userId: e.target.value || undefined, from: null, to: null })}
-              className="border rounded px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-black"
+              className="select-base w-auto"
             >
               <option value="">{t('selectUser')}</option>
               {reportableUsers.map((u) => (
@@ -269,15 +264,14 @@ export function ReportingPage() {
 
       {(!isAdmin || targetUser) && (
         <>
-          {/* ── View tabs ── */}
-          <div data-tutorial="reporting-tabs" className="flex gap-1 border-b border-gray-200">
+          <div data-tutorial="reporting-tabs" className="flex gap-1 border-b border-slate-200">
             {(['daily', 'monthly', 'quarterly', 'cumulative'] as View[]).map((v) => (
               <button
                 key={v}
                 onClick={() => update({ view: v })}
                 className={[
                   'px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors',
-                  view === v ? 'border-gray-900 text-gray-900' : 'border-transparent text-gray-500 hover:text-gray-700',
+                  view === v ? 'tab-active' : 'tab-inactive',
                 ].join(' ')}
               >
                 {VIEW_LABELS[v]}
@@ -285,29 +279,27 @@ export function ReportingPage() {
             ))}
           </div>
 
-          {/* ── Date range filter (hidden for Cumulative) ── */}
           {view !== 'cumulative' && (
-            <div className="flex flex-wrap items-center gap-4 p-4 bg-white rounded-lg border border-gray-200">
-              <span className="text-xs text-gray-500 font-medium">From:</span>
+            <div className="flex flex-wrap items-center gap-4 p-4 card">
+              <span className="text-xs text-slate-500 font-medium">From:</span>
               <input
                 type="date"
                 value={from}
                 max={to}
                 onChange={(e) => update({ from: e.target.value })}
-                className="border rounded px-2 py-1 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-black"
+                className="input-base w-auto"
               />
-              <span className="text-xs text-gray-500 font-medium">To:</span>
+              <span className="text-xs text-slate-500 font-medium">To:</span>
               <input
                 type="date"
                 value={to}
                 min={from}
                 onChange={(e) => update({ to: e.target.value })}
-                className="border rounded px-2 py-1 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-black"
+                className="input-base w-auto"
               />
             </div>
           )}
 
-          {/* ── Content ── */}
           {view !== 'cumulative' && (
             <RangeView view={view} from={from} to={to} targetUser={targetUser} />
           )}

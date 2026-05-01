@@ -11,49 +11,49 @@ export function UserManagement() {
     <div className="space-y-6">
       <div>
         {users && (
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-slate-500">
             {users.length} registriert · {users.filter(u => u.isActive).length} aktiv
           </p>
         )}
       </div>
 
       {isLoading && (
-        <div className="text-sm text-gray-500 py-8 text-center">Lade Users…</div>
+        <div className="text-sm text-slate-500 py-8 text-center">Lade Users…</div>
       )}
       {isError && (
         <div className="text-sm text-red-600 py-8 text-center">Fehler beim Laden.</div>
       )}
       {users && users.length === 0 && (
-        <div className="text-sm text-gray-400 py-8 text-center">Keine Users gefunden.</div>
+        <div className="text-sm text-slate-400 py-8 text-center">Keine Users gefunden.</div>
       )}
       {users && users.length > 0 && (
-        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+        <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-gray-200 bg-gray-50">
-                  <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wide px-0 py-3 pr-4 pl-5">User</th>
-                  <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wide py-3 pr-4">Rolle</th>
-                  <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wide py-3 pr-4">Status</th>
-                  <th className="text-right text-xs font-medium text-gray-500 uppercase tracking-wide py-3 pr-4">Items</th>
-                  <th className="text-right text-xs font-medium text-gray-500 uppercase tracking-wide py-3 pr-4">Verkauft</th>
-                  <th className="text-right text-xs font-medium text-gray-500 uppercase tracking-wide py-3 pr-4">Profit</th>
-                  <th className="text-right text-xs font-medium text-gray-500 uppercase tracking-wide py-3 pr-5">Aktionen</th>
+                <tr className="border-b border-slate-200 bg-slate-50">
+                  <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wide px-0 py-3 pr-4 pl-5">User</th>
+                  <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wide py-3 pr-4">Rolle</th>
+                  <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wide py-3 pr-4">Status</th>
+                  <th className="text-right text-xs font-medium text-slate-500 uppercase tracking-wide py-3 pr-4">Items</th>
+                  <th className="text-right text-xs font-medium text-slate-500 uppercase tracking-wide py-3 pr-4">Verkauft</th>
+                  <th className="text-right text-xs font-medium text-slate-500 uppercase tracking-wide py-3 pr-4">Profit</th>
+                  <th className="text-right text-xs font-medium text-slate-500 uppercase tracking-wide py-3 pr-5">Aktionen</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-slate-100">
                 {users.map((user) => (
-                  <tr key={user.id} className="hover:bg-gray-50 transition-colors">
+                  <tr key={user.id} className="hover:bg-slate-50 transition-colors">
                     <td className="py-3 pr-4 pl-5">
-                      <p className="text-sm font-medium text-gray-900">{user.email}</p>
-                      <p className="text-xs text-gray-400 mt-0.5">Seit {formatDate(new Date(user.createdAt))}</p>
+                      <p className="text-sm font-medium text-slate-900">{user.email}</p>
+                      <p className="text-xs text-slate-400 mt-0.5">Seit {formatDate(new Date(user.createdAt))}</p>
                     </td>
                     <td className="py-3 pr-4"><RoleBadge role={user.role} /></td>
                     <td className="py-3 pr-4"><StatusBadge isActive={user.isActive} /></td>
-                    <td className="py-3 pr-4 text-sm text-gray-600 text-right">{user.itemCount}</td>
-                    <td className="py-3 pr-4 text-sm text-gray-600 text-right">{user.soldCount}</td>
+                    <td className="py-3 pr-4 text-sm text-slate-600 text-right">{user.itemCount}</td>
+                    <td className="py-3 pr-4 text-sm text-slate-600 text-right">{user.soldCount}</td>
                     <td className={`py-3 pr-4 text-sm font-medium text-right ${
-                      user.totalProfit > 0 ? 'text-green-700' : user.totalProfit < 0 ? 'text-red-600' : 'text-gray-500'
+                      user.totalProfit > 0 ? 'text-emerald-600' : user.totalProfit < 0 ? 'text-red-600' : 'text-slate-500'
                     }`}>
                       {formatCurrency(user.totalProfit)}
                     </td>
@@ -77,7 +77,7 @@ function RoleBadge({ role }: { role: AdminUserRecord['role'] }) {
   const styles: Record<string, string> = {
     MASTER_ADMIN: 'bg-purple-100 text-purple-800',
     ADMIN:        'bg-amber-100 text-amber-800',
-    USER:         'bg-gray-100 text-gray-600',
+    USER:         'bg-slate-100 text-slate-600',
   };
   const labels: Record<string, string> = {
     MASTER_ADMIN: 'Master Admin',
@@ -87,7 +87,7 @@ function RoleBadge({ role }: { role: AdminUserRecord['role'] }) {
   return (
     <span className={[
       'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium',
-      styles[role] ?? 'bg-gray-100 text-gray-600',
+      styles[role] ?? 'bg-slate-100 text-slate-600',
     ].join(' ')}>
       {labels[role] ?? role}
     </span>
@@ -99,7 +99,7 @@ function StatusBadge({ isActive }: { isActive: boolean }) {
     <span className={[
       'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium',
       isActive
-        ? 'bg-green-100 text-green-800'
+        ? 'bg-emerald-100 text-emerald-800'
         : 'bg-red-100 text-red-700',
     ].join(' ')}>
       {isActive ? 'Active' : 'Suspended'}
@@ -122,7 +122,7 @@ function RoleToggle({ user }: { user: AdminUserRecord }) {
         <button
           onClick={() => setRole({ userId: user.id, role: nextRole })}
           disabled={busy}
-          className="text-xs text-gray-500 hover:text-gray-800 underline disabled:opacity-40"
+          className="text-xs text-slate-500 hover:text-slate-800 underline disabled:opacity-40"
         >
           {roleLabel}
         </button>

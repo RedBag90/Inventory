@@ -41,15 +41,15 @@ export function AdminPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold text-gray-900">Admin</h1>
+        <h1 className="text-lg font-semibold text-slate-900">Admin</h1>
       </div>
 
-      <div className="flex gap-1 border-b border-gray-200">
+      <div className="flex gap-1 border-b border-slate-200">
         {tabs.map(([value, label, count]) => (
           <button key={value} onClick={() => setTab(value)}
             className={[
               'flex items-center gap-1.5 px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors',
-              tab === value ? 'border-gray-900 text-gray-900' : 'border-transparent text-gray-400 hover:text-gray-600',
+              tab === value ? 'tab-active' : 'border-transparent text-slate-400 hover:text-slate-600',
             ].join(' ')}>
             {label}
             {count != null && count > 0 && (

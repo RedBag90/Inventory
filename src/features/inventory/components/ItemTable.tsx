@@ -72,22 +72,22 @@ export function ItemTable({ onRecordSale, onPreMarkSale, onConfirmSale, onCancel
             {
               label: t('profit'),
               value: formatCurrency(stats.profit),
-              color: stats.profit > 0 ? 'text-emerald-600' : stats.profit < 0 ? 'text-red-500' : 'text-gray-500',
+              color: stats.profit > 0 ? 'text-emerald-600' : stats.profit < 0 ? 'text-red-500' : 'text-slate-500',
             },
           ].map((s) => (
-            <div key={s.label} className="bg-white rounded-xl border border-gray-200 px-4 py-3">
-              <p className="text-xs text-gray-400 font-medium uppercase tracking-wide">{s.label}</p>
-              <p className={['text-xl font-bold mt-0.5', s.color ?? 'text-gray-900'].join(' ')}>{s.value}</p>
+            <div key={s.label} className="stat-tile">
+              <p className="text-xs text-slate-400 font-medium uppercase tracking-wide">{s.label}</p>
+              <p className={['text-xl font-bold mt-0.5', s.color ?? 'text-slate-900'].join(' ')}>{s.value}</p>
             </div>
           ))}
         </div>
       )}
 
       {/* ── Item list card ── */}
-      <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+      <div className="card overflow-hidden">
 
         {/* Filter tabs */}
-        <div className="flex gap-1 px-4 pt-3 border-b border-gray-100">
+        <div className="flex gap-1 px-4 pt-3 border-b border-slate-100">
           {TABS.map((tab) => (
             <button
               key={tab.value}
@@ -95,15 +95,15 @@ export function ItemTable({ onRecordSale, onPreMarkSale, onConfirmSale, onCancel
               className={[
                 'px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors',
                 activeFilter === tab.value
-                  ? 'border-gray-900 text-gray-900'
-                  : 'border-transparent text-gray-400 hover:text-gray-600',
+                  ? 'tab-active'
+                  : 'tab-inactive',
               ].join(' ')}
             >
               {tab.label}
-              {stats && tab.value === 'ALL'      && <span className="ml-1.5 text-xs text-gray-400">{stats.total}</span>}
-              {stats && tab.value === 'IN_STOCK' && <span className="ml-1.5 text-xs text-gray-400">{stats.inStock}</span>}
+              {stats && tab.value === 'ALL'      && <span className="ml-1.5 text-xs text-slate-400">{stats.total}</span>}
+              {stats && tab.value === 'IN_STOCK' && <span className="ml-1.5 text-xs text-slate-400">{stats.inStock}</span>}
               {stats && tab.value === 'RESERVED' && <span className="ml-1.5 text-xs text-amber-500">{stats.reserved}</span>}
-              {stats && tab.value === 'SOLD'     && <span className="ml-1.5 text-xs text-gray-400">{stats.sold}</span>}
+              {stats && tab.value === 'SOLD'     && <span className="ml-1.5 text-xs text-slate-400">{stats.sold}</span>}
             </button>
           ))}
         </div>
@@ -111,7 +111,7 @@ export function ItemTable({ onRecordSale, onPreMarkSale, onConfirmSale, onCancel
         {isLoading && (
           <div className="p-4 space-y-2">
             {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="h-14 rounded-lg bg-gray-100 animate-pulse" />
+              <div key={i} className="h-14 rounded-lg bg-slate-100 animate-pulse" />
             ))}
           </div>
         )}
@@ -122,11 +122,11 @@ export function ItemTable({ onRecordSale, onPreMarkSale, onConfirmSale, onCancel
 
         {!isLoading && !isError && (!items || items.length === 0) && tutorialStep !== 'inventory-sell' && (
           <div className="py-16 text-center">
-            <p className="text-sm text-gray-400">{t('noItems')}</p>
+            <p className="text-sm text-slate-400">{t('noItems')}</p>
             {activeFilter !== 'ALL' && (
               <button
                 onClick={() => setFilter('ALL')}
-                className="mt-2 text-xs text-gray-500 underline underline-offset-2"
+                className="mt-2 text-xs text-slate-500 underline underline-offset-2"
               >
                 {t('resetFilter')}
               </button>
@@ -135,13 +135,13 @@ export function ItemTable({ onRecordSale, onPreMarkSale, onConfirmSale, onCancel
         )}
 
         {tutorialStep === 'inventory-sell' && (!items || items.length === 0) && (
-          <ul className="divide-y divide-gray-100">
+          <ul className="divide-y divide-slate-100">
             <GhostItemCard />
           </ul>
         )}
 
         {items && items.length > 0 && (
-          <ul className="divide-y divide-gray-100">
+          <ul className="divide-y divide-slate-100">
             {items.map((item) => (
               <li key={item.id}>
                 <Link href={`/dashboard/inventory/${item.id}`} className="block">

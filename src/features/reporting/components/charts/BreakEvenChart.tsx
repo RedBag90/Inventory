@@ -19,11 +19,11 @@ function CustomTooltip({ active, payload, label }: TooltipProps) {
   const rev  = payload.find((p) => p.dataKey === 'accRevenue')?.value ?? 0;
   const cost = payload.find((p) => p.dataKey === 'accCosts')?.value ?? 0;
   return (
-    <div className="bg-white border border-gray-200 rounded shadow-sm p-3 text-xs">
-      <p className="font-semibold text-gray-800 mb-1">{label}</p>
-      <p className="text-green-700">Acc. Revenue: €{rev.toFixed(2)}</p>
+    <div className="bg-white border border-slate-200 rounded shadow-sm p-3 text-xs">
+      <p className="font-semibold text-slate-800 mb-1">{label}</p>
+      <p className="text-emerald-600">Acc. Revenue: €{rev.toFixed(2)}</p>
       <p className="text-red-600">Acc. Costs: €{cost.toFixed(2)}</p>
-      <p className={`mt-1 font-medium ${rev - cost >= 0 ? 'text-green-700' : 'text-red-600'}`}>
+      <p className={`mt-1 font-medium ${rev - cost >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
         Net: €{(rev - cost).toFixed(2)}
       </p>
     </div>
@@ -33,7 +33,7 @@ function CustomTooltip({ active, payload, label }: TooltipProps) {
 export function BreakEvenChart({ data, breakEvenPeriod }: Props) {
   const hasData = data.some((d) => d.accRevenue > 0 || d.accCosts > 0);
   if (!hasData) {
-    return <p className="text-sm text-gray-400 text-center py-10">No sales in this period.</p>;
+    return <p className="text-sm text-slate-400 text-center py-10">No sales in this period.</p>;
   }
 
   return (

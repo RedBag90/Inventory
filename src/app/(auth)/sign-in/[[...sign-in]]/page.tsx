@@ -81,11 +81,11 @@ export default function SignInPage() {
 
   return (
     <div className="min-h-screen flex">
-      {/* ── Left panel — dark branding ── */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gray-900 text-white flex-col justify-between p-12">
+      {/* ── Left panel — dark indigo branding ── */}
+      <div className="hidden lg:flex lg:w-1/2 bg-indigo-950 text-white flex-col justify-between p-12">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-amber-400 rounded-lg flex items-center justify-center">
-            <svg className="w-6 h-6 text-gray-900" fill="currentColor" viewBox="0 0 24 24">
+            <svg className="w-6 h-6 text-slate-900" fill="currentColor" viewBox="0 0 24 24">
               <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
             </svg>
           </div>
@@ -97,7 +97,7 @@ export default function SignInPage() {
             <h1 className="text-4xl font-bold leading-tight whitespace-pre-line">
               {t('heroHeadline')}
             </h1>
-            <p className="text-gray-400 text-base leading-relaxed max-w-xs">
+            <p className="text-indigo-300 text-base leading-relaxed max-w-xs">
               {t('heroSubtitle')}
             </p>
           </div>
@@ -105,19 +105,19 @@ export default function SignInPage() {
           <ul className="space-y-5">
             {FEATURES.map((f, i) => (
               <li key={f.title} className="flex items-start gap-4">
-                <div className="mt-0.5 w-9 h-9 rounded-lg bg-gray-800 flex items-center justify-center flex-shrink-0 text-gray-300">
+                <div className="mt-0.5 w-9 h-9 rounded-lg bg-indigo-900 flex items-center justify-center flex-shrink-0 text-indigo-300">
                   {FEATURE_ICONS[i]}
                 </div>
                 <div>
                   <p className="font-medium text-sm">{f.title}</p>
-                  <p className="text-gray-500 text-sm mt-0.5">{f.detail}</p>
+                  <p className="text-indigo-400 text-sm mt-0.5">{f.detail}</p>
                 </div>
               </li>
             ))}
           </ul>
         </div>
 
-        <p className="text-xs text-gray-600">{t('season')}</p>
+        <p className="text-xs text-indigo-700">{t('season')}</p>
       </div>
 
       {/* ── Right panel — login form ── */}
@@ -126,56 +126,55 @@ export default function SignInPage() {
           {/* Mobile logo */}
           <div className="flex items-center gap-2 lg:hidden">
             <div className="w-8 h-8 bg-amber-400 rounded-md flex items-center justify-center">
-              <svg className="w-5 h-5 text-gray-900" fill="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-slate-900" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
               </svg>
             </div>
-            <span className="font-semibold text-gray-900">{t('appName')}</span>
+            <span className="font-semibold text-slate-900">{t('appName')}</span>
           </div>
 
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">{t('title')}</h2>
-            <p className="mt-1 text-sm text-gray-500">{t('subtitle')}</p>
+            <h2 className="text-2xl font-bold text-slate-900">{t('title')}</h2>
+            <p className="mt-1 text-sm text-slate-500">{t('subtitle')}</p>
           </div>
 
-          {/* ── Forgot password panel ── */}
           {showForgot ? (
             <div className="space-y-5">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">{t('resetTitle')}</h2>
-                <p className="mt-1 text-sm text-gray-500">{t('resetSubtitle')}</p>
+                <h2 className="text-2xl font-bold text-slate-900">{t('resetTitle')}</h2>
+                <p className="mt-1 text-sm text-slate-500">{t('resetSubtitle')}</p>
               </div>
               {forgotSent ? (
                 <div className="space-y-4">
-                  <div className="bg-green-50 border border-green-200 rounded-lg px-4 py-3 text-sm text-green-700">
+                  <div className="bg-emerald-50 border border-emerald-200 rounded-lg px-4 py-3 text-sm text-emerald-700">
                     {t('resetSent')}
                   </div>
                   <button onClick={() => { setShowForgot(false); setForgotSent(false); setForgotEmail(''); }}
-                    className="w-full border border-gray-200 text-gray-600 rounded-lg py-2.5 text-sm font-medium hover:border-gray-400 transition-colors">
+                    className="btn-secondary w-full py-2.5">
                     {t('resetBackToLogin')}
                   </button>
                 </div>
               ) : (
                 <form onSubmit={handleForgotPassword} className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('email')}</label>
+                    <label className="label-base">{t('email')}</label>
                     <input
                       type="email" required autoFocus
                       placeholder={t('emailPlaceholder')}
                       value={forgotEmail}
                       onChange={e => setForgotEmail(e.target.value)}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent placeholder:text-gray-400"
+                      className="input-base py-2.5"
                     />
                   </div>
                   {forgotError && (
                     <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{forgotError}</p>
                   )}
                   <button type="submit" disabled={forgotLoading}
-                    className="w-full bg-gray-900 text-white rounded-lg py-2.5 text-sm font-medium hover:bg-gray-700 disabled:opacity-50 transition-colors">
+                    className="btn-primary w-full py-2.5">
                     {forgotLoading ? t('resetSubmitting') : t('resetSubmit')}
                   </button>
                   <button type="button" onClick={() => setShowForgot(false)}
-                    className="w-full text-sm text-gray-400 hover:text-gray-600 py-1 transition-colors">
+                    className="w-full text-sm text-slate-400 hover:text-slate-600 py-1 transition-colors">
                     {t('resetBackToLogin')}
                   </button>
                 </form>
@@ -184,7 +183,7 @@ export default function SignInPage() {
           ) : (
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1.5">
+              <label htmlFor="email" className="label-base">
                 {t('email')}
               </label>
               <input
@@ -195,17 +194,17 @@ export default function SignInPage() {
                 placeholder={t('emailPlaceholder')}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent placeholder:text-gray-400"
+                className="input-base py-2.5"
               />
             </div>
 
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label htmlFor="password" className="text-sm font-medium text-gray-700">
+                <label htmlFor="password" className="text-sm font-medium text-slate-700">
                   {t('password')}
                 </label>
                 <button type="button" onClick={() => { setShowForgot(true); setForgotEmail(email); }}
-                  className="text-xs text-gray-400 hover:text-gray-700 transition-colors">
+                  className="text-xs text-slate-400 hover:text-slate-700 transition-colors">
                   {t('forgotPassword')}
                 </button>
               </div>
@@ -216,7 +215,7 @@ export default function SignInPage() {
                 autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                className="input-base py-2.5"
               />
             </div>
 
@@ -229,16 +228,16 @@ export default function SignInPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-gray-900 text-white rounded-lg py-2.5 text-sm font-medium hover:bg-gray-700 disabled:opacity-50 transition-colors"
+              className="btn-primary w-full py-2.5"
             >
               {isLoading ? t('submitting') : t('submit')}
             </button>
           </form>
           )}
 
-          <p className="text-center text-sm text-gray-500">
+          <p className="text-center text-sm text-slate-500">
             {t('noAccount')}{' '}
-            <Link href="/sign-up" className="font-medium text-gray-900 underline underline-offset-2">
+            <Link href="/sign-up" className="font-medium text-indigo-600 hover:text-indigo-800 underline underline-offset-2">
               {t('register')}
             </Link>
           </p>

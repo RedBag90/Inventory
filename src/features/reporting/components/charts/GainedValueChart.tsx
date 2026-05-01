@@ -11,7 +11,7 @@ type Props = { data: ChartRow[]; items: ItemMeta[] };
 
 export function GainedValueChart({ data, items }: Props) {
   if (items.length === 0) {
-    return <p className="text-sm text-gray-400 text-center py-10">No sales in this period.</p>;
+    return <p className="text-sm text-slate-400 text-center py-10">No sales in this period.</p>;
   }
 
   return (

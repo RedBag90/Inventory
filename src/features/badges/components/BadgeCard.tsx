@@ -26,13 +26,13 @@ const BADGE_ICONS: Record<string, string> = {
 
 const TIER_RING: Record<string, string> = {
   BRONZE: 'ring-amber-400',
-  SILVER: 'ring-gray-400',
+  SILVER: 'ring-slate-400',
   GOLD:   'ring-yellow-400',
 };
 
 const TIER_BG: Record<string, string> = {
   BRONZE: 'bg-amber-50',
-  SILVER: 'bg-gray-50',
+  SILVER: 'bg-slate-50',
   GOLD:   'bg-yellow-50',
 };
 
@@ -49,31 +49,31 @@ export function BadgeCard({ badge, earnedRecord }: Props) {
   return (
     <div className={[
       'rounded-xl border p-4 flex flex-col items-center text-center gap-2 transition-opacity',
-      isEarned ? 'border-gray-200 bg-white' : 'border-gray-100 bg-gray-50 opacity-50',
+      isEarned ? 'border-slate-200 bg-white shadow-sm' : 'border-slate-100 bg-slate-50 opacity-40',
     ].join(' ')}>
       <div className={[
         'w-14 h-14 rounded-full flex items-center justify-center text-3xl ring-2',
-        isEarned ? TIER_RING[badge.tier] : 'ring-gray-200',
-        isEarned ? TIER_BG[badge.tier]  : 'bg-gray-100',
+        isEarned ? TIER_RING[badge.tier] : 'ring-slate-200',
+        isEarned ? TIER_BG[badge.tier]  : 'bg-slate-100',
       ].join(' ')}>
         {icon}
       </div>
 
       <div>
-        <p className={`text-sm font-semibold ${isEarned ? 'text-gray-900' : 'text-gray-400'}`}>
+        <p className={`text-sm font-semibold ${isEarned ? 'text-slate-900' : 'text-slate-400'}`}>
           {t(`${badge.slug}.name`)}
         </p>
-        <p className="text-xs text-gray-400 mt-0.5">
+        <p className="text-xs text-slate-400 mt-0.5">
           {t(`${badge.slug}.description`)}
         </p>
       </div>
 
       {isEarned && earnedRecord ? (
-        <p className="text-xs text-green-600 font-medium">
+        <p className="text-xs text-emerald-600 font-medium">
           {new Date(earnedRecord.unlockedAt).toLocaleDateString()}
         </p>
       ) : (
-        <p className="text-xs text-gray-400 italic">{t('locked')}</p>
+        <p className="text-xs text-slate-400 italic">{t('locked')}</p>
       )}
     </div>
   );
