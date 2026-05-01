@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback, useMemo, type ReactNode } from 'react';
 import { useMyMemberships } from '../hooks/useOlympiads';
 import type { MyMembership } from '../actions/olympiadActions';
 
@@ -49,15 +49,20 @@ export function ActiveOlympiadProvider({ children }: { children: ReactNode }) {
     }
   }, [memberships, isLoading]);
 
-  function setActive(instanceId: string) {
+  const setActive = useCallback((instanceId: string) => {
     writeStorage(instanceId);
     setActiveId(instanceId);
-  }
+  }, []);
 
   const active = memberships.find(m => m.instanceId === activeId) ?? memberships[0] ?? null;
 
+  const value = useMemo(
+    () => ({ active, all: memberships, setActive, isLoading }),
+    [active, memberships, setActive, isLoading]
+  );
+
   return (
-    <ActiveOlympiadContext.Provider value={{ active, all: memberships, setActive, isLoading }}>
+    <ActiveOlympiadContext.Provider value={value}>
       {children}
     </ActiveOlympiadContext.Provider>
   );

@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { completeTutorial, resetTutorial } from '../actions/tutorialActions';
 
@@ -101,8 +101,13 @@ export function TutorialProvider({ children, initiallyCompleted }: Props) {
     goToStep('welcome');
   }, [goToStep]);
 
+  const value = useMemo(
+    () => ({ step, next, skip, restart }),
+    [step, next, skip, restart]
+  );
+
   return (
-    <TutorialContext.Provider value={{ step, next, skip, restart }}>
+    <TutorialContext.Provider value={value}>
       {children}
     </TutorialContext.Provider>
   );

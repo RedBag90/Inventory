@@ -1,9 +1,7 @@
 'use client';
 
-import { useState } from 'react';
 import { useLeaderboard } from '../hooks/useLeaderboard';
 import { useCurrentDbUser } from '@/features/auth/hooks/useCurrentDbUser';
-import { useOlympiads } from '@/features/olympiad/hooks/useOlympiads';
 import { useActiveOlympiad } from '@/features/olympiad/hooks/useActiveOlympiad';
 import { formatCurrency } from '@/shared/lib/utils';
 import { BadgeChip } from '@/features/badges/components/BadgeChip';
@@ -62,6 +60,51 @@ const PODIUM_CONFIG = [
   { rank: 3, medal: '🥉', card: 'bg-gradient-to-b from-orange-50 to-orange-100 ring-1 ring-orange-300 shadow-lg shadow-orange-100/60',  avatarRing: 'ring-2 ring-orange-400 ring-offset-2', rankNum: 'text-orange-200', order: 'order-last',  h: 'h-[180px]' },
 ] as const;
 
+function PreStartBanner({ startsAt, entries }: { startsAt: Date; entries: Entry[] }) {
+  return (
+    <div className="flex flex-col items-center gap-4">
+      <span className="text-5xl">⏳</span>
+      <div className="text-center space-y-1">
+        <p className="font-bold text-indigo-900 text-lg">
+          Startet am{' '}
+          {new Date(startsAt).toLocaleDateString('de-DE', {
+            weekday: 'long', day: '2-digit', month: 'long', year: 'numeric',
+          })}
+        </p>
+        <p className="text-sm text-indigo-600">
+          Die Wertung beginnt dann automatisch.
+        </p>
+      </div>
+
+      {entries.length > 0 && (
+        <div className="w-full max-w-xs mt-2">
+          <p className="text-xs font-semibold text-indigo-700 uppercase tracking-wide text-center mb-2">
+            Teilnehmer ({entries.length})
+          </p>
+          <ul className="space-y-1.5">
+            {entries.map((e) => {
+              const label = e.displayName ?? e.email;
+              return (
+                <li key={e.id} className="flex items-center gap-2.5">
+                  <span className="w-7 h-7 rounded-full bg-indigo-700 text-white text-xs font-semibold flex items-center justify-center shrink-0">
+                    {initials(label)}
+                  </span>
+                  <div className="min-w-0">
+                    <p className="text-sm text-indigo-900 truncate">{label}</p>
+                    {e.displayName && (
+                      <p className="text-xs text-indigo-400 truncate">{e.email}</p>
+                    )}
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function PodiumCard({ user, config }: { user: Entry; config: typeof PODIUM_CONFIG[number] }) {
   const label = user.displayName ?? user.email;
   return (
@@ -106,18 +149,14 @@ function PodiumCard({ user, config }: { user: Entry; config: typeof PODIUM_CONFI
 export function LeaderboardPage() {
   const tb = useTranslations('badges');
   const { data: me } = useCurrentDbUser();
-  const isMasterAdmin = me?.role === 'MASTER_ADMIN';
-
-  const [masterOverride, setMasterOverride] = useState<string | undefined>(undefined);
-  const { data: olympiads } = useOlympiads();
-
   const { active } = useActiveOlympiad();
-  const instanceOverride = isMasterAdmin ? masterOverride : (active?.instanceId ?? undefined);
+  const instanceOverride = active?.instanceId ?? undefined;
 
   const { data: result, isLoading, isError } = useLeaderboard(instanceOverride);
 
-  const ranked = result?.entries ?? [];
-  const top3 = ranked.slice(0, 3);
+  const ranked     = result?.entries ?? [];
+  const top3       = ranked.slice(0, 3);
+  const isNotStarted = result?.startsAt ? new Date(result.startsAt) > new Date() : false;
 
   const subtitle = result?.instanceName
     ? `${result.instanceName}${result.startsAt && result.endsAt
@@ -155,25 +194,11 @@ export function LeaderboardPage() {
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-3 shrink-0">
-          {isMasterAdmin && olympiads && olympiads.length > 0 && (
-            <select
-              value={masterOverride ?? ''}
-              onChange={e => setMasterOverride(e.target.value || undefined)}
-              className="select-base w-auto"
-            >
-              <option value="">Meine Olympiade</option>
-              {olympiads.map(o => (
-                <option key={o.id} value={o.id}>{o.name}</option>
-              ))}
-            </select>
-          )}
-          {ranked.length > 0 && (
-            <span className="text-sm text-slate-400 font-medium">
-              {ranked.length} Teilnehmer
-            </span>
-          )}
-        </div>
+        {ranked.length > 0 && (
+          <span className="text-sm text-slate-400 font-medium shrink-0">
+            {ranked.length} Teilnehmer
+          </span>
+        )}
       </div>
 
       {isLoading && (
@@ -188,7 +213,13 @@ export function LeaderboardPage() {
         <div className="text-sm text-red-600 py-8 text-center">Rangliste konnte nicht geladen werden.</div>
       )}
 
-      {ranked.length > 0 && (
+      {!isLoading && !isError && isNotStarted && (
+        <div className="rounded-2xl bg-indigo-50 border border-indigo-200 min-h-[420px] flex flex-col items-center justify-center gap-4 px-8 py-10">
+          <PreStartBanner startsAt={result!.startsAt!} entries={ranked} />
+        </div>
+      )}
+
+      {!isLoading && !isError && !isNotStarted && ranked.length > 0 && (
         <>
           <div className="grid grid-cols-3 gap-3 items-end">
             {PODIUM_CONFIG.map((config) => {
@@ -270,7 +301,7 @@ export function LeaderboardPage() {
         </>
       )}
 
-      {!isLoading && ranked.length === 0 && (
+      {!isLoading && !isError && !isNotStarted && ranked.length === 0 && (
         <div className="text-sm text-slate-400 text-center py-16">Noch keine Einträge.</div>
       )}
     </div>

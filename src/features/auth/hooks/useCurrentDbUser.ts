@@ -8,6 +8,7 @@ export function useCurrentDbUser() {
   return useQuery({
     queryKey: authKeys.currentDbUser(),
     queryFn:  getCurrentDbUser,
-    staleTime: 5 * 60_000,
+    staleTime: 15 * 60_000,
+    refetchOnWindowFocus: false,
   });
 }

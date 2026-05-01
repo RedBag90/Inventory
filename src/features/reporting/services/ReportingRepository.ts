@@ -25,7 +25,22 @@ async function resolveUserId(targetUserId?: string): Promise<string> {
   return targetUserId;
 }
 
-const SALE_INCLUDE = { item: { include: { costs: true } } } as const;
+const SALE_SELECT = {
+  salePrice:       true,
+  shippingCostOut: true,
+  soldAt:          true,
+  item: {
+    select: {
+      id:             true,
+      name:           true,
+      purchasePrice:  true,
+      shippingCostIn: true,
+      repairCost:     true,
+      purchasedAt:    true,
+      costs: { select: { amount: true } },
+    },
+  },
+} as const;
 
 type SaleWithItem = {
   salePrice:       { toNumber(): number };
@@ -54,7 +69,7 @@ export async function getMonthlyReport(year: number, month: number, targetUserId
   const userId = await resolveUserId(targetUserId);
   const start = new Date(Date.UTC(year, month - 1, 1));
   const end   = new Date(Date.UTC(year, month, 1));
-  const sales = await prisma.sale.findMany({ where: { soldAt: { gte: start, lt: end }, item: { userId } }, include: SALE_INCLUDE });
+  const sales = await prisma.sale.findMany({ where: { soldAt: { gte: start, lt: end }, item: { userId } }, select: SALE_SELECT });
   let revenue = 0, costs = 0, profit = 0;
   for (const sale of sales) { const m = computeSaleMetrics(sale); revenue += m.revenue; costs += m.costs; profit += m.profit; }
   return { year, month, revenue, costs, profit, itemsSold: sales.length };
@@ -65,7 +80,7 @@ export async function getQuarterlyReport(year: number, quarter: 1 | 2 | 3 | 4, t
   const startMonth = (quarter - 1) * 3;
   const start      = new Date(Date.UTC(year, startMonth, 1));
   const end        = new Date(Date.UTC(year, startMonth + 3, 1));
-  const sales = await prisma.sale.findMany({ where: { soldAt: { gte: start, lt: end }, item: { userId } }, include: SALE_INCLUDE });
+  const sales = await prisma.sale.findMany({ where: { soldAt: { gte: start, lt: end }, item: { userId } }, select: SALE_SELECT });
   let revenue = 0, costs = 0, profit = 0;
   for (const sale of sales) { const m = computeSaleMetrics(sale); revenue += m.revenue; costs += m.costs; profit += m.profit; }
   return { year, quarter, revenue, costs, profit, itemsSold: sales.length };
@@ -73,7 +88,7 @@ export async function getQuarterlyReport(year: number, quarter: 1 | 2 | 3 | 4, t
 
 export async function getCumulativeReport(targetUserId?: string): Promise<CumulativeReport> {
   const userId = await resolveUserId(targetUserId);
-  const sales = await prisma.sale.findMany({ where: { item: { userId } }, include: SALE_INCLUDE });
+  const sales = await prisma.sale.findMany({ where: { item: { userId } }, select: SALE_SELECT });
   let revenue = 0, costs = 0, profit = 0, totalStorageDays = 0;
   for (const sale of sales) {
     const m = computeSaleMetrics(sale);
@@ -112,7 +127,7 @@ export async function getRangeReport(
   // Revenue + sold-item costs (items sold in this period)
   const sales = await prisma.sale.findMany({
     where: { soldAt: { gte: start, lt: end }, item: { userId } },
-    include: SALE_INCLUDE,
+    select: SALE_SELECT,
   });
   let revenue = 0, costs = 0, profit = 0;
   for (const sale of sales) {
@@ -142,7 +157,7 @@ export async function getSaleLineItems(start: Date, end: Date | null, targetUser
   const userId = await resolveUserId(targetUserId);
   const sales = await prisma.sale.findMany({
     where: { item: { userId }, soldAt: { gte: start, ...(end ? { lt: end } : {}) } },
-    include: SALE_INCLUDE,
+    select: SALE_SELECT,
     orderBy: { soldAt: 'desc' },
   });
   return sales.map((sale) => { const m = computeSaleMetrics(sale); return { id: sale.item.id, name: sale.item.name, soldAt: sale.soldAt, ...m }; });
@@ -164,7 +179,7 @@ export async function getAllDailyReports(
   // Revenue: items sold in range, bucketed by soldAt
   const sales = await prisma.sale.findMany({
     where: { soldAt: { gte: from, lt: to }, item: { userId } },
-    include: SALE_INCLUDE,
+    select: SALE_SELECT,
   });
   for (const sale of sales) {
     const key = sale.soldAt.toISOString().split('T')[0];
@@ -208,7 +223,7 @@ export async function getAllMonthlyReports(year: number, targetUserId?: string):
   // Revenue: items sold this year, bucketed by soldAt
   const sales = await prisma.sale.findMany({
     where: { soldAt: { gte: start, lt: end }, item: { userId } },
-    include: SALE_INCLUDE,
+    select: SALE_SELECT,
   });
   for (const sale of sales) {
     const month = sale.soldAt.getUTCMonth() + 1;

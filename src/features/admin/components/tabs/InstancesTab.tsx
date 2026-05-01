@@ -1,16 +1,22 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useInstances, useInstanceOlympiads, useTransferOlympiadOwner } from '../../hooks/useInstances';
 import { useOlympiadMembers, useUpdateOlympiad } from '@/features/olympiad/hooks/useOlympiads';
 import type { AdminInstanceRecord } from '../../services/AdminRepository';
 
 export function InstancesTab() {
   const { data: instances, isLoading, isError, refetch } = useInstances();
-  const [selectedInstance, setSelectedInstance] = useState<AdminInstanceRecord | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  if (selectedInstance) {
-    return <InstanceDetail instance={selectedInstance} onBack={() => setSelectedInstance(null)} />;
+  // Use live-derived instance so it reflects refetch results after mutations
+  const selectedInstance = selectedId
+    ? (instances?.find(i => i.id === selectedId) ?? null)
+    : null;
+
+  if (selectedId) {
+    if (!selectedInstance) return null;
+    return <InstanceDetail instance={selectedInstance} onBack={() => setSelectedId(null)} />;
   }
 
   const grouped = instances?.reduce<Record<string, { ownerEmail: string; rows: AdminInstanceRecord[] }>>((acc, i) => {
@@ -45,7 +51,7 @@ export function InstancesTab() {
             <table className="w-full">
               <tbody className="divide-y divide-slate-100">
                 {rows.map(r => (
-                  <tr key={r.id} className="hover:bg-slate-50 transition-colors cursor-pointer" onClick={() => setSelectedInstance(r)}>
+                  <tr key={r.id} className="hover:bg-slate-50 transition-colors cursor-pointer" onClick={() => setSelectedId(r.id)}>
                     <td className="py-3 pl-5 pr-4">
                       <p className="text-sm font-medium text-slate-900">{r.name}</p>
                       {r.description && (
@@ -80,12 +86,13 @@ export function InstancesTab() {
 function InstanceDetail({ instance, onBack }: { instance: AdminInstanceRecord; onBack: () => void }) {
   const { data: olympiads } = useInstanceOlympiads(instance.createdById);
   const { data: members, isLoading: membersLoading } = useOlympiadMembers(instance.id);
-  const { mutate: update } = useUpdateOlympiad();
+  const { mutate: update, error: updateError, reset: resetError } = useUpdateOlympiad();
   const { mutate: transfer, isPending: transferring, error: transferError, reset: resetTransfer } = useTransferOlympiadOwner();
   const [transferEmail, setTransferEmail] = useState('');
   const [transferSuccess, setTransferSuccess] = useState(false);
 
   function save(field: string, value: string) {
+    resetError();
     const data: Record<string, string | Date> = {};
     if (field === 'startsAt' || field === 'endsAt') data[field] = new Date(value);
     else data[field] = value;
@@ -130,6 +137,9 @@ function InstanceDetail({ instance, onBack }: { instance: AdminInstanceRecord; o
         <div className="grid grid-cols-2 gap-4">
           <InstanceEditableField label="Startdatum" value={fmt(instance.startsAt)} type="date" onSave={v => save('startsAt', v)} />
           <InstanceEditableField label="Enddatum"   value={fmt(instance.endsAt)}   type="date" onSave={v => save('endsAt',   v)} />
+          {updateError && (
+            <p className="col-span-2 text-xs text-red-600">{(updateError as Error).message}</p>
+          )}
         </div>
       </div>
 
@@ -250,6 +260,10 @@ function InstanceEditableField({
   const [editing, setEditing] = useState(false);
   const [val, setVal] = useState(value);
 
+  useEffect(() => {
+    if (!editing) setVal(value);
+  }, [value]); // eslint-disable-line react-hooks/exhaustive-deps
+
   function save() {
     if (val.trim()) { onSave(val.trim()); setEditing(false); }
   }
@@ -277,7 +291,7 @@ function InstanceEditableField({
           <button onClick={() => { setVal(value); setEditing(false); }} className="text-xs text-slate-400 hover:text-slate-600 px-1 transition-colors">✕</button>
         </div>
       ) : (
-        <p className="text-sm text-slate-800">{value || <span className="text-slate-400 italic">—</span>}</p>
+        <p className="text-sm text-slate-800">{val || <span className="text-slate-400 italic">—</span>}</p>
       )}
     </div>
   );

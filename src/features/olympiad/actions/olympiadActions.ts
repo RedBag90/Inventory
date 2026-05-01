@@ -71,6 +71,17 @@ export async function updateOlympiad(instanceId: string, data: {
 }) {
   const userId = await getCurrentUserId();
   await assertOwner(instanceId, userId);
+
+  if (data.startsAt !== undefined || data.endsAt !== undefined) {
+    const current = await prisma.olympiadInstance.findUniqueOrThrow({
+      where:  { id: instanceId },
+      select: { startsAt: true, endsAt: true },
+    });
+    const newStart = data.startsAt ?? current.startsAt;
+    const newEnd   = data.endsAt   ?? current.endsAt;
+    if (newStart >= newEnd) throw new Error('Startdatum muss vor dem Enddatum liegen');
+  }
+
   await prisma.olympiadInstance.update({
     where: { id: instanceId },
     data,
@@ -103,6 +114,8 @@ export async function deleteOlympiad(instanceId: string) {
   await assertOwner(instanceId, userId);
   const memberCount = await prisma.instanceMembership.count({ where: { instanceId } });
   if (memberCount > 0) throw new Error('Instanz hat noch Teilnehmer. Bitte zuerst alle entfernen.');
+  await prisma.joinRequest.deleteMany({ where: { instanceId } });
+  await prisma.pendingEmailInvite.deleteMany({ where: { instanceId } });
   await prisma.olympiadInstance.delete({ where: { id: instanceId } });
   revalidate();
 }

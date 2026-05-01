@@ -55,9 +55,11 @@ export async function createSale(data: RecordSaleInput): Promise<{ newBadges: Aw
     prisma.item.update({ where: { id: parsed.itemId }, data: { status: 'SOLD' } }),
   ]);
 
-  const saleBadges        = await checkAndAwardBadges({ type: 'sale_recorded', userId, storageDays, singleItemProfit });
-  const leaderboardBadges = await checkLeaderboardBadges(userId);
-  const streakBadges      = await checkStreakBadges(userId);
+  const [saleBadges, leaderboardBadges, streakBadges] = await Promise.all([
+    checkAndAwardBadges({ type: 'sale_recorded', userId, storageDays, singleItemProfit }),
+    checkLeaderboardBadges(userId),
+    checkStreakBadges(userId),
+  ]);
   return { newBadges: [...saleBadges, ...leaderboardBadges, ...streakBadges] };
 }
 
@@ -94,8 +96,10 @@ export async function createQuickSale(data: QuickSellInput): Promise<{ newBadges
   });
 
   const singleItemProfit = parsed.salePrice - (parsed.shippingCostOut ?? 0);
-  const saleBadges        = await checkAndAwardBadges({ type: 'sale_recorded', userId, storageDays: 0, isQuickSell: true, singleItemProfit });
-  const leaderboardBadges = await checkLeaderboardBadges(userId);
-  const streakBadges      = await checkStreakBadges(userId);
+  const [saleBadges, leaderboardBadges, streakBadges] = await Promise.all([
+    checkAndAwardBadges({ type: 'sale_recorded', userId, storageDays: 0, isQuickSell: true, singleItemProfit }),
+    checkLeaderboardBadges(userId),
+    checkStreakBadges(userId),
+  ]);
   return { newBadges: [...saleBadges, ...leaderboardBadges, ...streakBadges] };
 }
