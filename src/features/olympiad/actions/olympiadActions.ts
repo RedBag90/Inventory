@@ -114,6 +114,8 @@ export async function deleteOlympiad(instanceId: string) {
   await assertOwner(instanceId, userId);
   const memberCount = await prisma.instanceMembership.count({ where: { instanceId } });
   if (memberCount > 0) throw new Error('Instanz hat noch Teilnehmer. Bitte zuerst alle entfernen.');
+  await prisma.joinRequest.deleteMany({ where: { instanceId } });
+  await prisma.pendingEmailInvite.deleteMany({ where: { instanceId } });
   await prisma.olympiadInstance.delete({ where: { id: instanceId } });
   revalidate();
 }

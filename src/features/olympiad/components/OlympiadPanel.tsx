@@ -84,7 +84,7 @@ function OlympiadRow({
 }) {
   const { mutate: archive,    isPending: archiving    } = useArchiveOlympiad();
   const { mutate: reactivate, isPending: reactivating } = useReactivateOlympiad();
-  const { mutate: del,        isPending: deleting     } = useDeleteOlympiad();
+  const { mutate: del,        isPending: deleting,    error: deleteError } = useDeleteOlympiad();
   const busy = archiving || reactivating || deleting;
 
   return (
@@ -123,12 +123,17 @@ function OlympiadRow({
               </button>
             )}
             {instance.memberCount === 0 && (
-              <button
-                onClick={() => { if (confirm('Olympiade wirklich löschen?')) del(instance.id); }}
-                disabled={busy}
-                className="text-xs text-red-500 hover:text-red-700 underline disabled:opacity-40 transition-colors">
-                Löschen
-              </button>
+              <div className="flex flex-col items-end gap-0.5">
+                <button
+                  onClick={() => { if (confirm('Olympiade wirklich löschen?')) del(instance.id); }}
+                  disabled={busy}
+                  className="text-xs text-red-500 hover:text-red-700 underline disabled:opacity-40 transition-colors">
+                  Löschen
+                </button>
+                {deleteError && (
+                  <p className="text-xs text-red-600">{(deleteError as Error).message}</p>
+                )}
+              </div>
             )}
           </div>
         )}

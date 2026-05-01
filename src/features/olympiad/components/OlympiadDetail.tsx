@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   useOlympiadMembers,
   useUpdateOlympiad,
@@ -34,8 +34,9 @@ function EditableField({
   const [editing, setEditing] = useState(false);
   const [val, setVal] = useState(value);
 
-  // Keep val in sync with external value changes (e.g. after refetch) when not editing
-  if (!editing && val !== value) setVal(value);
+  useEffect(() => {
+    if (!editing) setVal(value);
+  }, [value]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function save() {
     if (val.trim()) { onSave(val.trim()); setEditing(false); }

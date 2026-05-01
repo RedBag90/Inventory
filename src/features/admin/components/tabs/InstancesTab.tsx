@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useInstances, useInstanceOlympiads, useTransferOlympiadOwner } from '../../hooks/useInstances';
 import { useOlympiadMembers, useUpdateOlympiad } from '@/features/olympiad/hooks/useOlympiads';
 import type { AdminInstanceRecord } from '../../services/AdminRepository';
@@ -260,8 +260,9 @@ function InstanceEditableField({
   const [editing, setEditing] = useState(false);
   const [val, setVal] = useState(value);
 
-  // Sync val with external prop changes (e.g. after refetch) when not editing
-  if (!editing && val !== value) setVal(value);
+  useEffect(() => {
+    if (!editing) setVal(value);
+  }, [value]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function save() {
     if (val.trim()) { onSave(val.trim()); setEditing(false); }
