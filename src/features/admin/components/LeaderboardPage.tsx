@@ -57,27 +57,29 @@ type Entry = {
 };
 
 const PODIUM_CONFIG = [
-  { rank: 2, medal: '🥈', bar: 'bg-slate-300',  card: 'bg-slate-50  border-slate-200',  order: 'order-first', h: 'h-[200px]' },
-  { rank: 1, medal: '🥇', bar: 'bg-amber-400',  card: 'bg-amber-50  border-amber-300',  order: 'order-none',  h: 'h-[240px]' },
-  { rank: 3, medal: '🥉', bar: 'bg-orange-300', card: 'bg-orange-50 border-orange-200', order: 'order-last',  h: 'h-[170px]' },
+  { rank: 2, medal: '🥈', card: 'bg-gradient-to-b from-slate-50 to-slate-100 ring-1 ring-slate-300 shadow-md',                         avatarRing: 'ring-2 ring-slate-400 ring-offset-2',  rankNum: 'text-slate-300',  order: 'order-first', h: 'h-[210px]' },
+  { rank: 1, medal: '🥇', card: 'bg-gradient-to-b from-amber-50 to-amber-100 ring-2 ring-amber-400 shadow-xl shadow-amber-200/60',      avatarRing: 'ring-2 ring-amber-400 ring-offset-2',  rankNum: 'text-amber-200',  order: 'order-none',  h: 'h-[250px]' },
+  { rank: 3, medal: '🥉', card: 'bg-gradient-to-b from-orange-50 to-orange-100 ring-1 ring-orange-300 shadow-lg shadow-orange-100/60',  avatarRing: 'ring-2 ring-orange-400 ring-offset-2', rankNum: 'text-orange-200', order: 'order-last',  h: 'h-[180px]' },
 ] as const;
 
 function PodiumCard({ user, config }: { user: Entry; config: typeof PODIUM_CONFIG[number] }) {
   const label = user.displayName ?? user.email;
   return (
     <div className={[
-      'relative flex flex-col items-center rounded-xl border overflow-hidden',
+      'relative flex flex-col items-center rounded-2xl overflow-hidden',
       config.card, config.h,
     ].join(' ')}>
-      <div className={['w-full h-1 shrink-0', config.bar].join(' ')} />
+      {/* Background rank number */}
+      <span className={['absolute bottom-1 right-3 text-7xl font-black select-none pointer-events-none leading-none', config.rankNum].join(' ')}>
+        {config.rank}
+      </span>
 
-      <div className="flex flex-col items-center justify-center gap-1 flex-1 px-3 py-2 text-center min-w-0 w-full">
-        <div className="flex items-center gap-2">
-          <span className="text-xl leading-none">{config.medal}</span>
-          <span className="w-9 h-9 rounded-full bg-indigo-700 text-white text-xs font-bold flex items-center justify-center shrink-0">
-            {initials(label)}
-          </span>
-        </div>
+      <div className="relative flex flex-col items-center justify-center gap-2 flex-1 px-4 py-3 text-center min-w-0 w-full">
+        <span className="text-3xl leading-none">{config.medal}</span>
+
+        <span className={['w-11 h-11 rounded-full bg-indigo-700 text-white text-sm font-bold flex items-center justify-center shrink-0', config.avatarRing].join(' ')}>
+          {initials(label)}
+        </span>
 
         <div className="min-w-0 w-full">
           <p className="text-sm font-semibold text-slate-900 truncate">{label}</p>
