@@ -1,5 +1,6 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
@@ -9,8 +10,12 @@ import { useAllDailyReports }   from '../hooks/useAllDailyReports';
 import { useCumulativeReport }  from '../hooks/useCumulativeReport';
 import { useRangeReport }       from '../hooks/useRangeReport';
 import { KPICard }              from './KPICard';
-import { RevenueChart }         from './RevenueChart';
 import type { ChartEntry }      from './RevenueChart';
+
+const RevenueChart = dynamic(
+  () => import('./RevenueChart').then((m) => ({ default: m.RevenueChart })),
+  { ssr: false },
+);
 import { ProfitTable }          from './ProfitTable';
 import { formatCurrency }       from '@/shared/lib/utils';
 import { getSaleLineItems }     from '../services/ReportingRepository';
