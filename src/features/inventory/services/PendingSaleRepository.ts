@@ -3,6 +3,8 @@
 import { prisma } from '@/shared/lib/prisma';
 import { getCurrentUserId } from '@/shared/lib/auth/getCurrentUserId';
 import { checkAndAwardBadges } from '@/features/badges/services/BadgeAwardService';
+import { checkLeaderboardBadges } from '@/features/badges/services/leaderboardBadgeService';
+import { checkStreakBadges } from '@/features/badges/services/streakBadgeService';
 import { calculateStorageDays } from '@/shared/lib/calculations';
 import { revalidatePath } from 'next/cache';
 import {
@@ -51,7 +53,7 @@ export async function confirmPendingSale(
 
   const item = await prisma.item.findFirst({
     where:   { id: itemId, userId },
-    include: { pendingSale: true },
+    include: { pendingSale: true, costs: true },
   });
   if (!item)            throw new Error('Item not found');
   if (!item.pendingSale) throw new Error('No pending sale found');
@@ -75,12 +77,24 @@ export async function confirmPendingSale(
     prisma.item.update({ where: { id: itemId }, data: { status: 'SOLD' } }),
   ]);
 
-  const newBadges = await checkAndAwardBadges({ type: 'sale_recorded', userId, storageDays });
+  const numSalePrice      = parsed?.salePrice       ?? item.pendingSale.salePrice.toNumber();
+  const numShippingOut    = parsed?.shippingCostOut  ?? item.pendingSale.shippingCostOut.toNumber();
+  const singleItemProfit  =
+    numSalePrice
+    - item.purchasePrice.toNumber()
+    - item.shippingCostIn.toNumber()
+    - item.repairCost.toNumber()
+    - numShippingOut
+    - item.costs.reduce((s, c) => s + c.amount.toNumber(), 0);
+
+  const saleBadges        = await checkAndAwardBadges({ type: 'sale_recorded', userId, storageDays, singleItemProfit });
+  const leaderboardBadges = await checkLeaderboardBadges(userId);
+  const streakBadges      = await checkStreakBadges(userId);
 
   revalidatePath('/dashboard/inventory');
   revalidatePath('/dashboard');
 
-  return { newBadges };
+  return { newBadges: [...saleBadges, ...leaderboardBadges, ...streakBadges] };
 }
 
 export async function cancelPendingSale(itemId: string): Promise<void> {

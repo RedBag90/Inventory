@@ -218,7 +218,7 @@ export function ReportingPage() {
   const searchParams   = useSearchParams();
   const urlTargetUser  = searchParams.get('userId') ?? undefined;
 
-  const { data: earliestDate } = useQuery({
+  const { data: earliestDate, isLoading: earliestLoading } = useQuery({
     queryKey: ['earliest-item-date', urlTargetUser ?? 'self'],
     queryFn:  () => getEarliestItemDate(urlTargetUser),
     staleTime: 5 * 60_000,
@@ -226,6 +226,8 @@ export function ReportingPage() {
   });
 
   const { view, from, to, targetUser, update } = useFilters(earliestDate ?? undefined);
+
+  const fromInUrl = searchParams.get('from');
 
   return (
     <div className="space-y-6">
@@ -262,7 +264,11 @@ export function ReportingPage() {
         </div>
       )}
 
-      {(!isAdmin || targetUser) && (
+      {(!isAdmin || targetUser) && earliestLoading && !fromInUrl && view !== 'cumulative' && (
+        <ReportingSkeleton />
+      )}
+
+      {(!isAdmin || targetUser) && (!earliestLoading || !!fromInUrl || view === 'cumulative') && (
         <>
           <div data-tutorial="reporting-tabs" className="flex gap-1 border-b border-slate-200">
             {(['daily', 'monthly', 'quarterly', 'cumulative'] as View[]).map((v) => (

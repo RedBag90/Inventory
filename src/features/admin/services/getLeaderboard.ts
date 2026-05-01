@@ -114,7 +114,6 @@ export async function getLeaderboard(instanceIdOverride?: string): Promise<Leade
       userBadges: {
         include: { badge: { select: { slug: true, tier: true, sortOrder: true } } },
         orderBy: [{ badge: { sortOrder: 'desc' } }],
-        take:    3,
       },
     },
   });
@@ -145,7 +144,7 @@ export async function getLeaderboard(instanceIdOverride?: string): Promise<Leade
       soldCount:      soldItems.length,
       totalProfit,
       snapshotProfit,
-      topBadges: u.userBadges.map((ub) => ({ slug: ub.badge.slug, tier: ub.badge.tier })),
+      topBadges: u.userBadges.slice(0, 3).map((ub) => ({ slug: ub.badge.slug, tier: ub.badge.tier })),
     };
   });
 

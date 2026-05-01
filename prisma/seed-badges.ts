@@ -27,6 +27,18 @@ const BADGES = [
   // ENGAGEMENT
   { slug: 'display-name', category: 'ENGAGEMENT', tier: 'BRONZE', sortOrder: 50, criteria: { type: 'engagement', event: 'display_name_set' } },
   { slug: 'tutorial-done', category: 'ENGAGEMENT', tier: 'BRONZE', sortOrder: 51, criteria: { type: 'engagement', event: 'tutorial_done' } },
+  // STREAK
+  { slug: 'streak-2w',  category: 'STREAK', tier: 'BRONZE', sortOrder: 60, criteria: { type: 'sales_streak', threshold: 2 } },
+  { slug: 'streak-4w',  category: 'STREAK', tier: 'SILVER', sortOrder: 61, criteria: { type: 'sales_streak', threshold: 4 } },
+  { slug: 'streak-8w',  category: 'STREAK', tier: 'GOLD',   sortOrder: 62, criteria: { type: 'sales_streak', threshold: 8 } },
+  // BIG_DEAL
+  { slug: 'deal-50',   category: 'BIG_DEAL', tier: 'BRONZE', sortOrder: 70, criteria: { type: 'single_deal_profit', threshold: 50   } },
+  { slug: 'deal-100',  category: 'BIG_DEAL', tier: 'SILVER', sortOrder: 71, criteria: { type: 'single_deal_profit', threshold: 100  } },
+  { slug: 'deal-250',  category: 'BIG_DEAL', tier: 'GOLD',   sortOrder: 72, criteria: { type: 'single_deal_profit', threshold: 250  } },
+  // PORTFOLIO
+  { slug: 'stock-5',   category: 'PORTFOLIO', tier: 'BRONZE', sortOrder: 80, criteria: { type: 'portfolio_size', threshold: 5  } },
+  { slug: 'stock-10',  category: 'PORTFOLIO', tier: 'SILVER', sortOrder: 81, criteria: { type: 'portfolio_size', threshold: 10 } },
+  { slug: 'stock-25',  category: 'PORTFOLIO', tier: 'GOLD',   sortOrder: 82, criteria: { type: 'portfolio_size', threshold: 25 } },
 ] as const;
 
 export async function seedBadges() {

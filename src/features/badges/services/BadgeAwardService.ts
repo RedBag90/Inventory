@@ -3,13 +3,15 @@
 import { prisma } from '@/shared/lib/prisma';
 import { computeProfit } from '@/shared/lib/calculations';
 import { BadgeCriteriaSchema } from '../types/badge.types';
+import { evaluateCriteria } from '../lib/badgeCriteriaEvaluator';
 import type { AwardedBadge } from '../types/badge.types';
 
 export type BadgeTrigger =
-  | { type: 'sale_recorded';    userId: string; storageDays?: number; isQuickSell?: boolean }
-  | { type: 'item_created';     userId: string }
+  | { type: 'sale_recorded';    userId: string; storageDays?: number; isQuickSell?: boolean; singleItemProfit?: number }
+  | { type: 'item_created';     userId: string; currentStockCount?: number }
   | { type: 'engagement';       userId: string; event: string }
-  | { type: 'leaderboard_check'; userId: string; rank: number };
+  | { type: 'leaderboard_check'; userId: string; rank: number }
+  | { type: 'streak_check';     userId: string; streak: number };
 
 export async function checkAndAwardBadges(trigger: BadgeTrigger): Promise<AwardedBadge[]> {
   const { userId } = trigger;
@@ -33,21 +35,7 @@ export async function checkAndAwardBadges(trigger: BadgeTrigger): Promise<Awarde
     if (earnedIds.has(badge.id)) continue;
 
     const criteria = BadgeCriteriaSchema.parse(badge.criteria);
-    let qualifies = false;
-
-    if (criteria.type === 'items_bought' && trigger.type === 'item_created') {
-      qualifies = stats.itemsBought >= criteria.threshold;
-    } else if (criteria.type === 'items_sold' && trigger.type === 'sale_recorded') {
-      qualifies = stats.itemsSold >= criteria.threshold;
-    } else if (criteria.type === 'total_profit' && trigger.type === 'sale_recorded') {
-      qualifies = stats.totalProfit >= criteria.threshold;
-    } else if (criteria.type === 'speed_days' && trigger.type === 'sale_recorded' && !trigger.isQuickSell) {
-      qualifies = trigger.storageDays !== undefined && trigger.storageDays <= criteria.threshold;
-    } else if (criteria.type === 'leaderboard_rank' && trigger.type === 'leaderboard_check') {
-      qualifies = trigger.rank <= criteria.threshold;
-    } else if (criteria.type === 'engagement' && trigger.type === 'engagement') {
-      qualifies = trigger.event === criteria.event;
-    }
+    const qualifies = evaluateCriteria(criteria, trigger, stats);
 
     if (qualifies) {
       const userBadge = await prisma.userBadge.create({

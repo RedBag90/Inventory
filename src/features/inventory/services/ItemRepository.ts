@@ -126,7 +126,8 @@ export async function createItem(data: CreateItemInput): Promise<{ item: ItemWit
     },
     include: ITEM_INCLUDE,
   });
-  const newBadges = await checkAndAwardBadges({ type: 'item_created', userId });
+  const currentStockCount = await prisma.item.count({ where: { userId, status: 'IN_STOCK' } });
+  const newBadges = await checkAndAwardBadges({ type: 'item_created', userId, currentStockCount });
   return { item: toPlain(raw), newBadges };
 }
 

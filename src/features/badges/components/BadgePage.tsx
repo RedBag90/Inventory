@@ -6,7 +6,7 @@ import { useMyBadgesPageData } from '../hooks/useBadges';
 import { BadgeCard } from './BadgeCard';
 import type { BadgeCategory } from '../types/badge.types';
 
-const CATEGORY_ORDER: BadgeCategory[] = ['SALES', 'PROFIT', 'EFFICIENCY', 'INVENTORY', 'LEADERBOARD', 'ENGAGEMENT', 'SPECIAL'];
+const CATEGORY_ORDER: BadgeCategory[] = ['SALES', 'PROFIT', 'BIG_DEAL', 'EFFICIENCY', 'STREAK', 'INVENTORY', 'PORTFOLIO', 'LEADERBOARD', 'ENGAGEMENT', 'SPECIAL'];
 
 export function BadgePage() {
   const t = useTranslations('badges');
@@ -23,7 +23,7 @@ export function BadgePage() {
     );
   }
 
-  const earnedMap = new Map(data.earned.map((e) => [e.badge.id, e]));
+  const earnedMap   = new Map(data.earned.map((e) => [e.badge.id, e]));
   const earnedCount = data.earned.length;
 
   const categories = CATEGORY_ORDER.filter((c) =>

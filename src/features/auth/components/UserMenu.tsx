@@ -32,7 +32,7 @@ export function UserMenu() {
   const setLocale = useSetLocale();
   const { user, isLoading }   = useCurrentUser();
   const { data: dbUser }      = useCurrentDbUser();
-  const { data: badgeCount }  = useMyBadgeCount();
+  const { data: badgeCount }    = useMyBadgeCount();
   const router                = useRouter();
   const queryClient           = useQueryClient();
   const { restart: restartTutorial } = useTutorial();

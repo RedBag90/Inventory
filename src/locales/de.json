@@ -305,30 +305,126 @@
       "INVENTORY": "Inventar",
       "LEADERBOARD": "Rangliste",
       "ENGAGEMENT": "Engagement",
-      "SPECIAL": "Sonderabzeichen"
+      "SPECIAL": "Sonderabzeichen",
+      "STREAK": "Streak",
+      "PORTFOLIO": "Portfolio",
+      "BIG_DEAL": "Big Deal"
     },
     "tiers": {
       "BRONZE": "Bronze",
       "SILVER": "Silber",
       "GOLD": "Gold"
     },
-    "first-item":    { "name": "Erste Beute",       "description": "Deinen ersten Artikel ins Inventar aufgenommen." },
-    "buyer-10":      { "name": "Einkäufer",          "description": "10 Artikel gekauft." },
-    "buyer-25":      { "name": "Großeinkäufer",      "description": "25 Artikel gekauft." },
-    "buyer-50":      { "name": "Lagerhaus",          "description": "50 Artikel gekauft." },
-    "first-sale":    { "name": "Erster Verkauf",     "description": "Deinen ersten Artikel verkauft." },
-    "seller-10":     { "name": "Händler",            "description": "10 Artikel verkauft." },
-    "seller-25":     { "name": "Profi-Händler",      "description": "25 Artikel verkauft." },
-    "seller-50":     { "name": "Meister-Händler",    "description": "50 Artikel verkauft." },
-    "profit-100":    { "name": "Erster Hunderter",   "description": "€100 Gesamtgewinn erreicht." },
-    "profit-500":    { "name": "Fünfhundert Club",   "description": "€500 Gesamtgewinn erreicht." },
-    "profit-1000":   { "name": "Tausender",          "description": "€1.000 Gesamtgewinn erreicht." },
-    "profit-5000":   { "name": "Big Flipper",        "description": "€5.000 Gesamtgewinn erreicht." },
-    "speed-3d":      { "name": "Schnellschuss",      "description": "Einen Artikel innerhalb von 3 Tagen nach Kauf verkauft." },
-    "speed-1d":      { "name": "Blitzverkäufer",     "description": "Einen Artikel am selben Tag verkauft." },
-    "top-3":         { "name": "Podium",             "description": "Top-3-Platzierung in einer Saison erreicht." },
-    "champion":      { "name": "Champion",           "description": "Platz 1 in einer Saison belegt." },
-    "display-name":  { "name": "Gesicht der Masse",  "description": "Einen Anzeigenamen festgelegt." },
-    "tutorial-done": { "name": "Eingewöhnt",         "description": "Das Tutorial abgeschlossen." }
+    "first-item": {
+      "name": "Erste Beute",
+      "description": "Deinen ersten Artikel ins Inventar aufgenommen."
+    },
+    "buyer-10": {
+      "name": "Einkäufer",
+      "description": "10 Artikel gekauft."
+    },
+    "buyer-25": {
+      "name": "Großeinkäufer",
+      "description": "25 Artikel gekauft."
+    },
+    "buyer-50": {
+      "name": "Lagerhaus",
+      "description": "50 Artikel gekauft."
+    },
+    "first-sale": {
+      "name": "Erster Verkauf",
+      "description": "Deinen ersten Artikel verkauft."
+    },
+    "seller-10": {
+      "name": "Händler",
+      "description": "10 Artikel verkauft."
+    },
+    "seller-25": {
+      "name": "Profi-Händler",
+      "description": "25 Artikel verkauft."
+    },
+    "seller-50": {
+      "name": "Meister-Händler",
+      "description": "50 Artikel verkauft."
+    },
+    "profit-100": {
+      "name": "Erster Hunderter",
+      "description": "€100 Gesamtgewinn erreicht."
+    },
+    "profit-500": {
+      "name": "Fünfhundert Club",
+      "description": "€500 Gesamtgewinn erreicht."
+    },
+    "profit-1000": {
+      "name": "Tausender",
+      "description": "€1.000 Gesamtgewinn erreicht."
+    },
+    "profit-5000": {
+      "name": "Big Flipper",
+      "description": "€5.000 Gesamtgewinn erreicht."
+    },
+    "speed-3d": {
+      "name": "Schnellschuss",
+      "description": "Einen Artikel innerhalb von 3 Tagen nach Kauf verkauft."
+    },
+    "speed-1d": {
+      "name": "Blitzverkäufer",
+      "description": "Einen Artikel am selben Tag verkauft."
+    },
+    "top-3": {
+      "name": "Podium",
+      "description": "Top-3-Platzierung in einer Saison erreicht."
+    },
+    "champion": {
+      "name": "Champion",
+      "description": "Platz 1 in einer Saison belegt."
+    },
+    "display-name": {
+      "name": "Gesicht der Masse",
+      "description": "Einen Anzeigenamen festgelegt."
+    },
+    "tutorial-done": {
+      "name": "Eingewöhnt",
+      "description": "Das Tutorial abgeschlossen."
+    },
+    "rank": "Dein Rang",
+    "totalProfit": "Gesamtgewinn",
+    "rankNextAt": "Nächste Stufe ab {amount}",
+    "streak-2w": {
+      "name": "Am Ball",
+      "description": "2 Wochen in Folge mindestens einen Verkauf."
+    },
+    "streak-4w": {
+      "name": "Konstant",
+      "description": "4 Wochen in Folge mindestens einen Verkauf."
+    },
+    "streak-8w": {
+      "name": "Maschine",
+      "description": "8 Wochen in Folge mindestens einen Verkauf."
+    },
+    "deal-50": {
+      "name": "Guter Deal",
+      "description": "Einzelnen Deal mit €50 Gewinn abgeschlossen."
+    },
+    "deal-100": {
+      "name": "Großes Ding",
+      "description": "Einzelnen Deal mit €100 Gewinn abgeschlossen."
+    },
+    "deal-250": {
+      "name": "Jackpot",
+      "description": "Einzelnen Deal mit €250 Gewinn abgeschlossen."
+    },
+    "stock-5": {
+      "name": "Kleines Lager",
+      "description": "Gleichzeitig 5 Artikel auf Lager."
+    },
+    "stock-10": {
+      "name": "Vollsortimenter",
+      "description": "Gleichzeitig 10 Artikel auf Lager."
+    },
+    "stock-25": {
+      "name": "Großhändler",
+      "description": "Gleichzeitig 25 Artikel auf Lager."
+    }
   }
 }

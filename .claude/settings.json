@@ -74,10 +74,25 @@
       "Read(//private/tmp/**)",
       "Bash(python3 -c \"import json,sys; p=json.load\\(sys.stdin\\); [print\\(k,':',v\\) for k,v in p.get\\('scripts',{}\\).items\\(\\)]\")",
       "WebFetch(domain:sentry.io)",
-      "Bash(git rm *)"
+      "Bash(git rm *)",
+      "Bash(kill 5172 5412)",
+      "Bash(sed -i '' 's/w-full bg-black text-white rounded py-2 text-sm font-medium hover:bg-indigo-800 disabled:opacity-50 transition-colors/btn-primary w-full py-2/g' /Users/philippkoch/Documents/GitHub/Inventory/src/app/\\\\\\(auth\\\\\\)/sign-up/\\\\[\\\\[...sign-up\\\\]\\\\]/page.tsx)",
+      "Bash(sed -i '' 's/text-gray-900/text-slate-900/g; s/text-gray-500/text-slate-500/g; s/hover:text-gray-800/hover:text-slate-800/g' /Users/philippkoch/Documents/GitHub/Inventory/src/shared/components/AppErrorBoundary.tsx)",
+      "Bash(node_modules/.bin/next build *)",
+      "Bash(echo \"BUILD FINISHED exit=$?\")",
+      "Bash(git restore *)",
+      "Bash(grep -E \"\\\\.\\(ts|tsx|json\\)$\")",
+      "Bash(grep -rn \"^\\\\s*//\\\\s*[a-zA-Z_$].*=\" /Users/philippkoch/Documents/GitHub/Inventory/src --include=\"*.ts\" --include=\"*.tsx\" --include=\"*.js\" --include=\"*.jsx\" --exclude-dir=generated)",
+      "Bash(grep -rn \"const [a-zA-Z_$][a-zA-Z0-9_$]* =\" /Users/philippkoch/Documents/GitHub/Inventory/src --include=\"*.ts\" --include=\"*.tsx\" --include=\"*.js\" --include=\"*.jsx\" --exclude-dir=generated)",
+      "Bash(grep -rn \"^\\\\s*//\\\\s*[a-zA-Z_$]\" /Users/philippkoch/Documents/GitHub/Inventory/src --include=\"*.ts\" --include=\"*.tsx\" --include=\"*.js\" --include=\"*.jsx\" --exclude-dir=generated)",
+      "Bash(awk '/const FEATURES/,/const FEATURE_ICONS/{print NR\": \"$0}' '/Users/philippkoch/Documents/GitHub/Inventory/src/app/\\(auth\\)/sign-in/[[...sign-in]]/page.tsx')",
+      "WebSearch",
+      "Bash(python3 -c ' *)",
+      "Bash(npx tsx *)"
     ],
     "additionalDirectories": [
-      "/Users/philippkoch/Documents/GitHub/Inventory/.git"
+      "/Users/philippkoch/Documents/GitHub/Inventory/.git",
+      "/Users/philippkoch/Documents/GitHub/Inventory/src/app/join/[token]"
     ]
   }
 }
