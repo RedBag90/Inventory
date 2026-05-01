@@ -5,19 +5,19 @@ export type UserRank = {
   level:         number;
 };
 
-const RANKS = [
-  { title: 'Einsteiger',         icon: '⚪', threshold: 0,      level: 1 },
-  { title: 'Händler',            icon: '🟤', threshold: 100,    level: 2 },
-  { title: 'Erfahrener Händler', icon: '🟡', threshold: 500,    level: 3 },
-  { title: 'Profi',              icon: '🟠', threshold: 2_000,  level: 4 },
-  { title: 'Elite',              icon: '🔴', threshold: 5_000,  level: 5 },
-  { title: 'Legende',            icon: '💎', threshold: 15_000, level: 6 },
+export const RANKS = [
+  { title: 'Neuling',               icon: '⚪', threshold: 0,     level: 1 },
+  { title: 'Bronzehändler',         icon: '🟤', threshold: 100,   level: 2 },
+  { title: 'Silberhändler',         icon: '🟡', threshold: 400,   level: 3 },
+  { title: 'Goldmakler',            icon: '🟠', threshold: 950,   level: 4 },
+  { title: 'Platin-Guru',           icon: '🔴', threshold: 2_000, level: 5 },
+  { title: 'Flohmarkt-Olympier',    icon: '💎', threshold: 4_500, level: 6 },
 ] as const;
 
-export function getUserRank(totalProfit: number): UserRank {
+export function getUserRank(totalXP: number): UserRank {
   let current: typeof RANKS[number] = RANKS[0];
   for (const rank of RANKS) {
-    if (totalProfit >= rank.threshold) current = rank;
+    if (totalXP >= rank.threshold) current = rank;
   }
   const nextIdx = RANKS.findIndex((r) => r.level === current.level) + 1;
   const next = nextIdx < RANKS.length ? RANKS[nextIdx] : null;

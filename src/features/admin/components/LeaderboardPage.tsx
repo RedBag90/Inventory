@@ -53,6 +53,7 @@ type Entry = {
   itemCount: number;
   soldCount: number;
   totalProfit: number;
+  badgeXP: number;
   rankChange: number;
   topBadges: { slug: string; tier: string }[];
 };
@@ -258,7 +259,7 @@ export function LeaderboardPage() {
                           <p className="text-xs text-slate-400 truncate">{user.email}</p>
                         )}
                         <p className="text-[10px] text-slate-400">
-                          {(() => { const r = getUserRank(user.totalProfit); return `${r.icon} ${r.title}`; })()}
+                          {(() => { const r = getUserRank(user.badgeXP); return `${r.icon} ${r.title}`; })()}
                         </p>
                       </div>
                     </div>

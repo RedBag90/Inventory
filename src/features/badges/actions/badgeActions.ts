@@ -5,38 +5,23 @@ import { prisma } from '@/shared/lib/prisma';
 import { getCurrentUserId, getCurrentDbUser } from '@/shared/lib/auth/getCurrentUserId';
 import { ROLES } from '@/shared/types/auth';
 import { getAllBadges, getUserBadges, getUnnotifiedBadges, markBadgesNotified, awardBadgeManual } from '../services/BadgeRepository';
-import { computeProfit } from '@/shared/lib/calculations';
+import { computeTotalXP } from '../lib/xpSystem';
 import type { BadgesPageData, UserBadgeWithDefinition } from '../types/badge.types';
 
 export async function getMyBadgesPageData(): Promise<BadgesPageData> {
   const userId = await getCurrentUserId();
-  const [all, earned, soldSales] = await Promise.all([
-    getAllBadges(),
-    getUserBadges(userId),
-    prisma.sale.findMany({
-      where:  { item: { userId } },
-      select: {
-        salePrice:       true,
-        shippingCostOut: true,
-        item: { select: { purchasePrice: true, shippingCostIn: true, repairCost: true, costs: { select: { amount: true } } } },
-      },
-    }),
-  ]);
-  const totalProfit = soldSales.reduce((sum, s) => sum + computeProfit(s), 0);
-  return { all, earned, totalProfit };
+  const [all, earned] = await Promise.all([getAllBadges(), getUserBadges(userId)]);
+  const totalXP = computeTotalXP(earned);
+  return { all, earned, totalXP };
 }
 
-export async function getMyTotalProfit(): Promise<number> {
+export async function getMyXP(): Promise<number> {
   const userId = await getCurrentUserId();
-  const soldSales = await prisma.sale.findMany({
-    where:  { item: { userId } },
-    select: {
-      salePrice:       true,
-      shippingCostOut: true,
-      item: { select: { purchasePrice: true, shippingCostIn: true, repairCost: true, costs: { select: { amount: true } } } },
-    },
+  const earned = await prisma.userBadge.findMany({
+    where:  { userId },
+    select: { badge: { select: { tier: true } } },
   });
-  return soldSales.reduce((sum, s) => sum + computeProfit(s), 0);
+  return computeTotalXP(earned);
 }
 
 export async function getMyUnnotifiedBadges(): Promise<UserBadgeWithDefinition[]> {
