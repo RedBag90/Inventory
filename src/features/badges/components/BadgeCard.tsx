@@ -22,6 +22,15 @@ const BADGE_ICONS: Record<string, string> = {
   'champion':     '🥇',
   'display-name': '🪪',
   'tutorial-done':'🎓',
+  'streak-2w':    '🔥',
+  'streak-4w':    '🔥',
+  'streak-8w':    '🔥',
+  'deal-50':      '💸',
+  'deal-100':     '🤑',
+  'deal-250':     '🎰',
+  'stock-5':      '📦',
+  'stock-10':     '🏬',
+  'stock-25':     '🏭',
 };
 
 const TIER_RING: Record<string, string> = {

@@ -3,10 +3,12 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useMyBadgesPageData } from '../hooks/useBadges';
+import { getUserRank } from '../lib/rankSystem';
 import { BadgeCard } from './BadgeCard';
+import { formatCurrency } from '@/shared/lib/utils';
 import type { BadgeCategory } from '../types/badge.types';
 
-const CATEGORY_ORDER: BadgeCategory[] = ['SALES', 'PROFIT', 'EFFICIENCY', 'INVENTORY', 'LEADERBOARD', 'ENGAGEMENT', 'SPECIAL'];
+const CATEGORY_ORDER: BadgeCategory[] = ['SALES', 'PROFIT', 'BIG_DEAL', 'EFFICIENCY', 'STREAK', 'INVENTORY', 'PORTFOLIO', 'LEADERBOARD', 'ENGAGEMENT', 'SPECIAL'];
 
 export function BadgePage() {
   const t = useTranslations('badges');
@@ -25,6 +27,7 @@ export function BadgePage() {
 
   const earnedMap = new Map(data.earned.map((e) => [e.badge.id, e]));
   const earnedCount = data.earned.length;
+  const rank = getUserRank(data.totalProfit);
 
   const categories = CATEGORY_ORDER.filter((c) =>
     data.all.some((b) => b.category === c)
@@ -42,6 +45,26 @@ export function BadgePage() {
           <p className="page-subtitle">
             {earnedCount} / {data.all.length} {t('earned')}
           </p>
+        </div>
+      </div>
+
+      {/* Rank hero card */}
+      <div className="bg-gradient-to-r from-indigo-600 to-indigo-700 rounded-2xl p-5 text-white flex items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <span className="text-4xl">{rank.icon}</span>
+          <div>
+            <p className="text-xs text-indigo-200 uppercase tracking-wide font-medium mb-0.5">{t('rank')}</p>
+            <p className="text-xl font-bold leading-tight">{rank.title}</p>
+            {rank.nextThreshold !== null && (
+              <p className="text-xs text-indigo-200 mt-0.5">
+                {t('rankNextAt', { amount: formatCurrency(rank.nextThreshold) })}
+              </p>
+            )}
+          </div>
+        </div>
+        <div className="text-right shrink-0">
+          <p className="text-xs text-indigo-200 uppercase tracking-wide font-medium mb-0.5">{t('totalProfit')}</p>
+          <p className="text-xl font-bold tabular-nums">{formatCurrency(data.totalProfit)}</p>
         </div>
       </div>
 

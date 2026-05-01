@@ -234,6 +234,9 @@ enum BadgeCategory {
   LEADERBOARD
   ENGAGEMENT
   SPECIAL
+  STREAK
+  PORTFOLIO
+  BIG_DEAL
 }
 
 enum BadgeTier {

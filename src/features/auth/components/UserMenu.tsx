@@ -12,7 +12,8 @@ import { updateDisplayName } from '../actions/updateDisplayName';
 import { useTutorial } from '@/features/tutorial/context/TutorialContext';
 import { useLocale, useSetLocale } from '@/shared/hooks/useLocale';
 import { toast } from 'sonner';
-import { useMyBadgeCount } from '@/features/badges/hooks/useBadges';
+import { useMyBadgeCount, useMyTotalProfit } from '@/features/badges/hooks/useBadges';
+import { getUserRank } from '@/features/badges/lib/rankSystem';
 import { badgeKeys } from '@/features/badges/hooks/badgeKeys';
 import { BadgeToast } from '@/features/badges/components/BadgeToast';
 import type { AwardedBadge } from '@/features/badges/types/badge.types';
@@ -32,7 +33,9 @@ export function UserMenu() {
   const setLocale = useSetLocale();
   const { user, isLoading }   = useCurrentUser();
   const { data: dbUser }      = useCurrentDbUser();
-  const { data: badgeCount }  = useMyBadgeCount();
+  const { data: badgeCount }    = useMyBadgeCount();
+  const { data: totalProfit }   = useMyTotalProfit();
+  const rank = totalProfit != null ? getUserRank(totalProfit) : null;
   const router                = useRouter();
   const queryClient           = useQueryClient();
   const { restart: restartTutorial } = useTutorial();
@@ -139,6 +142,9 @@ export function UserMenu() {
               </p>
               {dbUser?.displayName && (
                 <p className="text-xs text-slate-400 truncate">{email}</p>
+              )}
+              {rank && (
+                <p className="text-xs text-slate-500 mt-0.5">{rank.icon} {rank.title}</p>
               )}
               <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
                 <span className={`inline-block text-xs font-medium px-2 py-0.5 rounded-full ${

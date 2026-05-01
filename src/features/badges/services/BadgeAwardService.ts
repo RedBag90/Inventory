@@ -6,10 +6,11 @@ import { BadgeCriteriaSchema } from '../types/badge.types';
 import type { AwardedBadge } from '../types/badge.types';
 
 export type BadgeTrigger =
-  | { type: 'sale_recorded';    userId: string; storageDays?: number; isQuickSell?: boolean }
-  | { type: 'item_created';     userId: string }
+  | { type: 'sale_recorded';    userId: string; storageDays?: number; isQuickSell?: boolean; singleItemProfit?: number }
+  | { type: 'item_created';     userId: string; currentStockCount?: number }
   | { type: 'engagement';       userId: string; event: string }
-  | { type: 'leaderboard_check'; userId: string; rank: number };
+  | { type: 'leaderboard_check'; userId: string; rank: number }
+  | { type: 'streak_check';     userId: string; streak: number };
 
 export async function checkAndAwardBadges(trigger: BadgeTrigger): Promise<AwardedBadge[]> {
   const { userId } = trigger;
@@ -47,6 +48,12 @@ export async function checkAndAwardBadges(trigger: BadgeTrigger): Promise<Awarde
       qualifies = trigger.rank <= criteria.threshold;
     } else if (criteria.type === 'engagement' && trigger.type === 'engagement') {
       qualifies = trigger.event === criteria.event;
+    } else if (criteria.type === 'sales_streak' && trigger.type === 'streak_check') {
+      qualifies = trigger.streak >= criteria.threshold;
+    } else if (criteria.type === 'single_deal_profit' && trigger.type === 'sale_recorded') {
+      qualifies = trigger.singleItemProfit !== undefined && trigger.singleItemProfit >= criteria.threshold;
+    } else if (criteria.type === 'portfolio_size' && trigger.type === 'item_created') {
+      qualifies = trigger.currentStockCount !== undefined && trigger.currentStockCount >= criteria.threshold;
     }
 
     if (qualifies) {

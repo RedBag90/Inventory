@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getMyBadgesPageData, getMyBadgeCount, getMyUnnotifiedBadges, markMyBadgesNotified } from '../actions/badgeActions';
+import { getMyBadgesPageData, getMyBadgeCount, getMyUnnotifiedBadges, markMyBadgesNotified, getMyTotalProfit } from '../actions/badgeActions';
 import { badgeKeys } from './badgeKeys';
 
 export function useMyBadgesPageData() {
@@ -16,6 +16,14 @@ export function useMyBadgeCount() {
   return useQuery({
     queryKey: badgeKeys.myCount(),
     queryFn:  getMyBadgeCount,
+    staleTime: 60_000,
+  });
+}
+
+export function useMyTotalProfit() {
+  return useQuery({
+    queryKey: badgeKeys.totalProfit(),
+    queryFn:  getMyTotalProfit,
     staleTime: 60_000,
   });
 }
