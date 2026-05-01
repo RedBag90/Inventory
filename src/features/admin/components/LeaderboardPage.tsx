@@ -5,7 +5,7 @@ import { useCurrentDbUser } from '@/features/auth/hooks/useCurrentDbUser';
 import { useActiveOlympiad } from '@/features/olympiad/hooks/useActiveOlympiad';
 import { formatCurrency } from '@/shared/lib/utils';
 import { BadgeChip } from '@/features/badges/components/BadgeChip';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 
 function initials(name: string) {
   const parts = name.split(/[@.\s]+/).filter(Boolean);
@@ -61,25 +61,28 @@ const PODIUM_CONFIG = [
 ] as const;
 
 function PreStartBanner({ startsAt, entries }: { startsAt: Date; entries: Entry[] }) {
+  const tl = useTranslations('leaderboard');
+  const locale = useLocale();
+  const dateLocale = locale === 'en' ? 'en-GB' : 'de-DE';
   return (
     <div className="flex flex-col items-center gap-4">
       <span className="text-5xl">⏳</span>
       <div className="text-center space-y-1">
         <p className="font-bold text-indigo-900 text-lg">
-          Startet am{' '}
-          {new Date(startsAt).toLocaleDateString('de-DE', {
+          {tl('preStartsOn')}{' '}
+          {new Date(startsAt).toLocaleDateString(dateLocale, {
             weekday: 'long', day: '2-digit', month: 'long', year: 'numeric',
           })}
         </p>
         <p className="text-sm text-indigo-600">
-          Die Wertung beginnt dann automatisch.
+          {tl('preStartSubtitle')}
         </p>
       </div>
 
       {entries.length > 0 && (
         <div className="w-full max-w-xs mt-2">
           <p className="text-xs font-semibold text-indigo-700 uppercase tracking-wide text-center mb-2">
-            Teilnehmer ({entries.length})
+            {tl('participants')} ({entries.length})
           </p>
           <ul className="space-y-1.5">
             {entries.map((e) => {
@@ -106,6 +109,7 @@ function PreStartBanner({ startsAt, entries }: { startsAt: Date; entries: Entry[
 }
 
 function PodiumCard({ user, config }: { user: Entry; config: typeof PODIUM_CONFIG[number] }) {
+  const tl = useTranslations('leaderboard');
   const label = user.displayName ?? user.email;
   return (
     <div className={[
@@ -137,7 +141,7 @@ function PodiumCard({ user, config }: { user: Entry; config: typeof PODIUM_CONFI
 
         <div className="flex items-center gap-2">
           <span className="text-xs text-slate-400 tabular-nums">
-            {user.itemCount} Items · {user.soldCount} verk.
+            {user.itemCount} Items · {user.soldCount} {tl('sold')}
           </span>
           <RankChange value={user.rankChange} />
         </div>
@@ -148,6 +152,9 @@ function PodiumCard({ user, config }: { user: Entry; config: typeof PODIUM_CONFI
 
 export function LeaderboardPage() {
   const tb = useTranslations('badges');
+  const tl = useTranslations('leaderboard');
+  const locale = useLocale();
+  const dateLocale = locale === 'en' ? 'en-GB' : 'de-DE';
   const { data: me } = useCurrentDbUser();
   const { active } = useActiveOlympiad();
   const instanceOverride = active?.instanceId ?? undefined;
@@ -160,16 +167,16 @@ export function LeaderboardPage() {
 
   const subtitle = result?.instanceName
     ? `${result.instanceName}${result.startsAt && result.endsAt
-        ? ` · ${new Date(result.startsAt).toLocaleDateString('de-DE', { day: '2-digit', month: 'short', year: 'numeric' })} – ${new Date(result.endsAt).toLocaleDateString('de-DE', { day: '2-digit', month: 'short', year: 'numeric' })}`
+        ? ` · ${new Date(result.startsAt).toLocaleDateString(dateLocale, { day: '2-digit', month: 'short', year: 'numeric' })} – ${new Date(result.endsAt).toLocaleDateString(dateLocale, { day: '2-digit', month: 'short', year: 'numeric' })}`
         : ''}`
-    : 'Gewinn-Ranking · Veränderung seit letztem Sonntag';
+    : tl('defaultSubtitle');
 
   return (
     <div className="space-y-8">
 
       <div className="flex items-end justify-between">
         <div>
-          <h1 className="page-title">Rangliste</h1>
+          <h1 className="page-title">{tl('title')}</h1>
           <div className="flex items-center gap-3 mt-1 flex-wrap">
             <p className="text-sm text-slate-500">{subtitle}</p>
             <div className="flex items-center gap-2.5">
@@ -177,26 +184,26 @@ export function LeaderboardPage() {
                 <span className="inline-flex items-center justify-center text-emerald-700 bg-emerald-50 border border-emerald-100 w-5 h-5 rounded-full">
                   <svg className="w-3 h-3" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 17a.75.75 0 0 1-.75-.75V5.612L5.29 9.77a.75.75 0 0 1-1.08-1.04l5.25-5.5a.75.75 0 0 1 1.08 0l5.25 5.5a.75.75 0 1 1-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0 1 10 17Z" clipRule="evenodd" /></svg>
                 </span>
-                Aufgestiegen
+                {tl('risen')}
               </span>
               <span className="flex items-center gap-1 text-xs text-slate-400">
                 <span className="inline-flex items-center justify-center text-red-600 bg-red-50 border border-red-100 w-5 h-5 rounded-full">
                   <svg className="w-3 h-3" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 3a.75.75 0 0 1 .75.75v10.638l3.96-4.158a.75.75 0 1 1 1.08 1.04l-5.25 5.5a.75.75 0 0 1-1.08 0l-5.25-5.5a.75.75 0 1 1 1.08-1.04l3.96 4.158V3.75A.75.75 0 0 1 10 3Z" clipRule="evenodd" /></svg>
                 </span>
-                Abgestiegen
+                {tl('fallen')}
               </span>
               <span className="flex items-center gap-1 text-xs text-slate-400">
                 <span className="inline-flex items-center justify-center text-slate-400 bg-slate-50 border border-slate-100 w-5 h-5 rounded-full">
                   <svg className="w-2.5 h-2.5" viewBox="0 0 20 20" fill="currentColor"><path d="M4 10a.75.75 0 0 1 .75-.75h10.5a.75.75 0 0 1 0 1.5H4.75A.75.75 0 0 1 4 10Z" /></svg>
                 </span>
-                Unverändert
+                {tl('unchanged')}
               </span>
             </div>
           </div>
         </div>
         {ranked.length > 0 && (
           <span className="text-sm text-slate-400 font-medium shrink-0">
-            {ranked.length} Teilnehmer
+            {ranked.length} {tl('participants')}
           </span>
         )}
       </div>
@@ -210,7 +217,7 @@ export function LeaderboardPage() {
       )}
 
       {isError && (
-        <div className="text-sm text-red-600 py-8 text-center">Rangliste konnte nicht geladen werden.</div>
+        <div className="text-sm text-red-600 py-8 text-center">{tl('loadError')}</div>
       )}
 
       {!isLoading && !isError && isNotStarted && (
@@ -242,7 +249,7 @@ export function LeaderboardPage() {
               <span />
               <span className="text-xs font-medium text-slate-500 uppercase tracking-wide pl-3">Name</span>
               <span className="text-xs font-medium text-slate-500 uppercase tracking-wide text-right">Items</span>
-              <span className="text-xs font-medium text-slate-500 uppercase tracking-wide text-right">Verkauft</span>
+              <span className="text-xs font-medium text-slate-500 uppercase tracking-wide text-right">{tl('sold')}</span>
               <span className="text-xs font-medium text-slate-500 uppercase tracking-wide text-right">Profit</span>
             </div>
             <ul className="divide-y divide-slate-100">
@@ -276,7 +283,7 @@ export function LeaderboardPage() {
                         <p className="text-sm font-medium text-slate-900 truncate">{label}</p>
                         {isMe && (
                           <span className="text-[10px] font-bold bg-indigo-600 text-white px-1.5 py-0.5 rounded-full shrink-0">
-                            Du
+                            {tl('you')}
                           </span>
                         )}
                         {user.topBadges.map((b) => (
@@ -289,7 +296,7 @@ export function LeaderboardPage() {
                     </div>
 
                     <span className="text-sm text-slate-400 tabular-nums text-right">{user.itemCount} Items</span>
-                    <span className="text-sm text-slate-400 tabular-nums text-right">{user.soldCount} verk.</span>
+                    <span className="text-sm text-slate-400 tabular-nums text-right">{user.soldCount} {tl('sold')}</span>
                     <span className={['text-sm font-bold tabular-nums text-right', profitColor(user.totalProfit)].join(' ')}>
                       {formatCurrency(user.totalProfit)}
                     </span>
@@ -302,7 +309,7 @@ export function LeaderboardPage() {
       )}
 
       {!isLoading && !isError && !isNotStarted && ranked.length === 0 && (
-        <div className="text-sm text-slate-400 text-center py-16">Noch keine Einträge.</div>
+        <div className="text-sm text-slate-400 text-center py-16">{tl('noEntries')}</div>
       )}
     </div>
   );

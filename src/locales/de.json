@@ -40,7 +40,8 @@
     "reporting": "Berichte",
     "badges": "Abzeichen",
     "collapseSidebar": "Seitenleiste einklappen",
-    "expandSidebar": "Seitenleiste ausklappen"
+    "expandSidebar": "Seitenleiste ausklappen",
+    "olympiadArchived": "(archiviert)"
   },
   "auth": {
     "signIn": {
@@ -206,7 +207,18 @@
     "selectUserPrompt": "Wähle einen Nutzer oben aus, um dessen Bericht anzuzeigen"
   },
   "leaderboard": {
-    "title": "Rangliste"
+    "title": "Rangliste",
+    "defaultSubtitle": "Gewinn-Ranking · Veränderung seit letztem Sonntag",
+    "risen": "Aufgestiegen",
+    "fallen": "Abgestiegen",
+    "unchanged": "Unverändert",
+    "participants": "Teilnehmer",
+    "noEntries": "Noch keine Einträge.",
+    "loadError": "Rangliste konnte nicht geladen werden.",
+    "you": "Du",
+    "sold": "verk.",
+    "preStartsOn": "Startet am",
+    "preStartSubtitle": "Die Wertung beginnt dann automatisch."
   },
   "admin": {
     "title": "Admin",
