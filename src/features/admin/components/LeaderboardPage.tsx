@@ -1,9 +1,7 @@
 'use client';
 
-import { useState } from 'react';
 import { useLeaderboard } from '../hooks/useLeaderboard';
 import { useCurrentDbUser } from '@/features/auth/hooks/useCurrentDbUser';
-import { useOlympiads } from '@/features/olympiad/hooks/useOlympiads';
 import { useActiveOlympiad } from '@/features/olympiad/hooks/useActiveOlympiad';
 import { formatCurrency } from '@/shared/lib/utils';
 import { BadgeChip } from '@/features/badges/components/BadgeChip';
@@ -151,13 +149,8 @@ function PodiumCard({ user, config }: { user: Entry; config: typeof PODIUM_CONFI
 export function LeaderboardPage() {
   const tb = useTranslations('badges');
   const { data: me } = useCurrentDbUser();
-  const isMasterAdmin = me?.role === 'MASTER_ADMIN';
-
-  const [masterOverride, setMasterOverride] = useState<string | undefined>(undefined);
-  const { data: olympiads } = useOlympiads();
-
   const { active } = useActiveOlympiad();
-  const instanceOverride = isMasterAdmin ? masterOverride : (active?.instanceId ?? undefined);
+  const instanceOverride = active?.instanceId ?? undefined;
 
   const { data: result, isLoading, isError } = useLeaderboard(instanceOverride);
 
@@ -201,25 +194,11 @@ export function LeaderboardPage() {
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-3 shrink-0">
-          {isMasterAdmin && olympiads && olympiads.length > 0 && (
-            <select
-              value={masterOverride ?? ''}
-              onChange={e => setMasterOverride(e.target.value || undefined)}
-              className="select-base w-auto"
-            >
-              <option value="">Meine Olympiade</option>
-              {olympiads.map(o => (
-                <option key={o.id} value={o.id}>{o.name}</option>
-              ))}
-            </select>
-          )}
-          {ranked.length > 0 && (
-            <span className="text-sm text-slate-400 font-medium">
-              {ranked.length} Teilnehmer
-            </span>
-          )}
-        </div>
+        {ranked.length > 0 && (
+          <span className="text-sm text-slate-400 font-medium shrink-0">
+            {ranked.length} Teilnehmer
+          </span>
+        )}
       </div>
 
       {isLoading && (
