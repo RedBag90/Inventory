@@ -17,8 +17,6 @@ function fmt(d: Date) {
   return new Date(d).toLocaleDateString('de-DE', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
-// ── Create form ───────────────────────────────────────────────────────────────
-
 function CreateOlympiadForm({ onClose }: { onClose: () => void }) {
   const { mutate, isPending, error } = useCreateOlympiad();
   const [name, setName]         = useState('');
@@ -37,45 +35,43 @@ function CreateOlympiadForm({ onClose }: { onClose: () => void }) {
   return (
     <form onSubmit={submit} className="space-y-4">
       <div>
-        <label className="block text-xs font-medium text-gray-700 mb-1">Name *</label>
+        <label className="label-base">Name *</label>
         <input value={name} onChange={e => setName(e.target.value)} required
-          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
+          className="input-base"
           placeholder="z.B. Sommer 2026" />
       </div>
       <div>
-        <label className="block text-xs font-medium text-gray-700 mb-1">Beschreibung</label>
+        <label className="label-base">Beschreibung</label>
         <textarea value={desc} onChange={e => setDesc(e.target.value)} rows={2}
-          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 resize-none"
+          className="input-base resize-none"
           placeholder="Optional" />
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="block text-xs font-medium text-gray-700 mb-1">Startdatum *</label>
+          <label className="label-base">Startdatum *</label>
           <input type="date" value={starts} onChange={e => setStarts(e.target.value)} required
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400" />
+            className="input-base" />
         </div>
         <div>
-          <label className="block text-xs font-medium text-gray-700 mb-1">Enddatum *</label>
+          <label className="label-base">Enddatum *</label>
           <input type="date" value={ends} onChange={e => setEnds(e.target.value)} required min={starts}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400" />
+            className="input-base" />
         </div>
       </div>
       {error && <p className="text-xs text-red-600">{(error as Error).message}</p>}
       <div className="flex gap-2 pt-1">
         <button type="submit" disabled={isPending}
-          className="flex-1 bg-gray-900 text-white rounded-lg py-2 text-sm font-medium hover:bg-gray-700 disabled:opacity-50 transition-colors">
+          className="btn-primary flex-1">
           {isPending ? 'Anlegen…' : 'Anlegen'}
         </button>
         <button type="button" onClick={onClose}
-          className="px-4 text-sm text-gray-500 hover:text-gray-800 transition-colors">
+          className="btn-ghost">
           Abbrechen
         </button>
       </div>
     </form>
   );
 }
-
-// ── Olympiad row ──────────────────────────────────────────────────────────────
 
 function OlympiadRow({
   instance,
@@ -92,22 +88,22 @@ function OlympiadRow({
   const busy = archiving || reactivating || deleting;
 
   return (
-    <tr className="hover:bg-gray-50 transition-colors cursor-pointer" onClick={onSelect}>
+    <tr className="hover:bg-slate-50 transition-colors cursor-pointer" onClick={onSelect}>
       <td className="py-3 pl-5 pr-4">
-        <p className="text-sm font-medium text-gray-900">{instance.name}</p>
+        <p className="text-sm font-medium text-slate-900">{instance.name}</p>
         {instance.description && (
-          <p className="text-xs text-gray-400 mt-0.5 truncate max-w-xs">{instance.description}</p>
+          <p className="text-xs text-slate-400 mt-0.5 truncate max-w-xs">{instance.description}</p>
         )}
-        <p className="text-xs text-gray-400 mt-0.5">{instance.createdByEmail}</p>
+        <p className="text-xs text-slate-400 mt-0.5">{instance.createdByEmail}</p>
       </td>
-      <td className="py-3 pr-4 text-sm text-gray-500 whitespace-nowrap">
+      <td className="py-3 pr-4 text-sm text-slate-500 whitespace-nowrap">
         {fmt(instance.startsAt)} – {fmt(instance.endsAt)}
       </td>
-      <td className="py-3 pr-4 text-sm text-gray-500 text-center">{instance.memberCount}</td>
+      <td className="py-3 pr-4 text-sm text-slate-500 text-center">{instance.memberCount}</td>
       <td className="py-3 pr-4">
         <span className={[
           'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium',
-          instance.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-500',
+          instance.isActive ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-500',
         ].join(' ')}>
           {instance.isActive ? 'Aktiv' : 'Archiviert'}
         </span>
@@ -117,12 +113,12 @@ function OlympiadRow({
           <div className="flex items-center gap-3 justify-end" onClick={e => e.stopPropagation()}>
             {instance.isActive ? (
               <button onClick={() => archive(instance.id)} disabled={busy}
-                className="text-xs text-gray-400 hover:text-gray-700 underline disabled:opacity-40 transition-colors">
+                className="text-xs text-slate-400 hover:text-slate-700 underline disabled:opacity-40 transition-colors">
                 Archivieren
               </button>
             ) : (
               <button onClick={() => reactivate(instance.id)} disabled={busy}
-                className="text-xs text-green-600 hover:text-green-800 underline disabled:opacity-40 transition-colors">
+                className="text-xs text-emerald-600 hover:text-emerald-800 underline disabled:opacity-40 transition-colors">
                 Reaktivieren
               </button>
             )}
@@ -140,8 +136,6 @@ function OlympiadRow({
     </tr>
   );
 }
-
-// ── Main panel ────────────────────────────────────────────────────────────────
 
 export function OlympiadPanel() {
   const { data: currentUser } = useCurrentDbUser();
@@ -171,38 +165,38 @@ export function OlympiadPanel() {
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-sm font-semibold text-gray-900">Olympiaden</h2>
+          <h2 className="text-sm font-semibold text-slate-900">Olympiaden</h2>
           {olympiads && (
-            <p className="text-xs text-gray-500 mt-0.5">
+            <p className="text-xs text-slate-500 mt-0.5">
               {olympiads.filter(o => o.isActive).length} aktiv · {olympiads.length} gesamt
             </p>
           )}
         </div>
         <button
           onClick={() => setShowCreate(true)}
-          className="bg-gray-900 text-white px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-gray-700 transition-colors">
+          className="btn-primary">
           + Neue Olympiade
         </button>
       </div>
 
       {showCreate && (
-        <div className="bg-gray-50 border border-gray-200 rounded-xl p-5">
-          <h3 className="text-sm font-semibold text-gray-900 mb-4">Neue Olympiade anlegen</h3>
+        <div className="card-section">
+          <h3 className="text-sm font-semibold text-slate-900 mb-4">Neue Olympiade anlegen</h3>
           <CreateOlympiadForm onClose={() => setShowCreate(false)} />
         </div>
       )}
 
-      {isLoading && <div className="text-sm text-gray-400 py-8 text-center">Laden…</div>}
+      {isLoading && <div className="text-sm text-slate-400 py-8 text-center">Laden…</div>}
 
       {olympiads && olympiads.length === 0 && (
-        <div className="text-sm text-gray-400 py-8 text-center">Noch keine Olympiaden angelegt.</div>
+        <div className="text-sm text-slate-400 py-8 text-center">Noch keine Olympiaden angelegt.</div>
       )}
 
       {olympiads && olympiads.length > 0 && (
-        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div className="card overflow-hidden">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-gray-200 bg-gray-50 text-xs font-medium text-gray-500 uppercase tracking-wide">
+              <tr className="border-b border-slate-100 bg-slate-50 text-xs font-medium text-slate-500 uppercase tracking-wide">
                 <th className="text-left py-3 pl-5 pr-4">Name</th>
                 <th className="text-left py-3 pr-4">Zeitraum</th>
                 <th className="text-center py-3 pr-4">Teilnehmer</th>
@@ -210,7 +204,7 @@ export function OlympiadPanel() {
                 <th className="py-3 pr-5" />
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-slate-100">
               {olympiads.map((o) => (
                 <OlympiadRow
                   key={o.id}

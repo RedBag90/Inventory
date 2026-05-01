@@ -18,7 +18,7 @@ export function JoinRequestsTab() {
             <button key={f} onClick={() => setFilter(f)}
               className={[
                 'px-3 py-1.5 rounded-lg text-xs font-medium transition-colors',
-                filter === f ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200',
+                filter === f ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200',
               ].join(' ')}>
               {f === 'PENDING' ? 'Offen' : 'Alle'}
             </button>
@@ -26,21 +26,21 @@ export function JoinRequestsTab() {
         </div>
       </div>
 
-      {isLoading && <p className="text-sm text-gray-400 py-6 text-center">Lade Anfragen…</p>}
+      {isLoading && <p className="text-sm text-slate-400 py-6 text-center">Lade Anfragen…</p>}
       {isError   && (
         <div className="py-6 text-center space-y-2">
           <p className="text-sm text-red-600">Fehler beim Laden.</p>
-          <button onClick={() => refetch()} className="text-xs text-gray-500 underline hover:text-gray-800">Erneut versuchen</button>
+          <button onClick={() => refetch()} className="text-xs text-slate-500 underline hover:text-slate-800">Erneut versuchen</button>
         </div>
       )}
       {requests && requests.length === 0 && (
-        <p className="text-sm text-gray-400 py-6 text-center">
+        <p className="text-sm text-slate-400 py-6 text-center">
           {filter === 'PENDING' ? 'Keine offenen Anfragen.' : 'Keine Anfragen vorhanden.'}
         </p>
       )}
 
       {requests && requests.length > 0 && (
-        <div className="bg-white rounded-xl border border-gray-200 divide-y divide-gray-100 overflow-hidden">
+        <div className="bg-white rounded-xl border border-slate-200 divide-y divide-slate-100 overflow-hidden">
           {requests.map((r) => (
             <JoinRequestRow
               key={r.id}
@@ -66,7 +66,7 @@ function JoinRequestRow({
 }) {
   const statusStyles: Record<string, string> = {
     PENDING:  'bg-amber-50 text-amber-700',
-    ACCEPTED: 'bg-green-50 text-green-700',
+    ACCEPTED: 'bg-green-50 text-emerald-600',
     REJECTED: 'bg-red-50 text-red-600',
   };
   const statusLabels: Record<string, string> = {
@@ -78,14 +78,14 @@ function JoinRequestRow({
   return (
     <div className="flex items-center gap-4 px-4 py-3">
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-gray-900 truncate">{request.userEmail}</p>
-        <p className="text-xs text-gray-400 mt-0.5">
+        <p className="text-sm font-medium text-slate-900 truncate">{request.userEmail}</p>
+        <p className="text-xs text-slate-400 mt-0.5">
           {request.instanceName} · {formatDate(new Date(request.createdAt))}
         </p>
       </div>
       <span className={[
         'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium shrink-0',
-        statusStyles[request.status] ?? 'bg-gray-100 text-gray-500',
+        statusStyles[request.status] ?? 'bg-slate-100 text-slate-500',
       ].join(' ')}>
         {statusLabels[request.status] ?? request.status}
       </span>
@@ -94,7 +94,7 @@ function JoinRequestRow({
           <button
             onClick={() => onResolve('ACCEPTED')}
             disabled={busy}
-            className="px-3 py-1.5 bg-gray-900 text-white rounded-lg text-xs font-medium hover:bg-gray-700 disabled:opacity-50 transition-colors"
+            className="btn-primary btn-sm"
           >
             {busy ? '…' : 'Annehmen'}
           </button>

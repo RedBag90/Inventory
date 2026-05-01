@@ -43,17 +43,17 @@ export default function UpdatePasswordPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden">
 
-        <div className="bg-gray-900 px-8 py-8 text-center">
+        <div className="bg-indigo-950 px-8 py-8 text-center">
           <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
             </svg>
           </div>
           <h1 className="text-xl font-bold text-white">{t('title')}</h1>
-          <p className="text-gray-400 text-sm mt-1">{t('appName')}</p>
+          <p className="text-slate-400 text-sm mt-1">{t('appName')}</p>
         </div>
 
         <div className="px-8 py-6">
@@ -64,13 +64,13 @@ export default function UpdatePasswordPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
                 </svg>
               </div>
-              <p className="text-sm font-medium text-gray-900">{t('successMessage')}</p>
-              <p className="text-xs text-gray-400">{t('successRedirect')}</p>
+              <p className="text-sm font-medium text-slate-900">{t('successMessage')}</p>
+              <p className="text-xs text-slate-400">{t('successRedirect')}</p>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1.5">
+                <label className="block text-xs font-medium text-slate-600 mb-1.5">
                   {t('newPassword')}
                 </label>
                 <input
@@ -81,11 +81,11 @@ export default function UpdatePasswordPage() {
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   placeholder={t('newPasswordPlaceholder')}
-                  className="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 placeholder:text-gray-400"
+                  className="w-full border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder:text-slate-400"
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1.5">
+                <label className="block text-xs font-medium text-slate-600 mb-1.5">
                   {t('confirmPassword')}
                 </label>
                 <input
@@ -94,7 +94,7 @@ export default function UpdatePasswordPage() {
                   value={confirm}
                   onChange={e => setConfirm(e.target.value)}
                   placeholder={t('confirmPasswordPlaceholder')}
-                  className="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 placeholder:text-gray-400"
+                  className="w-full border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder:text-slate-400"
                 />
               </div>
               {error && (
@@ -103,12 +103,12 @@ export default function UpdatePasswordPage() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-gray-900 text-white rounded-xl py-2.5 text-sm font-medium hover:bg-gray-700 disabled:opacity-50 transition-colors"
+                className="w-full bg-indigo-600 text-white rounded-xl py-2.5 text-sm font-medium hover:bg-indigo-800 disabled:opacity-50 transition-colors"
               >
                 {isLoading ? t('submitting') : t('submit')}
               </button>
               <Link href="/sign-in"
-                className="block text-center text-xs text-gray-400 hover:text-gray-600 py-1 transition-colors">
+                className="block text-center text-xs text-slate-400 hover:text-slate-600 py-1 transition-colors">
                 {t('backToLogin')}
               </Link>
             </form>

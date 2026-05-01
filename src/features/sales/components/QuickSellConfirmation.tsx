@@ -14,8 +14,8 @@ type Props = {
 function Row({ label, value, muted }: { label: string; value: string; muted?: boolean }) {
   return (
     <div className="flex justify-between py-1.5">
-      <span className={`text-sm ${muted ? 'text-gray-400' : 'text-gray-600'}`}>{label}</span>
-      <span className={`text-sm ${muted ? 'text-gray-400' : 'text-gray-700'}`}>{value}</span>
+      <span className={`text-sm ${muted ? 'text-slate-400' : 'text-slate-600'}`}>{label}</span>
+      <span className={`text-sm ${muted ? 'text-slate-400' : 'text-slate-700'}`}>{value}</span>
     </div>
   );
 }
@@ -32,8 +32,8 @@ export function QuickSellConfirmation({ pendingSale, onBack, onSuccess }: Props)
   const profitColor = isLoss
     ? 'text-red-600'
     : isBreakEven
-    ? 'text-gray-500'
-    : 'text-green-700';
+    ? 'text-slate-500'
+    : 'text-emerald-600';
 
   function handleConfirm() {
     mutate(pendingSale, { onSuccess });
@@ -41,20 +41,20 @@ export function QuickSellConfirmation({ pendingSale, onBack, onSuccess }: Props)
 
   return (
     <div className="space-y-4">
-      <h2 className="text-sm font-semibold text-gray-700">{t('confirmTitle')}</h2>
+      <h2 className="text-sm font-semibold text-slate-700">{t('confirmTitle')}</h2>
 
-      <div className="bg-gray-50 rounded-lg border border-gray-200 p-4 space-y-0.5">
+      <div className="profit-panel space-y-0.5">
         <Row label={t('confirmSalePrice')} value={formatCurrency(pendingSale.salePrice)} />
 
-        <div className="border-t border-gray-200 my-2" />
-        <p className="text-xs text-gray-400 uppercase tracking-wide mb-1">{t('confirmCosts')}</p>
+        <div className="border-t border-slate-200 my-2" />
+        <p className="text-xs text-slate-400 uppercase tracking-wide mb-1">{t('confirmCosts')}</p>
 
         <Row label={t('confirmPurchasePrice')} value={`− ${formatCurrency(0)}`} muted />
         <Row label={t('confirmShipping')}      value={`− ${formatCurrency(pendingSale.shippingCostOut ?? 0)}`} muted />
 
-        <div className="border-t border-gray-200 mt-2 pt-2">
+        <div className="border-t border-slate-200 mt-2 pt-2">
           <div className="flex justify-between">
-            <span className="text-sm font-semibold text-gray-700">{t('confirmProfit')}</span>
+            <span className="text-sm font-semibold text-slate-700">{t('confirmProfit')}</span>
             <span className={`text-sm font-semibold ${profitColor}`}>
               {formatCurrency(profit)}
             </span>
@@ -77,7 +77,7 @@ export function QuickSellConfirmation({ pendingSale, onBack, onSuccess }: Props)
           type="button"
           onClick={handleConfirm}
           disabled={isPending}
-          className="flex-1 bg-black text-white rounded py-2 text-sm font-medium hover:bg-gray-800 disabled:opacity-50 transition-colors"
+          className="btn-primary flex-1"
         >
           {isPending ? tc('saving') : t('confirmTitle')}
         </button>
@@ -85,7 +85,7 @@ export function QuickSellConfirmation({ pendingSale, onBack, onSuccess }: Props)
           type="button"
           onClick={onBack}
           disabled={isPending}
-          className="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+          className="btn-ghost"
         >
           {t('backButton')}
         </button>

@@ -40,10 +40,10 @@ export function ItemForm({ onSuccess }: Props) {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       {/* Name */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
+        <label className="label-base">Name *</label>
         <input
           {...register('name')}
-          className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
+          className="input-base"
           placeholder="Item name"
         />
         {errors.name && <p className="mt-1 text-xs text-red-600">{errors.name.message}</p>}
@@ -51,13 +51,13 @@ export function ItemForm({ onSuccess }: Props) {
 
       {/* Purchase price */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Purchase price (€) *</label>
+        <label className="label-base">Purchase price (€) *</label>
         <input
           {...register('purchasePrice', { valueAsNumber: true })}
           type="number"
           step="0.01"
           min="0.01"
-          className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
+          className="input-base"
           placeholder="0.00"
         />
         {errors.purchasePrice && <p className="mt-1 text-xs text-red-600">{errors.purchasePrice.message}</p>}
@@ -65,10 +65,10 @@ export function ItemForm({ onSuccess }: Props) {
 
       {/* Platform */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Platform *</label>
+        <label className="label-base">Platform *</label>
         <select
           {...register('purchasePlatform')}
-          className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 bg-white"
+          className="select-base"
         >
           {PLATFORMS.map(p => (
             <option key={p} value={p}>{p.charAt(0) + p.slice(1).toLowerCase()}</option>
@@ -79,24 +79,24 @@ export function ItemForm({ onSuccess }: Props) {
 
       {/* Purchase date */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Purchase date *</label>
+        <label className="label-base">Purchase date *</label>
         <input
           {...register('purchasedAt', { valueAsDate: true })}
           type="date"
-          className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
+          className="input-base"
         />
         {errors.purchasedAt && <p className="mt-1 text-xs text-red-600">{errors.purchasedAt.message}</p>}
       </div>
 
       {/* Shipping cost in */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Shipping cost in (€)</label>
+        <label className="label-base">Shipping cost in (€)</label>
         <input
           {...register('shippingCostIn', { valueAsNumber: true })}
           type="number"
           step="0.01"
           min="0"
-          className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
+          className="input-base"
           placeholder="0.00"
         />
         {errors.shippingCostIn && <p className="mt-1 text-xs text-red-600">{errors.shippingCostIn.message}</p>}
@@ -104,13 +104,13 @@ export function ItemForm({ onSuccess }: Props) {
 
       {/* Repair cost */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Repair cost (€)</label>
+        <label className="label-base">Repair cost (€)</label>
         <input
           {...register('repairCost', { valueAsNumber: true })}
           type="number"
           step="0.01"
           min="0"
-          className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
+          className="input-base"
           placeholder="0.00"
         />
         {errors.repairCost && <p className="mt-1 text-xs text-red-600">{errors.repairCost.message}</p>}
@@ -118,11 +118,11 @@ export function ItemForm({ onSuccess }: Props) {
 
       {/* Description */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+        <label className="label-base">Description</label>
         <textarea
           {...register('description')}
           rows={3}
-          className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 resize-none"
+          className="input-base resize-none"
           placeholder="Optional notes"
         />
         {errors.description && <p className="mt-1 text-xs text-red-600">{errors.description.message}</p>}
@@ -131,7 +131,7 @@ export function ItemForm({ onSuccess }: Props) {
       <button
         type="submit"
         disabled={isPending}
-        className="w-full bg-gray-900 text-white py-2 px-4 rounded-md text-sm font-medium hover:bg-gray-700 disabled:opacity-50 transition-colors"
+        className="btn-primary w-full"
       >
         {isPending ? (
         <>

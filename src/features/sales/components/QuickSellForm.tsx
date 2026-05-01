@@ -41,13 +41,13 @@ export function QuickSellForm({ onReview, onPreMark, onCancel }: Props) {
   return (
     <form onSubmit={handleSubmit(onReview)} className="space-y-4">
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="label-base">
           {t('itemName')} <span className="text-red-500">*</span>
         </label>
         <input
           type="text"
           {...register('name')}
-          className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
+          className="input-base"
           placeholder={t('itemNamePlaceholder')}
           autoFocus
         />
@@ -57,7 +57,7 @@ export function QuickSellForm({ onReview, onPreMark, onCancel }: Props) {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="label-base">
           {t('salePrice')} <span className="text-red-500">*</span>
         </label>
         <input
@@ -65,7 +65,7 @@ export function QuickSellForm({ onReview, onPreMark, onCancel }: Props) {
           step="0.01"
           min="0"
           {...register('salePrice', { valueAsNumber: true })}
-          className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
+          className="input-base"
           placeholder="0.00"
         />
         {errors.salePrice && (
@@ -74,12 +74,12 @@ export function QuickSellForm({ onReview, onPreMark, onCancel }: Props) {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="label-base">
           {t('platform')} <span className="text-red-500">*</span>
         </label>
         <select
           {...register('salePlatform')}
-          className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 bg-white"
+          className="select-base"
         >
           <option value="">{t('platformPlaceholder')}</option>
           {PLATFORMS.map((p) => (
@@ -94,7 +94,7 @@ export function QuickSellForm({ onReview, onPreMark, onCancel }: Props) {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="label-base">
           {t('shippingCost')}
         </label>
         <input
@@ -102,7 +102,7 @@ export function QuickSellForm({ onReview, onPreMark, onCancel }: Props) {
           step="0.01"
           min="0"
           {...register('shippingCostOut', { valueAsNumber: true })}
-          className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
+          className="input-base"
           placeholder="0.00"
         />
         {errors.shippingCostOut && (
@@ -111,13 +111,13 @@ export function QuickSellForm({ onReview, onPreMark, onCancel }: Props) {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="label-base">
           {t('saleDate')} <span className="text-red-500">*</span>
         </label>
         <input
           type="date"
           {...register('soldAt', { valueAsDate: true })}
-          className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
+          className="input-base"
         />
         {errors.soldAt && (
           <p className="text-xs text-red-600 mt-1">{errors.soldAt.message}</p>
@@ -127,7 +127,7 @@ export function QuickSellForm({ onReview, onPreMark, onCancel }: Props) {
       <div className="flex gap-2 pt-1 flex-wrap">
         <button
           type="submit"
-          className="flex-1 bg-gray-900 text-white rounded-md py-2 text-sm font-medium hover:bg-gray-700 transition-colors"
+          className="btn-primary flex-1"
         >
           {t('sellButton')}
         </button>
@@ -135,7 +135,7 @@ export function QuickSellForm({ onReview, onPreMark, onCancel }: Props) {
           <button
             type="button"
             onClick={handleSubmit(onPreMark)}
-            className="flex-1 bg-amber-500 text-white rounded-md py-2 text-sm font-medium hover:bg-amber-400 transition-colors"
+            className="btn-amber flex-1"
           >
             {t('preMarkButton')}
           </button>
@@ -143,7 +143,7 @@ export function QuickSellForm({ onReview, onPreMark, onCancel }: Props) {
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+          className="btn-ghost"
         >
           {tc('cancel')}
         </button>

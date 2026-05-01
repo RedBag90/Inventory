@@ -26,7 +26,7 @@ const BADGE_ICONS: Record<string, string> = {
 
 const TIER_COLORS: Record<string, string> = {
   BRONZE: 'text-amber-600 bg-amber-50 border-amber-200',
-  SILVER: 'text-gray-600  bg-gray-50  border-gray-200',
+  SILVER: 'text-slate-600  bg-slate-50  border-slate-200',
   GOLD:   'text-yellow-600 bg-yellow-50 border-yellow-200',
 };
 

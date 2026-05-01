@@ -30,28 +30,28 @@ export function InventoryPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">{t('title')}</h1>
-          <p className="text-sm text-gray-400 mt-0.5">{t('subtitle')}</p>
+          <h1 className="page-title">{t('title')}</h1>
+          <p className="page-subtitle">{t('subtitle')}</p>
         </div>
         <div className="flex items-center gap-2">
           <button
             data-tutorial="quick-sell-button"
             onClick={() => setShowQuickSell(true)}
-            className="border border-gray-200 text-gray-700 px-5 py-2 rounded-xl text-sm font-semibold hover:bg-gray-50 hover:border-gray-300 transition-colors"
+            className="btn-secondary"
           >
             {t('quickSellButton')}
           </button>
           <button
             data-tutorial="buy-button"
             onClick={() => setShowAddForm(true)}
-            className="bg-gray-900 text-white px-5 py-2 rounded-xl text-sm font-semibold hover:bg-gray-700 transition-colors"
+            className="btn-primary"
           >
             {t('quickSellDescription')}
           </button>
         </div>
       </div>
 
-      <Suspense fallback={<div className="text-sm text-gray-500 py-8 text-center">{t('loading')}</div>}>
+      <Suspense fallback={<div className="text-sm text-slate-500 py-8 text-center">{t('loading')}</div>}>
         <ItemTable
           onRecordSale={setSellingItem}
           onPreMarkSale={setPreMarkItem}
@@ -67,15 +67,15 @@ export function InventoryPage() {
             className="flex-1 bg-black/30"
             onClick={() => setShowAddForm(false)}
           />
-          <div className="w-full max-w-md bg-white shadow-xl overflow-y-auto">
-            <div className="flex items-center justify-between p-5 border-b border-gray-200 bg-gray-50">
+          <div className="slide-panel">
+            <div className="modal-header items-center">
               <div>
-                <h2 className="text-base font-semibold text-gray-900">{t('buyButton')}</h2>
-                <p className="text-xs text-gray-400 mt-0.5">{t('buyDescription')}</p>
+                <h2 className="text-base font-semibold text-slate-900">{t('buyButton')}</h2>
+                <p className="text-xs text-slate-400 mt-0.5">{t('buyDescription')}</p>
               </div>
               <button
                 onClick={() => setShowAddForm(false)}
-                className="w-7 h-7 flex items-center justify-center rounded-full text-gray-400 hover:text-gray-700 hover:bg-gray-200 transition-colors text-sm"
+                className="w-7 h-7 flex items-center justify-center rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition-colors text-sm"
               >
                 ✕
               </button>

@@ -77,10 +77,10 @@ export function PendingAssignmentClient({ email }: { email: string }) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden">
 
-        <div className="bg-gray-900 px-8 py-8 text-center">
+        <div className="bg-indigo-950 px-8 py-8 text-center">
           <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
               <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
@@ -96,20 +96,20 @@ export function PendingAssignmentClient({ email }: { email: string }) {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
               </svg>
             </div>
-            <h2 className="text-base font-bold text-gray-900">{t('title')}</h2>
-            <p className="text-sm text-gray-500 leading-relaxed">{t('subtitle')}</p>
+            <h2 className="text-base font-bold text-white">{t('title')}</h2>
+            <p className="text-sm text-slate-400 leading-relaxed">{t('subtitle')}</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-3">
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1.5">
+              <label className="block text-xs font-medium text-slate-600 mb-1.5">
                 {t('joinCode')}
               </label>
               <input
                 value={code}
                 onChange={e => { setCode(e.target.value.toUpperCase()); reset(); setSuccess(null); }}
                 placeholder={t('joinCodePlaceholder')}
-                className="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm font-mono tracking-widest focus:outline-none focus:ring-2 focus:ring-gray-400 placeholder:font-sans placeholder:tracking-normal placeholder:text-gray-400"
+                className="w-full border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm font-mono tracking-widest focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder:font-sans placeholder:tracking-normal placeholder:text-slate-400"
               />
             </div>
             {error && (
@@ -121,7 +121,7 @@ export function PendingAssignmentClient({ email }: { email: string }) {
             <button
               type="submit"
               disabled={isPending || !code.trim()}
-              className="w-full bg-gray-900 text-white rounded-xl py-2.5 text-sm font-medium hover:bg-gray-700 disabled:opacity-50 transition-colors"
+              className="w-full bg-indigo-600 text-white rounded-xl py-2.5 text-sm font-medium hover:bg-indigo-800 disabled:opacity-50 transition-colors"
             >
               {isPending ? t('joining') : t('joinSubmit')}
             </button>
@@ -129,9 +129,9 @@ export function PendingAssignmentClient({ email }: { email: string }) {
 
           <div className="space-y-2">
             <div className="flex items-center gap-3">
-              <div className="flex-1 h-px bg-gray-100" />
-              <span className="text-xs text-gray-400">{t('or')}</span>
-              <div className="flex-1 h-px bg-gray-100" />
+              <div className="flex-1 h-px bg-slate-100" />
+              <span className="text-xs text-slate-400">{t('or')}</span>
+              <div className="flex-1 h-px bg-slate-100" />
             </div>
 
             {myInstanceRequest?.status === 'PENDING' ? (
@@ -145,24 +145,24 @@ export function PendingAssignmentClient({ email }: { email: string }) {
             ) : showInstanceForm ? (
               <form onSubmit={handleInstanceSubmit} className="space-y-3">
                 <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1.5">{t('instanceName')} *</label>
+                  <label className="block text-xs font-medium text-slate-600 mb-1.5">{t('instanceName')} *</label>
                   <input
                     required
                     autoFocus
                     value={instanceName}
                     onChange={e => { setInstanceName(e.target.value); resetInstance(); }}
                     placeholder={t('instanceNamePlaceholder')}
-                    className="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 placeholder:text-gray-400"
+                    className="w-full border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder:text-slate-400"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1.5">{t('instanceDescription')}</label>
+                  <label className="block text-xs font-medium text-slate-600 mb-1.5">{t('instanceDescription')}</label>
                   <textarea
                     rows={2}
                     value={instanceDesc}
                     onChange={e => setInstanceDesc(e.target.value)}
                     placeholder={t('instanceDescriptionPlaceholder')}
-                    className="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 resize-none placeholder:text-gray-400"
+                    className="w-full border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none placeholder:text-slate-400"
                   />
                 </div>
                 {instanceError && (
@@ -170,11 +170,11 @@ export function PendingAssignmentClient({ email }: { email: string }) {
                 )}
                 <div className="flex gap-2">
                   <button type="submit" disabled={instancePending || !instanceName.trim()}
-                    className="flex-1 bg-gray-900 text-white rounded-xl py-2.5 text-sm font-medium hover:bg-gray-700 disabled:opacity-50 transition-colors">
+                    className="flex-1 bg-indigo-600 text-white rounded-xl py-2.5 text-sm font-medium hover:bg-indigo-800 disabled:opacity-50 transition-colors">
                     {instancePending ? t('requesting') : t('requestSubmit')}
                   </button>
                   <button type="button" onClick={() => { setShowInstanceForm(false); resetInstance(); }}
-                    className="px-4 py-2.5 text-sm text-gray-500 hover:text-gray-700 transition-colors">
+                    className="px-4 py-2.5 text-sm text-slate-500 hover:text-slate-700 transition-colors">
                     {tc('cancel')}
                   </button>
                 </div>
@@ -183,7 +183,7 @@ export function PendingAssignmentClient({ email }: { email: string }) {
               <button
                 type="button"
                 onClick={() => setShowInstanceForm(true)}
-                className="w-full border border-dashed border-gray-300 text-gray-500 hover:border-gray-500 hover:text-gray-700 rounded-xl py-2.5 text-sm font-medium transition-colors"
+                className="w-full border border-dashed border-slate-300 text-slate-500 hover:border-slate-500 hover:text-slate-700 rounded-xl py-2.5 text-sm font-medium transition-colors"
               >
                 {t('requestInstance')}
               </button>
@@ -192,10 +192,10 @@ export function PendingAssignmentClient({ email }: { email: string }) {
 
           {pendingRequests.length > 0 && (
             <div className="space-y-2">
-              <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">{t('openRequests')}</p>
+              <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">{t('openRequests')}</p>
               {pendingRequests.map(r => (
                 <div key={r.id} className="flex items-center justify-between bg-amber-50 border border-amber-100 rounded-lg px-3 py-2">
-                  <p className="text-sm font-medium text-gray-800">{r.instanceName}</p>
+                  <p className="text-sm font-medium text-slate-800">{r.instanceName}</p>
                   <span className="text-xs text-amber-700 font-medium">{tc('pending')}</span>
                 </div>
               ))}
@@ -204,25 +204,25 @@ export function PendingAssignmentClient({ email }: { email: string }) {
 
           {rejectedRequests.length > 0 && (
             <div className="space-y-2">
-              <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">{t('rejectedRequests')}</p>
+              <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">{t('rejectedRequests')}</p>
               {rejectedRequests.map(r => (
                 <div key={r.id} className="flex items-center justify-between bg-red-50 border border-red-100 rounded-lg px-3 py-2">
-                  <p className="text-sm font-medium text-gray-800">{r.instanceName}</p>
+                  <p className="text-sm font-medium text-slate-800">{r.instanceName}</p>
                   <span className="text-xs text-red-600 font-medium">{tc('rejected')}</span>
                 </div>
               ))}
             </div>
           )}
 
-          <p className="text-xs text-gray-400 text-center">
-            {t('loggedInAs')} <span className="font-medium text-gray-600">{email}</span>
+          <p className="text-xs text-slate-400 text-center">
+            {t('loggedInAs')} <span className="font-medium text-slate-600">{email}</span>
           </p>
         </div>
 
         <div className="px-8 pb-8">
           <button
             onClick={signOut}
-            className="w-full border border-gray-200 text-gray-600 hover:border-gray-400 hover:text-gray-900 rounded-xl py-2.5 text-sm font-medium transition-colors"
+            className="w-full border border-slate-200 text-slate-600 hover:border-slate-400 hover:text-slate-900 rounded-xl py-2.5 text-sm font-medium transition-colors"
           >
             {t('signOut')}
           </button>

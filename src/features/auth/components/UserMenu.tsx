@@ -109,39 +109,36 @@ export function UserMenu() {
 
   return (
     <div ref={containerRef} className="relative">
-      {/* Trigger */}
       <button
         data-tutorial="user-menu-button"
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-2 rounded-full hover:bg-gray-100 px-2 py-1 transition-colors"
+        className="flex items-center gap-2 rounded-full hover:bg-slate-100 px-2 py-1 transition-colors"
       >
-        <span className="w-7 h-7 rounded-full bg-gray-800 text-white text-xs font-semibold flex items-center justify-center shrink-0">
+        <span className="w-7 h-7 rounded-full bg-indigo-700 text-white text-xs font-semibold flex items-center justify-center shrink-0">
           {initials(email)}
         </span>
-        <span className="text-sm text-gray-700 hidden sm:inline max-w-[180px] truncate">{displayLabel}</span>
+        <span className="text-sm text-slate-700 hidden sm:inline max-w-[180px] truncate">{displayLabel}</span>
         <svg
-          className={`w-3.5 h-3.5 text-gray-400 transition-transform ${open ? 'rotate-180' : ''}`}
+          className={`w-3.5 h-3.5 text-slate-400 transition-transform ${open ? 'rotate-180' : ''}`}
           viewBox="0 0 20 20" fill="currentColor"
         >
           <path fillRule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" />
         </svg>
       </button>
 
-      {/* Popover */}
       {open && (
-        <div className="absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-xl border border-gray-200 z-50 overflow-hidden">
+        <div className="absolute right-0 mt-2 w-72 bg-white rounded-2xl shadow-2xl ring-1 ring-slate-100 z-50 overflow-hidden">
 
-          {/* Header */}
-          <div className="flex items-center gap-3 p-4 bg-gray-50 border-b border-gray-200">
-            <span className="w-10 h-10 rounded-full bg-gray-800 text-white text-sm font-semibold flex items-center justify-center shrink-0">
+          <div className="flex items-center gap-3 p-4 bg-slate-50 border-b border-slate-200">
+            <span className="w-10 h-10 rounded-full bg-indigo-700 text-white text-sm font-semibold flex items-center justify-center shrink-0">
               {initials(email)}
             </span>
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-gray-900 truncate">
+              <p className="text-sm font-semibold text-slate-900 truncate">
                 {dbUser?.displayName ?? email}
               </p>
               {dbUser?.displayName && (
-                <p className="text-xs text-gray-400 truncate">{email}</p>
+                <p className="text-xs text-slate-400 truncate">{email}</p>
               )}
               <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
                 <span className={`inline-block text-xs font-medium px-2 py-0.5 rounded-full ${
@@ -149,7 +146,7 @@ export function UserMenu() {
                     ? 'bg-purple-100 text-purple-800'
                     : role === 'ADMIN'
                       ? 'bg-amber-100 text-amber-800'
-                      : 'bg-gray-100 text-gray-600'
+                      : 'bg-slate-100 text-slate-600'
                 }`}>
                   {roleLabel}
                 </span>
@@ -166,17 +163,15 @@ export function UserMenu() {
             </div>
           </div>
 
-          {/* Details */}
           <div className="p-4 space-y-4">
 
-            {/* Display name edit */}
             <div>
               <div className="flex items-center justify-between mb-1">
-                <p className="text-xs text-gray-400 uppercase tracking-wide">{t('displayName')}</p>
+                <p className="text-xs text-slate-400 uppercase tracking-wide">{t('displayName')}</p>
                 {!editing && (
                   <button
                     onClick={() => setEditing(true)}
-                    className="text-xs text-gray-400 hover:text-gray-700 flex items-center gap-1 transition-colors"
+                    className="text-xs text-slate-400 hover:text-slate-700 flex items-center gap-1 transition-colors"
                   >
                     <svg className="w-3 h-3" viewBox="0 0 20 20" fill="currentColor">
                       <path d="M2.695 14.763l-1.262 3.154a.5.5 0 0 0 .65.65l3.155-1.262a4 4 0 0 0 1.343-.885L17.5 5.5a2.121 2.121 0 0 0-3-3L3.58 13.42a4 4 0 0 0-.885 1.343Z" />
@@ -195,51 +190,50 @@ export function UserMenu() {
                     onKeyDown={(e) => { if (e.key === 'Enter') handleSaveName(); if (e.key === 'Escape') setEditing(false); }}
                     maxLength={50}
                     placeholder={t('namePlaceholder')}
-                    className="w-full border rounded px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+                    className="input-base"
                   />
                   {saveError && <p className="text-xs text-red-600">{saveError}</p>}
                   <div className="flex gap-2">
                     <button
                       onClick={handleSaveName}
                       disabled={saving}
-                      className="flex-1 bg-gray-900 text-white text-xs rounded py-1.5 font-medium hover:bg-gray-700 disabled:opacity-50 transition-colors"
+                      className="btn-primary flex-1 text-xs py-1.5"
                     >
                       {saving ? tc('saving') : tc('save')}
                     </button>
                     <button
                       onClick={() => setEditing(false)}
                       disabled={saving}
-                      className="px-3 text-xs text-gray-500 hover:text-gray-800 transition-colors"
+                      className="btn-ghost text-xs px-3"
                     >
                       {tc('cancel')}
                     </button>
                   </div>
                 </div>
               ) : (
-                <p className="text-sm text-gray-700">
-                  {dbUser?.displayName ?? <span className="text-gray-400 italic">{t('noName')}</span>}
+                <p className="text-sm text-slate-700">
+                  {dbUser?.displayName ?? <span className="text-slate-400 italic">{t('noName')}</span>}
                 </p>
               )}
             </div>
 
             <div>
-              <p className="text-xs text-gray-400 uppercase tracking-wide mb-1">{t('accountId')}</p>
-              <p className="text-xs font-mono text-gray-600 break-all">{memberId}</p>
+              <p className="text-xs text-slate-400 uppercase tracking-wide mb-1">{t('accountId')}</p>
+              <p className="text-xs font-mono text-slate-600 break-all">{memberId}</p>
             </div>
 
             <div>
-              <p className="text-xs text-gray-400 uppercase tracking-wide mb-1">{t('memberSince')}</p>
-              <p className="text-sm text-gray-700">{since}</p>
+              <p className="text-xs text-slate-400 uppercase tracking-wide mb-1">{t('memberSince')}</p>
+              <p className="text-sm text-slate-700">{since}</p>
             </div>
 
-            {/* Language switcher */}
-            <div className="border-t border-gray-100 pt-3">
-              <p className="text-xs text-gray-400 mb-2">{t('language')}</p>
+            <div className="border-t border-slate-100 pt-3">
+              <p className="text-xs text-slate-400 mb-2">{t('language')}</p>
               <div className="flex gap-2">
                 <button
                   onClick={() => setLocale('de')}
                   className={`flex-1 px-3 py-1.5 text-sm rounded-lg font-medium transition-colors ${
-                    locale === 'de' ? 'bg-gray-900 text-white' : 'text-gray-600 hover:bg-gray-100 border border-gray-200'
+                    locale === 'de' ? 'bg-indigo-600 text-white' : 'text-slate-600 border border-slate-200 hover:bg-slate-50'
                   }`}
                 >
                   🇩🇪 Deutsch
@@ -247,7 +241,7 @@ export function UserMenu() {
                 <button
                   onClick={() => setLocale('en')}
                   className={`flex-1 px-3 py-1.5 text-sm rounded-lg font-medium transition-colors ${
-                    locale === 'en' ? 'bg-gray-900 text-white' : 'text-gray-600 hover:bg-gray-100 border border-gray-200'
+                    locale === 'en' ? 'bg-indigo-600 text-white' : 'text-slate-600 border border-slate-200 hover:bg-slate-50'
                   }`}
                 >
                   🇬🇧 English
@@ -256,7 +250,6 @@ export function UserMenu() {
             </div>
           </div>
 
-          {/* Footer */}
           <div className="px-4 pb-4 space-y-2">
             {role === 'USER' && (
               <Link
@@ -269,7 +262,7 @@ export function UserMenu() {
             )}
             <button
               onClick={() => { setOpen(false); restartTutorial(); }}
-              className="w-full text-sm text-gray-500 hover:text-gray-800 border border-gray-200 hover:border-gray-400 rounded-lg py-2 font-medium transition-colors"
+              className="w-full text-sm text-slate-500 hover:text-slate-800 border border-slate-200 hover:border-slate-400 rounded-lg py-2 font-medium transition-colors"
             >
               {t('restartTutorial')}
             </button>

@@ -17,7 +17,7 @@ export function BadgePage() {
     return (
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
         {Array.from({ length: 8 }).map((_, i) => (
-          <div key={i} className="rounded-xl border border-gray-100 bg-gray-50 p-4 animate-pulse h-36" />
+          <div key={i} className="rounded-xl border border-slate-100 bg-slate-50 p-4 animate-pulse h-36" />
         ))}
       </div>
     );
@@ -38,22 +38,21 @@ export function BadgePage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-lg font-semibold text-gray-900">{t('pageTitle')}</h1>
-          <p className="text-sm text-gray-500 mt-0.5">
+          <h1 className="page-title">{t('pageTitle')}</h1>
+          <p className="page-subtitle">
             {earnedCount} / {data.all.length} {t('earned')}
           </p>
         </div>
       </div>
 
-      {/* Category filter */}
       <div className="flex flex-wrap gap-2">
         <button
           onClick={() => setActiveCategory('ALL')}
           className={[
             'px-3 py-1.5 rounded-lg text-sm font-medium transition-colors',
             activeCategory === 'ALL'
-              ? 'bg-gray-900 text-white'
-              : 'bg-white border border-gray-200 text-gray-600 hover:border-gray-400',
+              ? 'bg-indigo-600 text-white'
+              : 'bg-white border border-slate-200 text-slate-600 hover:border-slate-400 hover:bg-slate-50',
           ].join(' ')}
         >
           {t('categoryAll')}
@@ -65,8 +64,8 @@ export function BadgePage() {
             className={[
               'px-3 py-1.5 rounded-lg text-sm font-medium transition-colors',
               activeCategory === cat
-                ? 'bg-gray-900 text-white'
-                : 'bg-white border border-gray-200 text-gray-600 hover:border-gray-400',
+                ? 'bg-indigo-600 text-white'
+                : 'bg-white border border-slate-200 text-slate-600 hover:border-slate-400 hover:bg-slate-50',
             ].join(' ')}
           >
             {t(`categories.${cat}`)}
@@ -74,7 +73,6 @@ export function BadgePage() {
         ))}
       </div>
 
-      {/* Badge grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
         {filteredBadges.map((badge) => (
           <BadgeCard
