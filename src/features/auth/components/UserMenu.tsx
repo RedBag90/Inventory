@@ -260,6 +260,13 @@ export function UserMenu() {
                 {t('becomeOrganizer')}
               </Link>
             )}
+            <Link
+              href="/pending-assignment"
+              onClick={() => setOpen(false)}
+              className="block w-full text-center text-sm text-indigo-600 hover:text-indigo-800 border border-indigo-200 hover:border-indigo-400 rounded-lg py-2 font-medium transition-colors"
+            >
+              {t('joinOlympiad')}
+            </Link>
             <button
               onClick={() => { setOpen(false); restartTutorial(); }}
               className="w-full text-sm text-slate-500 hover:text-slate-800 border border-slate-200 hover:border-slate-400 rounded-lg py-2 font-medium transition-colors"
