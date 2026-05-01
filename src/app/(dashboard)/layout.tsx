@@ -21,11 +21,11 @@ export default async function DashboardLayout({ children }: { children: React.Re
   return (
     <ActiveOlympiadProvider>
     <TutorialShell tutorialCompleted={syncedUser.tutorialCompletedAt !== null}>
-      <div className="flex h-screen overflow-hidden bg-gray-50">
+      <div className="flex h-screen overflow-hidden bg-slate-50">
         <Sidebar role={syncedUser.role} />
         <div className="flex flex-col flex-1 overflow-hidden">
           {/* Header — US-029 */}
-          <header className="h-14 shrink-0 border-b border-gray-200 bg-white flex items-center justify-end px-6">
+          <header className="h-14 shrink-0 border-b border-slate-200 bg-white flex items-center justify-end px-6">
             <UserMenu />
           </header>
           <main className="flex-1 overflow-auto p-6">

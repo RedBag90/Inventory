@@ -1,9 +1,5 @@
 'use client';
 
-// Form to record a sale against an existing inventory item.
-// Uses React Hook Form + Zod (RecordSaleSchema).
-// Does NOT write to DB — calls onReview() so the parent can show the confirmation step.
-
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { RecordSaleSchema, type RecordSaleInput } from '../types/sales.types';
@@ -35,11 +31,10 @@ export function SaleForm({ itemId, onReview, onCancel }: Props) {
 
   return (
     <form onSubmit={handleSubmit(onReview)} className="space-y-4">
-      <h2 className="text-sm font-semibold text-gray-700">Record sale</h2>
+      <h2 className="text-sm font-semibold text-slate-700">Record sale</h2>
 
-      {/* Sale price */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="label-base">
           Sale price (€) <span className="text-red-500">*</span>
         </label>
         <input
@@ -47,7 +42,7 @@ export function SaleForm({ itemId, onReview, onCancel }: Props) {
           step="0.01"
           min="0"
           {...register('salePrice', { valueAsNumber: true })}
-          className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+          className="input-base"
           placeholder="0.00"
         />
         {errors.salePrice && (
@@ -55,14 +50,13 @@ export function SaleForm({ itemId, onReview, onCancel }: Props) {
         )}
       </div>
 
-      {/* Sale platform */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="label-base">
           Platform <span className="text-red-500">*</span>
         </label>
         <select
           {...register('salePlatform')}
-          className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black bg-white"
+          className="select-base"
         >
           <option value="">Select platform…</option>
           {PLATFORMS.map((p) => (
@@ -76,9 +70,8 @@ export function SaleForm({ itemId, onReview, onCancel }: Props) {
         )}
       </div>
 
-      {/* Shipping out */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="label-base">
           Outbound shipping (€)
         </label>
         <input
@@ -86,7 +79,7 @@ export function SaleForm({ itemId, onReview, onCancel }: Props) {
           step="0.01"
           min="0"
           {...register('shippingCostOut', { valueAsNumber: true })}
-          className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+          className="input-base"
           placeholder="0.00"
         />
         {errors.shippingCostOut && (
@@ -94,16 +87,15 @@ export function SaleForm({ itemId, onReview, onCancel }: Props) {
         )}
       </div>
 
-      {/* Sale date */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="label-base">
           Sale date <span className="text-red-500">*</span>
         </label>
         <input
           type="date"
           defaultValue={todayISO()}
           {...register('soldAt', { valueAsDate: true })}
-          className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+          className="input-base"
         />
         {errors.soldAt && (
           <p className="text-xs text-red-600 mt-1">{errors.soldAt.message}</p>
@@ -113,14 +105,14 @@ export function SaleForm({ itemId, onReview, onCancel }: Props) {
       <div className="flex gap-3 pt-1">
         <button
           type="submit"
-          className="flex-1 bg-black text-white rounded py-2 text-sm font-medium hover:bg-gray-800 transition-colors"
+          className="btn-primary flex-1"
         >
           Review sale →
         </button>
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+          className="btn-ghost"
         >
           Cancel
         </button>

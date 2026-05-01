@@ -17,18 +17,18 @@ function CustomTooltip({ active, payload, label }: TooltipProps) {
   const costs   = payload.find((p) => p.dataKey === 'Costs')?.value ?? 0;
   const roi     = costs > 0 ? (((revenue - costs) / costs) * 100).toFixed(1) : '—';
   return (
-    <div className="bg-white border border-gray-200 rounded shadow-sm p-3 text-xs">
-      <p className="font-semibold text-gray-800 mb-1">{label}</p>
-      <p className="text-green-700">Revenue: €{revenue.toFixed(2)}</p>
+    <div className="bg-white border border-slate-200 rounded shadow-sm p-3 text-xs">
+      <p className="font-semibold text-slate-800 mb-1">{label}</p>
+      <p className="text-emerald-600">Revenue: €{revenue.toFixed(2)}</p>
       <p className="text-red-600">Costs: €{costs.toFixed(2)}</p>
-      <p className="text-gray-700 mt-1">ROI: {roi}%</p>
+      <p className="text-slate-700 mt-1">ROI: {roi}%</p>
     </div>
   );
 }
 
 export function RoiChart({ data }: Props) {
   if (data.every((d) => d.Revenue === 0 && d.Costs === 0)) {
-    return <p className="text-sm text-gray-400 text-center py-10">No sales in this period.</p>;
+    return <p className="text-sm text-slate-400 text-center py-10">No sales in this period.</p>;
   }
 
   return (

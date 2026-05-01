@@ -23,8 +23,6 @@ function fmtDisplay(d: Date) {
   return new Date(d).toLocaleDateString('de-DE', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
-// ── Inline editable field ─────────────────────────────────────────────────────
-
 function EditableField({
   label, value, type = 'text', onSave,
 }: {
@@ -43,10 +41,10 @@ function EditableField({
   return (
     <div>
       <div className="flex items-center justify-between mb-1">
-        <p className="text-xs font-medium text-gray-400 uppercase tracking-wide">{label}</p>
+        <p className="text-xs font-medium text-slate-400 uppercase tracking-wide">{label}</p>
         {!editing && (
           <button onClick={() => setEditing(true)}
-            className="text-xs text-gray-400 hover:text-gray-700 transition-colors">
+            className="text-xs text-slate-400 hover:text-slate-700 transition-colors">
             Bearbeiten
           </button>
         )}
@@ -55,28 +53,26 @@ function EditableField({
         <div className="flex gap-2">
           {type === 'textarea' ? (
             <textarea value={val} onChange={e => setVal(e.target.value)} rows={2}
-              className="flex-1 border border-gray-300 rounded-lg px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 resize-none" />
+              className="input-base flex-1 resize-none" />
           ) : (
             <input type={type} value={val} onChange={e => setVal(e.target.value)}
-              className="flex-1 border border-gray-300 rounded-lg px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400" />
+              className="input-base flex-1" />
           )}
           <button onClick={save}
-            className="bg-gray-900 text-white px-3 py-1 rounded-lg text-xs font-medium hover:bg-gray-700 transition-colors">
+            className="btn-primary btn-sm">
             OK
           </button>
           <button onClick={() => { setVal(value); setEditing(false); }}
-            className="text-xs text-gray-400 hover:text-gray-600 px-1 transition-colors">
+            className="btn-ghost btn-sm">
             ✕
           </button>
         </div>
       ) : (
-        <p className="text-sm text-gray-800">{value || <span className="text-gray-400 italic">—</span>}</p>
+        <p className="text-sm text-slate-800">{value || <span className="text-slate-400 italic">—</span>}</p>
       )}
     </div>
   );
 }
-
-// ── Invite link section ───────────────────────────────────────────────────────
 
 function InviteLinkSection({ instance, isOwner }: { instance: OlympiadRecord; isOwner: boolean }) {
   const { mutate: generate,        isPending: generating } = useGenerateInviteToken();
@@ -96,15 +92,15 @@ function InviteLinkSection({ instance, isOwner }: { instance: OlympiadRecord; is
   }
 
   return (
-    <div className="border border-gray-200 rounded-xl p-4 space-y-3">
-      <p className="text-xs font-semibold text-gray-700 uppercase tracking-wide">Einladungslink</p>
+    <div className="border border-slate-200 rounded-xl p-4 space-y-3">
+      <p className="text-xs font-semibold text-slate-700 uppercase tracking-wide">Einladungslink</p>
       {link ? (
         <>
           <div className="flex gap-2">
             <input readOnly value={link}
-              className="flex-1 border border-gray-200 rounded-lg px-3 py-1.5 text-xs text-gray-600 bg-gray-50 min-w-0" />
+              className="flex-1 border border-slate-200 rounded-lg px-3 py-1.5 text-xs text-slate-600 bg-slate-50 min-w-0" />
             <button onClick={copy}
-              className="shrink-0 border border-gray-200 px-3 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-gray-50 transition-colors">
+              className="btn-secondary btn-sm shrink-0">
               {copied ? '✓ Kopiert' : 'Kopieren'}
             </button>
           </div>
@@ -115,13 +111,13 @@ function InviteLinkSection({ instance, isOwner }: { instance: OlympiadRecord; is
                   type="checkbox"
                   checked={instance.inviteLinkAutoAccept}
                   onChange={e => setInviteAutoAccept({ instanceId: instance.id, autoAccept: e.target.checked })}
-                  className="w-4 h-4 rounded border-gray-300 text-gray-900 focus:ring-gray-400"
+                  className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
                 />
-                <span className="text-xs text-gray-600">Anfragen automatisch akzeptieren</span>
+                <span className="text-xs text-slate-600">Anfragen automatisch akzeptieren</span>
               </label>
               <div className="flex gap-3">
                 <button onClick={() => generate(instance.id)} disabled={generating}
-                  className="text-xs text-gray-400 hover:text-gray-700 underline disabled:opacity-40 transition-colors">
+                  className="text-xs text-slate-400 hover:text-slate-700 underline disabled:opacity-40 transition-colors">
                   Neu generieren
                 </button>
                 <button onClick={() => { if (confirm('Link deaktivieren?')) revoke(instance.id); }} disabled={revoking}
@@ -134,10 +130,10 @@ function InviteLinkSection({ instance, isOwner }: { instance: OlympiadRecord; is
         </>
       ) : (
         <div className="space-y-2">
-          <p className="text-xs text-gray-400">Kein aktiver Einladungslink.</p>
+          <p className="text-xs text-slate-400">Kein aktiver Einladungslink.</p>
           {isOwner && (
             <button onClick={() => generate(instance.id)} disabled={generating}
-              className="text-xs bg-gray-900 text-white px-3 py-1.5 rounded-lg font-medium hover:bg-gray-700 disabled:opacity-50 transition-colors">
+              className="btn-primary btn-sm">
               {generating ? 'Generieren…' : 'Link generieren'}
             </button>
           )}
@@ -146,8 +142,6 @@ function InviteLinkSection({ instance, isOwner }: { instance: OlympiadRecord; is
     </div>
   );
 }
-
-// ── Join code section ─────────────────────────────────────────────────────────
 
 function JoinCodeSection({ instance, isOwner }: { instance: OlympiadRecord; isOwner: boolean }) {
   const { mutate: generate, isPending: generating } = useGenerateJoinCode();
@@ -164,16 +158,16 @@ function JoinCodeSection({ instance, isOwner }: { instance: OlympiadRecord; isOw
   }
 
   return (
-    <div className="border border-gray-200 rounded-xl p-4 space-y-3">
-      <p className="text-xs font-semibold text-gray-700 uppercase tracking-wide">Beitrittscode</p>
+    <div className="border border-slate-200 rounded-xl p-4 space-y-3">
+      <p className="text-xs font-semibold text-slate-700 uppercase tracking-wide">Beitrittscode</p>
       {instance.joinCode ? (
         <>
           <div className="flex gap-2 items-center">
-            <span className="flex-1 border border-gray-200 rounded-lg px-3 py-1.5 text-sm font-mono font-semibold text-gray-800 bg-gray-50 tracking-widest">
+            <span className="flex-1 border border-slate-200 rounded-lg px-3 py-1.5 text-sm font-mono font-semibold text-slate-800 bg-slate-50 tracking-widest">
               {instance.joinCode}
             </span>
             <button onClick={copy}
-              className="shrink-0 border border-gray-200 px-3 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-gray-50 transition-colors">
+              className="btn-secondary btn-sm shrink-0">
               {copied ? '✓ Kopiert' : 'Kopieren'}
             </button>
           </div>
@@ -184,13 +178,13 @@ function JoinCodeSection({ instance, isOwner }: { instance: OlympiadRecord; isOw
                   type="checkbox"
                   checked={instance.autoAccept}
                   onChange={e => setAutoAccept({ instanceId: instance.id, autoAccept: e.target.checked })}
-                  className="w-4 h-4 rounded border-gray-300 text-gray-900 focus:ring-gray-400"
+                  className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
                 />
-                <span className="text-xs text-gray-600">Anfragen automatisch akzeptieren</span>
+                <span className="text-xs text-slate-600">Anfragen automatisch akzeptieren</span>
               </label>
               <div className="flex gap-3">
                 <button onClick={() => generate(instance.id)} disabled={generating}
-                  className="text-xs text-gray-400 hover:text-gray-700 underline disabled:opacity-40 transition-colors">
+                  className="text-xs text-slate-400 hover:text-slate-700 underline disabled:opacity-40 transition-colors">
                   Neu generieren
                 </button>
                 <button onClick={() => { if (confirm('Code deaktivieren?')) revoke(instance.id); }} disabled={revoking}
@@ -203,10 +197,10 @@ function JoinCodeSection({ instance, isOwner }: { instance: OlympiadRecord; isOw
         </>
       ) : (
         <div className="space-y-2">
-          <p className="text-xs text-gray-400">Kein aktiver Beitrittscode.</p>
+          <p className="text-xs text-slate-400">Kein aktiver Beitrittscode.</p>
           {isOwner && (
             <button onClick={() => generate(instance.id)} disabled={generating}
-              className="text-xs bg-gray-900 text-white px-3 py-1.5 rounded-lg font-medium hover:bg-gray-700 disabled:opacity-50 transition-colors">
+              className="btn-primary btn-sm">
               {generating ? 'Generieren…' : 'Code generieren'}
             </button>
           )}
@@ -215,8 +209,6 @@ function JoinCodeSection({ instance, isOwner }: { instance: OlympiadRecord; isOw
     </div>
   );
 }
-
-// ── Member management ─────────────────────────────────────────────────────────
 
 function MembersSection({ instance, isOwner }: { instance: OlympiadRecord; isOwner: boolean }) {
   const { data: members, isLoading } = useOlympiadMembers(instance.id);
@@ -239,7 +231,7 @@ function MembersSection({ instance, isOwner }: { instance: OlympiadRecord; isOwn
 
   return (
     <div className="space-y-4">
-      <p className="text-xs font-semibold text-gray-700 uppercase tracking-wide">
+      <p className="text-xs font-semibold text-slate-700 uppercase tracking-wide">
         Teilnehmer {members ? `(${members.length})` : ''}
       </p>
 
@@ -248,10 +240,10 @@ function MembersSection({ instance, isOwner }: { instance: OlympiadRecord; isOwn
           <input
             type="email" value={email} onChange={e => setEmail(e.target.value)}
             placeholder="E-Mail-Adresse" required
-            className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
+            className="input-base flex-1"
           />
           <button type="submit" disabled={assigning}
-            className="bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-700 disabled:opacity-50 transition-colors">
+            className="btn-primary">
             {assigning ? '…' : 'Hinzufügen'}
           </button>
         </form>
@@ -260,19 +252,19 @@ function MembersSection({ instance, isOwner }: { instance: OlympiadRecord; isOwn
       {assignError && (
         <p className="text-xs text-red-600">{(assignError as Error).message}</p>
       )}
-{isLoading && <p className="text-sm text-gray-400">Laden…</p>}
+      {isLoading && <p className="text-sm text-slate-400">Laden…</p>}
 
       {members && members.length === 0 && (
-        <p className="text-sm text-gray-400">Noch keine Teilnehmer.</p>
+        <p className="text-sm text-slate-400">Noch keine Teilnehmer.</p>
       )}
 
       {members && members.length > 0 && (
-        <ul className="divide-y divide-gray-100 border border-gray-200 rounded-xl overflow-hidden">
+        <ul className="divide-y divide-slate-100 border border-slate-200 rounded-xl overflow-hidden">
           {members.map((m) => (
             <li key={m.id} className="flex items-center justify-between px-4 py-3">
               <div>
-                <p className="text-sm font-medium text-gray-900">{m.displayName ?? m.email}</p>
-                {m.displayName && <p className="text-xs text-gray-400">{m.email}</p>}
+                <p className="text-sm font-medium text-slate-900">{m.displayName ?? m.email}</p>
+                {m.displayName && <p className="text-xs text-slate-400">{m.email}</p>}
               </div>
               {isOwner && (
                 <button
@@ -288,8 +280,6 @@ function MembersSection({ instance, isOwner }: { instance: OlympiadRecord; isOwn
     </div>
   );
 }
-
-// ── Main detail ───────────────────────────────────────────────────────────────
 
 export function OlympiadDetail({
   instance,
@@ -311,37 +301,34 @@ export function OlympiadDetail({
 
   return (
     <div className="space-y-6">
-      {/* Back */}
       <button onClick={onBack}
-        className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 transition-colors">
+        className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-800 transition-colors">
         <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
         </svg>
         Alle Olympiaden
       </button>
 
-      {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h2 className="text-lg font-bold text-gray-900">{instance.name}</h2>
-          <p className="text-sm text-gray-400 mt-0.5">
+          <h2 className="text-lg font-bold text-slate-900">{instance.name}</h2>
+          <p className="text-sm text-slate-400 mt-0.5">
             {fmtDisplay(instance.startsAt)} – {fmtDisplay(instance.endsAt)}
           </p>
-          <p className="text-xs text-gray-400 mt-1">
-            Inhaber: <span className="font-medium text-gray-600">{instance.createdByEmail}</span>
+          <p className="text-xs text-slate-400 mt-1">
+            Inhaber: <span className="font-medium text-slate-600">{instance.createdByEmail}</span>
           </p>
         </div>
         <span className={[
           'inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium shrink-0',
-          instance.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-500',
+          instance.isActive ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-500',
         ].join(' ')}>
           {instance.isActive ? 'Aktiv' : 'Archiviert'}
         </span>
       </div>
 
-      {/* Editable fields (owner only) */}
       {isOwner && (
-        <div className="bg-white border border-gray-200 rounded-xl p-5 space-y-4">
+        <div className="card-section space-y-4">
           <EditableField label="Name" value={instance.name} onSave={v => save('name', v)} />
           <EditableField label="Beschreibung" value={instance.description ?? ''} type="textarea" onSave={v => save('description', v)} />
           <div className="grid grid-cols-2 gap-4">
@@ -351,13 +338,8 @@ export function OlympiadDetail({
         </div>
       )}
 
-      {/* Invite link */}
       <InviteLinkSection instance={instance} isOwner={isOwner} />
-
-      {/* Join code */}
       <JoinCodeSection instance={instance} isOwner={isOwner} />
-
-      {/* Members */}
       <MembersSection instance={instance} isOwner={isOwner} />
     </div>
   );

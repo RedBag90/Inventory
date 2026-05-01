@@ -15,9 +15,9 @@ function CustomTooltip({ active, payload, label }: TooltipProps) {
   if (!active || !payload?.length) return null;
   const v = payload[0].value;
   return (
-    <div className="bg-white border border-gray-200 rounded shadow-sm p-3 text-xs">
-      <p className="font-semibold text-gray-800 mb-1">{label}</p>
-      <p className={v >= 0 ? 'text-green-700' : 'text-red-600'}>
+    <div className="bg-white border border-slate-200 rounded shadow-sm p-3 text-xs">
+      <p className="font-semibold text-slate-800 mb-1">{label}</p>
+      <p className={v >= 0 ? 'text-emerald-600' : 'text-red-600'}>
         Net cash flow: €{v.toFixed(2)}
       </p>
     </div>
@@ -27,7 +27,7 @@ function CustomTooltip({ active, payload, label }: TooltipProps) {
 export function CashFlowChart({ data }: Props) {
   const hasData = data.some((d) => d.cashFlow !== 0);
   if (!hasData) {
-    return <p className="text-sm text-gray-400 text-center py-10">No sales in this period.</p>;
+    return <p className="text-sm text-slate-400 text-center py-10">No sales in this period.</p>;
   }
 
   return (

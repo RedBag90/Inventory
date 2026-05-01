@@ -1,8 +1,5 @@
 'use client';
 
-// Modal for pre-marking an existing IN_STOCK item for sale.
-// Shows profit preview and saves as PendingSale (status → RESERVED).
-
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -68,51 +65,51 @@ export function PendingSaleModal({ item, onClose }: Props) {
   }
 
   const profitColor =
-    previewProfit === null ? 'text-gray-500' :
-    previewProfit < 0      ? 'text-red-600'  :
-    previewProfit === 0    ? 'text-gray-500'  :
+    previewProfit === null ? 'text-slate-500' :
+    previewProfit < 0      ? 'text-red-600'   :
+    previewProfit === 0    ? 'text-slate-500'  :
                              'text-emerald-600';
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} aria-hidden="true" />
-      <div className="relative z-10 w-full max-w-lg bg-white rounded-xl shadow-2xl overflow-hidden">
+      <div className="relative z-10 w-full max-w-lg bg-white rounded-2xl shadow-2xl ring-1 ring-slate-200 overflow-hidden">
 
-        <div className="flex items-start justify-between p-5 border-b border-gray-200">
+        <div className="modal-header">
           <div>
-            <h2 className="text-base font-semibold text-gray-900">{item.name}</h2>
-            <p className="text-xs text-gray-500 mt-0.5">
+            <h2 className="text-base font-semibold text-slate-900">{item.name}</h2>
+            <p className="text-xs text-slate-500 mt-0.5">
               Gekauft {formatDate(new Date(item.purchasedAt))} · Einkaufskosten {formatCurrency(totalCost)}
             </p>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-700 text-xl leading-none ml-4 mt-0.5" aria-label="Schließen">✕</button>
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-700 text-xl leading-none ml-4 mt-0.5" aria-label="Schließen">✕</button>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="p-5 space-y-4">
-          <h3 className="text-sm font-semibold text-gray-700">Artikel inserieren</h3>
+          <h3 className="text-sm font-semibold text-slate-700">Artikel inserieren</h3>
 
           <input type="hidden" {...register('itemId')} />
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="label-base">
               Verkaufspreis (€) <span className="text-red-500">*</span>
             </label>
             <input
               type="number" step="0.01" min="0" autoFocus
               {...register('salePrice', { valueAsNumber: true })}
-              className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+              className="input-base"
               placeholder="0.00"
             />
             {errors.salePrice && <p className="text-xs text-red-600 mt-1">{errors.salePrice.message}</p>}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="label-base">
               Plattform <span className="text-red-500">*</span>
             </label>
             <select
               {...register('salePlatform')}
-              className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black bg-white"
+              className="select-base"
             >
               <option value="">Plattform auswählen…</option>
               {PLATFORMS.map((p) => (
@@ -123,31 +120,30 @@ export function PendingSaleModal({ item, onClose }: Props) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Versandkosten Ausgang (€)</label>
+            <label className="label-base">Versandkosten Ausgang (€)</label>
             <input
               type="number" step="0.01" min="0"
               {...register('shippingCostOut', { valueAsNumber: true })}
-              className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+              className="input-base"
               placeholder="0.00"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="label-base">
               Geplantes Verkaufsdatum <span className="text-red-500">*</span>
             </label>
             <input
               type="date" defaultValue={todayISO()}
               {...register('soldAt', { valueAsDate: true })}
-              className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+              className="input-base"
             />
             {errors.soldAt && <p className="text-xs text-red-600 mt-1">{errors.soldAt.message}</p>}
           </div>
 
-          {/* Profit preview */}
           {previewProfit !== null && (
-            <div className="bg-gray-50 rounded-lg border border-gray-200 px-4 py-3 flex justify-between items-center">
-              <span className="text-sm text-gray-500">Erwarteter Gewinn</span>
+            <div className="profit-panel flex justify-between items-center">
+              <span className="text-sm text-slate-500">Erwarteter Gewinn</span>
               <span className={`text-sm font-semibold ${profitColor}`}>
                 {previewProfit > 0 ? '+' : ''}{formatCurrency(previewProfit)}
               </span>
@@ -158,11 +154,11 @@ export function PendingSaleModal({ item, onClose }: Props) {
             <button
               type="submit"
               disabled={isPending}
-              className="flex-1 bg-amber-500 text-white rounded py-2 text-sm font-medium hover:bg-amber-400 disabled:opacity-50 transition-colors"
+              className="btn-amber flex-1"
             >
               {isPending ? 'Speichert…' : 'Inserieren'}
             </button>
-            <button type="button" onClick={onClose} className="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors">
+            <button type="button" onClick={onClose} className="btn-ghost">
               Abbrechen
             </button>
           </div>

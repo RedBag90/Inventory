@@ -15,7 +15,7 @@ type Props = {
 
 export function CostDistributionChart({ data, items, avgCostLine }: Props) {
   if (items.length === 0) {
-    return <p className="text-sm text-gray-400 text-center py-10">No sales in this period.</p>;
+    return <p className="text-sm text-slate-400 text-center py-10">No sales in this period.</p>;
   }
 
   return (

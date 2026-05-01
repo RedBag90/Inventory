@@ -4,13 +4,13 @@ import type { BadgeTier } from '../types/badge.types';
 
 const TIER_COLORS: Record<BadgeTier, string> = {
   BRONZE: 'text-amber-600',
-  SILVER: 'text-gray-400',
+  SILVER: 'text-slate-400',
   GOLD:   'text-yellow-400',
 };
 
 const TIER_BG: Record<BadgeTier, string> = {
   BRONZE: 'bg-amber-50  border-amber-200',
-  SILVER: 'bg-gray-50   border-gray-200',
+  SILVER: 'bg-slate-50  border-slate-200',
   GOLD:   'bg-yellow-50 border-yellow-200',
 };
 

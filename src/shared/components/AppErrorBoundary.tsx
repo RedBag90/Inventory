@@ -22,10 +22,10 @@ export class AppErrorBoundary extends React.Component<Props, State> {
       if (this.props.fallback) return this.props.fallback;
       return (
         <div className="flex flex-col items-center justify-center p-8 text-center space-y-3">
-          <p className="text-sm font-medium text-gray-900">Etwas ist schiefgelaufen.</p>
+          <p className="text-sm font-medium text-slate-900">Etwas ist schiefgelaufen.</p>
           <button
             onClick={() => this.setState({ hasError: false })}
-            className="text-xs text-gray-500 underline hover:text-gray-800 transition-colors"
+            className="text-xs text-slate-500 underline hover:text-slate-800 transition-colors"
           >
             Erneut versuchen
           </button>
