@@ -143,7 +143,7 @@ export function ConfirmPendingSaleModal({ item, onClose }: Props) {
               </label>
               <button
                 type="button"
-                onClick={() => setValue('soldAt', new Date(todayISO()) as unknown as Date)}
+                onClick={() => setValue('soldAt', todayISO() as unknown as Date)}
                 className="text-xs text-slate-500 underline hover:text-slate-800"
               >
                 Heute
