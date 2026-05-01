@@ -34,6 +34,9 @@ function EditableField({
   const [editing, setEditing] = useState(false);
   const [val, setVal] = useState(value);
 
+  // Keep val in sync with external value changes (e.g. after refetch) when not editing
+  if (!editing && val !== value) setVal(value);
+
   function save() {
     if (val.trim()) { onSave(val.trim()); setEditing(false); }
   }
@@ -68,7 +71,7 @@ function EditableField({
           </button>
         </div>
       ) : (
-        <p className="text-sm text-slate-800">{value || <span className="text-slate-400 italic">—</span>}</p>
+        <p className="text-sm text-slate-800">{val || <span className="text-slate-400 italic">—</span>}</p>
       )}
     </div>
   );
@@ -290,9 +293,10 @@ export function OlympiadDetail({
   isOwner: boolean;
   onBack: () => void;
 }) {
-  const { mutate: update } = useUpdateOlympiad();
+  const { mutate: update, error: updateError, reset: resetError } = useUpdateOlympiad();
 
   function save(field: string, value: string) {
+    resetError();
     const data: Record<string, string | Date> = {};
     if (field === 'startsAt' || field === 'endsAt') data[field] = new Date(value);
     else data[field] = value;
@@ -335,6 +339,9 @@ export function OlympiadDetail({
             <EditableField label="Startdatum" value={fmt(instance.startsAt)} type="date" onSave={v => save('startsAt', v)} />
             <EditableField label="Enddatum"   value={fmt(instance.endsAt)}   type="date" onSave={v => save('endsAt',   v)} />
           </div>
+          {updateError && (
+            <p className="text-xs text-red-600">{(updateError as Error).message}</p>
+          )}
         </div>
       )}
 
