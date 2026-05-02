@@ -85,9 +85,9 @@ export function ItemTable({ onRecordSale, onPreMarkSale, onConfirmSale, onCancel
       )}
 
       {/* ── Item list card ── */}
-      <div className="card overflow-hidden">
+      <div className="card">
 
-        {/* Filter tabs */}
+        {/* Filter tabs — own scroll, not clipped by card's overflow */}
         <div className="flex gap-1 px-2 sm:px-4 pt-3 border-b border-slate-100 overflow-x-auto">
           {TABS.map((tab) => (
             <button
@@ -108,6 +108,9 @@ export function ItemTable({ onRecordSale, onPreMarkSale, onConfirmSale, onCancel
             </button>
           ))}
         </div>
+
+        {/* Items area — overflow-hidden here for border-radius clipping on hover states */}
+        <div className="overflow-hidden">
 
         {isLoading && (
           <div className="p-4 space-y-2">
@@ -158,6 +161,8 @@ export function ItemTable({ onRecordSale, onPreMarkSale, onConfirmSale, onCancel
             ))}
           </ul>
         )}
+
+        </div>
       </div>
     </div>
   );

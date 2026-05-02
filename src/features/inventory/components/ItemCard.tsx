@@ -93,7 +93,7 @@ export function ItemCard({ item, onRecordSale, onPreMarkSale, onConfirmSale, onC
           </div>
         </div>
 
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex flex-col items-end gap-1 md:flex-row md:items-center md:gap-2 shrink-0">
           <div className="text-right">
             <span className="text-sm text-slate-500">{formatCurrency(item.purchasePrice)}</span>
             {profit !== null && (

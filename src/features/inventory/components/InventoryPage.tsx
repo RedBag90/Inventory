@@ -28,23 +28,23 @@ export function InventoryPage() {
   return (
     <div>
       {/* Header */}
-      <div className="flex items-center justify-between gap-3 mb-6">
-        <div className="min-w-0">
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
           <h1 className="page-title">{t('title')}</h1>
-          <p className="page-subtitle hidden sm:block">{t('subtitle')}</p>
+          <p className="page-subtitle">{t('subtitle')}</p>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex gap-2">
           <button
             data-tutorial="quick-sell-button"
             onClick={() => setShowQuickSell(true)}
-            className="btn-secondary text-xs px-3 py-1.5 rounded-lg sm:text-sm sm:px-5 sm:py-2 sm:rounded-xl"
+            className="btn-secondary flex-1 sm:flex-none"
           >
             {t('quickSellButton')}
           </button>
           <button
             data-tutorial="buy-button"
             onClick={() => setShowAddForm(true)}
-            className="btn-primary text-xs px-3 py-1.5 rounded-lg sm:text-sm sm:px-5 sm:py-2 sm:rounded-xl"
+            className="btn-primary flex-1 sm:flex-none"
           >
             {t('buyButton')}
           </button>
