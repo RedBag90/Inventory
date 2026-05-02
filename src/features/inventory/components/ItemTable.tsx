@@ -32,7 +32,7 @@ export function ItemTable({ onRecordSale, onPreMarkSale, onConfirmSale, onCancel
   const TABS = useMemo(() => [
     { label: t('filterAll'),     value: 'ALL'      as FilterTab },
     { label: t('filterInStock'), value: 'IN_STOCK' as FilterTab },
-    { label: 'Inseriert',        value: 'RESERVED' as FilterTab },
+    { label: t('filterReserved'), value: 'RESERVED' as FilterTab },
     { label: t('filterSold'),    value: 'SOLD'     as FilterTab },
   ], [t]);
 
@@ -69,7 +69,7 @@ export function ItemTable({ onRecordSale, onPreMarkSale, onConfirmSale, onCancel
           {[
             { label: t('totalItems'), value: String(stats.total) },
             { label: t('inStock'),    value: String(stats.inStock) },
-            { label: 'Inseriert',     value: String(stats.reserved), color: stats.reserved > 0 ? 'text-amber-600' : undefined },
+            { label: t('filterReserved'), value: String(stats.reserved), color: stats.reserved > 0 ? 'text-amber-600' : undefined },
             {
               label: t('profit'),
               value: formatCurrency(stats.profit),

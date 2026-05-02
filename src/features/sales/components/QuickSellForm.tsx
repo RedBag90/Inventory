@@ -143,7 +143,7 @@ export function QuickSellForm({ onReview, onPreMark, onCancel }: Props) {
         <button
           type="button"
           onClick={onCancel}
-          className="btn-ghost"
+          className="btn-ghost flex-1"
         >
           {tc('cancel')}
         </button>

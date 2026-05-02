@@ -28,7 +28,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           <header className="h-14 shrink-0 border-b border-slate-200 bg-white flex items-center justify-end px-6">
             <UserMenu />
           </header>
-          <main className="flex-1 overflow-auto p-6">
+          <main className="flex-1 overflow-auto p-3 md:p-6">
             <AppErrorBoundary>
               {children}
             </AppErrorBoundary>
