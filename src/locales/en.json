@@ -161,7 +161,7 @@
     "statusSold": "Sold",
     "statusReserved": "Listed",
     "statusReservedAt": "listed {price}",
-    "daysInStock": "{days}d in stock",
+    "daysInStock": "{days}d",
     "sellButton": "Sell",
     "ghostItemName": "Vintage Camera",
     "ghostItemBoughtFor": "Bought for €15.00",

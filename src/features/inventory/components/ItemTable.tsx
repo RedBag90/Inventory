@@ -88,13 +88,13 @@ export function ItemTable({ onRecordSale, onPreMarkSale, onConfirmSale, onCancel
       <div className="card overflow-hidden">
 
         {/* Filter tabs */}
-        <div className="flex gap-1 px-4 pt-3 border-b border-slate-100">
+        <div className="flex gap-1 px-2 sm:px-4 pt-3 border-b border-slate-100 overflow-x-auto">
           {TABS.map((tab) => (
             <button
               key={tab.value}
               onClick={() => setFilter(tab.value)}
               className={[
-                'px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors',
+                'px-2 sm:px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors whitespace-nowrap',
                 activeFilter === tab.value
                   ? 'tab-active'
                   : 'tab-inactive',

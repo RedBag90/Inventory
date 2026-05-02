@@ -28,25 +28,25 @@ export function InventoryPage() {
   return (
     <div>
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
+      <div className="flex items-center justify-between gap-3 mb-6">
+        <div className="min-w-0">
           <h1 className="page-title">{t('title')}</h1>
-          <p className="page-subtitle">{t('subtitle')}</p>
+          <p className="page-subtitle hidden sm:block">{t('subtitle')}</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           <button
             data-tutorial="quick-sell-button"
             onClick={() => setShowQuickSell(true)}
-            className="btn-secondary"
+            className="btn-secondary text-xs px-3 py-1.5 rounded-lg sm:text-sm sm:px-5 sm:py-2 sm:rounded-xl"
           >
             {t('quickSellButton')}
           </button>
           <button
             data-tutorial="buy-button"
             onClick={() => setShowAddForm(true)}
-            className="btn-primary"
+            className="btn-primary text-xs px-3 py-1.5 rounded-lg sm:text-sm sm:px-5 sm:py-2 sm:rounded-xl"
           >
-            {t('quickSellDescription')}
+            {t('buyButton')}
           </button>
         </div>
       </div>

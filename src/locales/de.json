@@ -161,7 +161,7 @@
     "statusSold": "Verkauft",
     "statusReserved": "Inseriert",
     "statusReservedAt": "inseriert {price}",
-    "daysInStock": "{days}d auf Lager",
+    "daysInStock": "{days}d",
     "sellButton": "Verkaufen",
     "ghostItemName": "Vintage Kamera",
     "ghostItemBoughtFor": "Gekauft für 15,00 €",
