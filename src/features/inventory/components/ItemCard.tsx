@@ -94,7 +94,23 @@ export function ItemCard({ item, onRecordSale, onPreMarkSale, onConfirmSale, onC
         </div>
 
         <div className="flex flex-col items-end gap-1 md:flex-row md:items-center md:gap-2 shrink-0">
-          <div className="text-right">
+          {/* Mobile: nur der relevanteste Wert */}
+          <div className="text-right md:hidden">
+            {isSold && profit !== null ? (
+              <span className={['text-sm font-semibold', profitColor].join(' ')}>
+                {profit > 0 ? '+' : ''}{formatCurrency(profit)}
+              </span>
+            ) : isReserved && pendingProfit !== null ? (
+              <span className={['text-sm font-semibold', pendingProfitColor].join(' ')}>
+                {pendingProfit > 0 ? '+' : ''}{formatCurrency(pendingProfit)}
+              </span>
+            ) : (
+              <span className="text-sm text-slate-500">{formatCurrency(item.purchasePrice)}</span>
+            )}
+          </div>
+
+          {/* Desktop: Einkauf → Gewinn */}
+          <div className="text-right hidden md:block">
             <span className="text-sm text-slate-500">{formatCurrency(item.purchasePrice)}</span>
             {profit !== null && (
               <>

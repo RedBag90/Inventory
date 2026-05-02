@@ -29,12 +29,6 @@ export function ItemTable({ onRecordSale, onPreMarkSale, onConfirmSale, onCancel
   const pathname     = usePathname();
   const router       = useRouter();
 
-  const TABS = useMemo(() => [
-    { label: t('filterAll'),     value: 'ALL'      as FilterTab },
-    { label: t('filterInStock'), value: 'IN_STOCK' as FilterTab },
-    { label: t('filterReserved'), value: 'RESERVED' as FilterTab },
-    { label: t('filterSold'),    value: 'SOLD'     as FilterTab },
-  ], [t]);
 
   const activeFilter = (searchParams.get('status') as FilterTab) ?? 'ALL';
 
@@ -63,51 +57,50 @@ export function ItemTable({ onRecordSale, onPreMarkSale, onConfirmSale, onCancel
   return (
     <div className="space-y-5">
 
-      {/* ── Stats strip ── */}
-      {stats && (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {[
-            { label: t('totalItems'), value: String(stats.total) },
-            { label: t('inStock'),    value: String(stats.inStock) },
-            { label: t('filterReserved'), value: String(stats.reserved), color: stats.reserved > 0 ? 'text-amber-600' : undefined },
-            {
-              label: t('profit'),
-              value: formatCurrency(stats.profit),
-              color: stats.profit > 0 ? 'text-emerald-600' : stats.profit < 0 ? 'text-red-500' : 'text-slate-500',
-            },
-          ].map((s) => (
-            <div key={s.label} className="stat-tile">
-              <p className="text-xs text-slate-400 font-medium uppercase tracking-wide">{s.label}</p>
-              <p className={['text-xl font-bold mt-0.5', s.color ?? 'text-slate-900'].join(' ')}>{s.value}</p>
-            </div>
-          ))}
-        </div>
-      )}
+      {/* ── Stats strip (clickable filter tiles) ── */}
+      {stats && (() => {
+        const tiles: { label: string; value: string; color?: string; filterValue?: FilterTab; spanFull?: boolean }[] = [
+          { label: t('totalItems'),     value: String(stats.total),             filterValue: 'ALL' },
+          { label: t('inStock'),        value: String(stats.inStock),           filterValue: 'IN_STOCK' },
+          { label: t('filterReserved'), value: String(stats.reserved),          filterValue: 'RESERVED', color: stats.reserved > 0 ? 'text-amber-600' : undefined },
+          { label: t('filterSold'),     value: String(stats.sold),              filterValue: 'SOLD' },
+          {
+            label: t('profit'),
+            value: formatCurrency(stats.profit),
+            color: stats.profit > 0 ? 'text-emerald-600' : stats.profit < 0 ? 'text-red-500' : 'text-slate-500',
+            spanFull: true,
+          },
+        ];
+        return (
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+            {tiles.map((s) => {
+              const isActive = s.filterValue !== undefined && activeFilter === s.filterValue;
+              const tileClass = [
+                'stat-tile text-left transition-colors',
+                s.filterValue !== undefined ? 'cursor-pointer hover:bg-slate-50' : '',
+                isActive ? 'ring-2 ring-inset ring-indigo-500' : '',
+                s.spanFull ? 'col-span-2 sm:col-span-1' : '',
+              ].filter(Boolean).join(' ');
+              const content = (
+                <>
+                  <p className="text-xs text-slate-400 font-medium uppercase tracking-wide">{s.label}</p>
+                  <p className={['text-xl font-bold mt-0.5', s.color ?? 'text-slate-900'].join(' ')}>{s.value}</p>
+                </>
+              );
+              return s.filterValue !== undefined ? (
+                <button key={s.label} className={tileClass} onClick={() => setFilter(s.filterValue!)}>
+                  {content}
+                </button>
+              ) : (
+                <div key={s.label} className={tileClass}>{content}</div>
+              );
+            })}
+          </div>
+        );
+      })()}
 
       {/* ── Item list card ── */}
       <div className="card">
-
-        {/* Filter tabs — own scroll, not clipped by card's overflow */}
-        <div className="flex gap-1 px-2 sm:px-4 pt-3 border-b border-slate-100 overflow-x-auto">
-          {TABS.map((tab) => (
-            <button
-              key={tab.value}
-              onClick={() => setFilter(tab.value)}
-              className={[
-                'px-2 sm:px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors whitespace-nowrap',
-                activeFilter === tab.value
-                  ? 'tab-active'
-                  : 'tab-inactive',
-              ].join(' ')}
-            >
-              {tab.label}
-              {stats && tab.value === 'ALL'      && <span className="ml-1.5 text-xs text-slate-400">{stats.total}</span>}
-              {stats && tab.value === 'IN_STOCK' && <span className="ml-1.5 text-xs text-slate-400">{stats.inStock}</span>}
-              {stats && tab.value === 'RESERVED' && <span className="ml-1.5 text-xs text-amber-500">{stats.reserved}</span>}
-              {stats && tab.value === 'SOLD'     && <span className="ml-1.5 text-xs text-slate-400">{stats.sold}</span>}
-            </button>
-          ))}
-        </div>
 
         {/* Items area — overflow-hidden here for border-radius clipping on hover states */}
         <div className="overflow-hidden">
