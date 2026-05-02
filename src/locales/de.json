@@ -136,7 +136,8 @@
     "roleMember": "Mitglied",
     "roleAdmin": "Admin",
     "roleInstanceOwner": "Instance Owner",
-    "roleMasterAdmin": "Master Admin"
+    "roleMasterAdmin": "Master Admin",
+    "switchOlympiad": "Olympiade"
   },
   "inventory": {
     "title": "Inventar",
@@ -156,9 +157,12 @@
     "loadError": "Inventar konnte nicht geladen werden.",
     "noItems": "Keine Artikel gefunden.",
     "resetFilter": "Filter zurücksetzen",
+    "filterReserved": "Inseriert",
     "statusInStock": "Auf Lager",
     "statusSold": "Verkauft",
-    "daysInStock": "{days}d auf Lager",
+    "statusReserved": "Inseriert",
+    "statusReservedAt": "inseriert {price}",
+    "daysInStock": "{days}d",
     "sellButton": "Verkaufen",
     "ghostItemName": "Vintage Kamera",
     "ghostItemBoughtFor": "Gekauft für 15,00 €",

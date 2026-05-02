@@ -32,7 +32,7 @@ export function ItemTable({ onRecordSale, onPreMarkSale, onConfirmSale, onCancel
   const TABS = useMemo(() => [
     { label: t('filterAll'),     value: 'ALL'      as FilterTab },
     { label: t('filterInStock'), value: 'IN_STOCK' as FilterTab },
-    { label: 'Inseriert',        value: 'RESERVED' as FilterTab },
+    { label: t('filterReserved'), value: 'RESERVED' as FilterTab },
     { label: t('filterSold'),    value: 'SOLD'     as FilterTab },
   ], [t]);
 
@@ -69,7 +69,7 @@ export function ItemTable({ onRecordSale, onPreMarkSale, onConfirmSale, onCancel
           {[
             { label: t('totalItems'), value: String(stats.total) },
             { label: t('inStock'),    value: String(stats.inStock) },
-            { label: 'Inseriert',     value: String(stats.reserved), color: stats.reserved > 0 ? 'text-amber-600' : undefined },
+            { label: t('filterReserved'), value: String(stats.reserved), color: stats.reserved > 0 ? 'text-amber-600' : undefined },
             {
               label: t('profit'),
               value: formatCurrency(stats.profit),
@@ -85,16 +85,16 @@ export function ItemTable({ onRecordSale, onPreMarkSale, onConfirmSale, onCancel
       )}
 
       {/* ── Item list card ── */}
-      <div className="card overflow-hidden">
+      <div className="card">
 
-        {/* Filter tabs */}
-        <div className="flex gap-1 px-4 pt-3 border-b border-slate-100">
+        {/* Filter tabs — own scroll, not clipped by card's overflow */}
+        <div className="flex gap-1 px-2 sm:px-4 pt-3 border-b border-slate-100 overflow-x-auto">
           {TABS.map((tab) => (
             <button
               key={tab.value}
               onClick={() => setFilter(tab.value)}
               className={[
-                'px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors',
+                'px-2 sm:px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors whitespace-nowrap',
                 activeFilter === tab.value
                   ? 'tab-active'
                   : 'tab-inactive',
@@ -108,6 +108,9 @@ export function ItemTable({ onRecordSale, onPreMarkSale, onConfirmSale, onCancel
             </button>
           ))}
         </div>
+
+        {/* Items area — overflow-hidden here for border-radius clipping on hover states */}
+        <div className="overflow-hidden">
 
         {isLoading && (
           <div className="p-4 space-y-2">
@@ -158,6 +161,8 @@ export function ItemTable({ onRecordSale, onPreMarkSale, onConfirmSale, onCancel
             ))}
           </ul>
         )}
+
+        </div>
       </div>
     </div>
   );

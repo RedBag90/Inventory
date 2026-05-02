@@ -275,13 +275,13 @@ export function ReportingPage() {
 
       {(!isAdmin || targetUser) && (!earliestLoading || !!fromInUrl || view === 'cumulative') && (
         <>
-          <div data-tutorial="reporting-tabs" className="flex gap-1 border-b border-slate-200">
+          <div data-tutorial="reporting-tabs" className="flex gap-1 border-b border-slate-200 overflow-x-auto">
             {(['daily', 'monthly', 'quarterly', 'cumulative'] as View[]).map((v) => (
               <button
                 key={v}
                 onClick={() => update({ view: v })}
                 className={[
-                  'px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors',
+                  'px-2 sm:px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors whitespace-nowrap',
                   view === v ? 'tab-active' : 'tab-inactive',
                 ].join(' ')}
               >
