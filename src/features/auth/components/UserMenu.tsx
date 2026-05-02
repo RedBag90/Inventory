@@ -11,6 +11,7 @@ import { useCurrentDbUser }  from '../hooks/useCurrentDbUser';
 import { updateDisplayName } from '../actions/updateDisplayName';
 import { useTutorial } from '@/features/tutorial/context/TutorialContext';
 import { useLocale, useSetLocale } from '@/shared/hooks/useLocale';
+import { useActiveOlympiad } from '@/features/olympiad/hooks/useActiveOlympiad';
 import { toast } from 'sonner';
 import { useMyBadgeCount } from '@/features/badges/hooks/useBadges';
 import { badgeKeys } from '@/features/badges/hooks/badgeKeys';
@@ -28,6 +29,8 @@ function formatDate(iso: string, locale: string) {
 export function UserMenu() {
   const t = useTranslations('userMenu');
   const tc = useTranslations('common');
+  const t_nav = useTranslations('nav');
+  const { active, all: memberships, setActive } = useActiveOlympiad();
   const locale = useLocale();
   const setLocale = useSetLocale();
   const { user, isLoading }   = useCurrentUser();
@@ -164,6 +167,25 @@ export function UserMenu() {
           </div>
 
           <div className="p-4 space-y-4">
+
+            {memberships.length > 1 && (
+              <div className="md:hidden border-b border-slate-100 pb-4">
+                <p className="text-xs text-slate-400 uppercase tracking-wide mb-1.5">
+                  {t('switchOlympiad')}
+                </p>
+                <select
+                  value={active?.instanceId ?? ''}
+                  onChange={(e) => setActive(e.target.value)}
+                  className="w-full border border-slate-200 rounded-lg px-2.5 py-1.5 text-sm text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                >
+                  {memberships.map((m) => (
+                    <option key={m.instanceId} value={m.instanceId}>
+                      {m.instanceName}{!m.isActive ? ` ${t_nav('olympiadArchived')}` : ''}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
 
             <div>
               <div className="flex items-center justify-between mb-1">

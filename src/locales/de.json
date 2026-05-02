@@ -136,7 +136,8 @@
     "roleMember": "Mitglied",
     "roleAdmin": "Admin",
     "roleInstanceOwner": "Instance Owner",
-    "roleMasterAdmin": "Master Admin"
+    "roleMasterAdmin": "Master Admin",
+    "switchOlympiad": "Olympiade"
   },
   "inventory": {
     "title": "Inventar",
