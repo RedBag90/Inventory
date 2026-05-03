@@ -25,6 +25,9 @@ const EnvSchema = z.object({
   // Public app URL (used in digest emails for links)
   NEXT_PUBLIC_APP_URL: z.string().url().optional(),
 
+  // Set automatically by Vercel for every deployment — used as fallback in digest emails
+  VERCEL_URL: z.string().optional(),
+
   // Sentry (optional — app boots without it; NEXT_PUBLIC_ so client can init too)
   NEXT_PUBLIC_SENTRY_DSN: z.string().url().optional(),
 

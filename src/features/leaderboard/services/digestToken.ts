@@ -1,9 +1,9 @@
 import { createHmac } from 'crypto';
+import { env } from '@/shared/config/env';
 
 function secret(): string {
-  const s = process.env.CRON_SECRET;
-  if (!s) throw new Error('CRON_SECRET not set');
-  return s;
+  if (!env.CRON_SECRET) throw new Error('CRON_SECRET not set');
+  return env.CRON_SECRET;
 }
 
 export function signOptOutToken(membershipId: string): string {

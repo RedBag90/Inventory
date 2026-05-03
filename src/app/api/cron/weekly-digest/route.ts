@@ -1,19 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/shared/lib/prisma';
 import { sendMail } from '@/shared/lib/mailer';
+import { env } from '@/shared/config/env';
 import { computeLeaderboardForInstance, thisSundayMidnightUTC } from '@/features/leaderboard/services/computeLeaderboard';
 import { buildWeeklyDigestEmail } from '@/features/leaderboard/emails/weeklyDigestEmail';
 import { signOptOutToken } from '@/features/leaderboard/services/digestToken';
 
-// NEXT_PUBLIC_APP_URL → set manually in Vercel for production
+// NEXT_PUBLIC_APP_URL → set manually in Vercel per environment
 // VERCEL_URL         → set automatically by Vercel for every deployment (preview + prod)
 const APP_URL =
-  process.env.NEXT_PUBLIC_APP_URL ??
-  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+  env.NEXT_PUBLIC_APP_URL ??
+  (env.VERCEL_URL ? `https://${env.VERCEL_URL}` : 'http://localhost:3000');
 
 export async function GET(req: NextRequest) {
-  // Verify cron secret
-  const secret = process.env.CRON_SECRET;
+  const secret = env.CRON_SECRET;
   const auth   = req.headers.get('authorization');
   if (!secret || auth !== `Bearer ${secret}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -22,13 +22,12 @@ export async function GET(req: NextRequest) {
   const weekOf = thisSundayMidnightUTC();
   const now    = new Date();
 
-  // Only active, running olympiads with digest enabled
   const instances = await prisma.olympiadInstance.findMany({
     where: {
-      isActive:           true,
+      isActive:            true,
       weeklyDigestEnabled: true,
-      startsAt:           { lte: now },
-      endsAt:             { gte: now },
+      startsAt:            { lte: now },
+      endsAt:              { gte: now },
     },
     select: {
       id:          true,
@@ -43,18 +42,14 @@ export async function GET(req: NextRequest) {
     },
   });
 
-  let sent = 0;
+  let sent    = 0;
   let skipped = 0;
 
   for (const instance of instances) {
-    // Idempotency: skip if digest already sent this week for this instance
     const existing = await prisma.digestLog.findUnique({
       where: { instanceId_weekOf: { instanceId: instance.id, weekOf } },
     });
-    if (existing) {
-      skipped++;
-      continue;
-    }
+    if (existing) { skipped++; continue; }
 
     const { entries } = await computeLeaderboardForInstance(instance.id);
 
@@ -74,10 +69,7 @@ export async function GET(req: NextRequest) {
       sent++;
     }
 
-    // Record that this week's digest was sent for this instance
-    await prisma.digestLog.create({
-      data: { instanceId: instance.id, weekOf },
-    });
+    await prisma.digestLog.create({ data: { instanceId: instance.id, weekOf } });
   }
 
   return NextResponse.json({ ok: true, sent, skipped });
