@@ -176,8 +176,15 @@ function InstanceDetail({ instance, onBack }: { instance: AdminInstanceRecord; o
                 <div className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center shrink-0">
                   <span className="text-xs font-bold text-slate-500">{(m.displayName ?? m.email)[0].toUpperCase()}</span>
                 </div>
-                <div>
-                  <p className="text-sm font-medium text-slate-900">{m.displayName ?? m.email}</p>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <p className="text-sm font-medium text-slate-900">{m.displayName ?? m.email}</p>
+                    {m.digestOptOut && (
+                      <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-slate-100 text-slate-400 shrink-0">
+                        Digest abgemeldet
+                      </span>
+                    )}
+                  </div>
                   {m.displayName && <p className="text-xs text-slate-400">{m.email}</p>}
                 </div>
               </li>

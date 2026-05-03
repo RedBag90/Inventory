@@ -21,10 +21,11 @@ export type OlympiadRecord = {
 };
 
 export type OlympiadMember = {
-  id:          string;
-  email:       string;
-  displayName: string | null;
-  joinedAt:    Date;
+  id:           string;
+  email:        string;
+  displayName:  string | null;
+  joinedAt:     Date;
+  digestOptOut: boolean;
 };
 
 /**
@@ -74,14 +75,15 @@ export async function getOlympiads(): Promise<OlympiadRecord[]> {
 export async function getOlympiadMembers(instanceId: string): Promise<OlympiadMember[]> {
   const memberships = await prisma.instanceMembership.findMany({
     where:   { instanceId },
-    include: { user: { select: { id: true, email: true, displayName: true } } },
+    select:  { digestOptOut: true, joinedAt: true, user: { select: { id: true, email: true, displayName: true } } },
     orderBy: { joinedAt: 'asc' },
   });
   return memberships.map((m) => ({
-    id:          m.user.id,
-    email:       m.user.email,
-    displayName: m.user.displayName,
-    joinedAt:    m.joinedAt,
+    id:           m.user.id,
+    email:        m.user.email,
+    displayName:  m.user.displayName,
+    joinedAt:     m.joinedAt,
+    digestOptOut: m.digestOptOut,
   }));
 }
 
