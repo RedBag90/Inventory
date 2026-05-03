@@ -19,6 +19,15 @@ const EnvSchema = z.object({
   SMTP_PASS: z.string().min(1).optional(),
   SMTP_FROM: z.string().optional(),
 
+  // Weekly digest cron — must match Authorization header sent by Vercel Cron
+  CRON_SECRET: z.string().min(1).optional(),
+
+  // Public app URL (used in digest emails for links)
+  NEXT_PUBLIC_APP_URL: z.string().url().optional(),
+
+  // Set automatically by Vercel for every deployment — used as fallback in digest emails
+  VERCEL_URL: z.string().optional(),
+
   // Sentry (optional — app boots without it; NEXT_PUBLIC_ so client can init too)
   NEXT_PUBLIC_SENTRY_DSN: z.string().url().optional(),
 

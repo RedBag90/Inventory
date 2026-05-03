@@ -43,9 +43,11 @@ model OlympiadInstance {
   joinCode     String?              @unique
   autoAccept            Boolean              @default(true)
   inviteLinkAutoAccept  Boolean              @default(true)
+  weeklyDigestEnabled   Boolean              @default(true)
   createdBy    User                 @relation(fields: [createdById], references: [id])
   memberships  InstanceMembership[]
   joinRequests JoinRequest[]
+  digestLogs   DigestLog[]
 
   @@index([createdById])
 }
@@ -67,15 +69,27 @@ model JoinRequest {
 }
 
 model InstanceMembership {
-  id         String           @id @default(cuid())
-  userId     String
-  instanceId String
-  joinedAt   DateTime         @default(now())
-  memberRole MemberRole       @default(MEMBER)
-  user       User             @relation(fields: [userId], references: [id])
-  instance   OlympiadInstance @relation(fields: [instanceId], references: [id])
+  id           String           @id @default(cuid())
+  userId       String
+  instanceId   String
+  joinedAt     DateTime         @default(now())
+  memberRole   MemberRole       @default(MEMBER)
+  digestOptOut Boolean          @default(false)
+  user         User             @relation(fields: [userId], references: [id])
+  instance     OlympiadInstance @relation(fields: [instanceId], references: [id])
 
   @@unique([userId, instanceId])
+  @@index([instanceId])
+}
+
+model DigestLog {
+  id         String           @id @default(cuid())
+  instanceId String
+  weekOf     DateTime
+  sentAt     DateTime         @default(now())
+  instance   OlympiadInstance @relation(fields: [instanceId], references: [id])
+
+  @@unique([instanceId, weekOf])
   @@index([instanceId])
 }
 

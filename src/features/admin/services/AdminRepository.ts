@@ -349,35 +349,38 @@ export async function resolveInstanceRequest(
 // ─── Instance overview (MASTER_ADMIN) ─────────────────────────────────────────
 
 export type AdminInstanceRecord = {
-  id:             string;
-  name:           string;
-  description:    string | null;
-  startsAt:       Date;
-  endsAt:         Date;
-  isActive:       boolean;
-  createdAt:      Date;
-  createdById:    string;
-  createdByEmail: string;
-  memberCount:    number;
+  id:                   string;
+  name:                 string;
+  description:          string | null;
+  startsAt:             Date;
+  endsAt:               Date;
+  isActive:             boolean;
+  weeklyDigestEnabled:  boolean;
+  createdAt:            Date;
+  createdById:          string;
+  createdByEmail:       string;
+  memberCount:          number;
 };
 
 function mapInstance(i: {
   id: string; name: string; description: string | null;
-  startsAt: Date; endsAt: Date; isActive: boolean; createdAt: Date; createdById: string;
+  startsAt: Date; endsAt: Date; isActive: boolean; weeklyDigestEnabled: boolean;
+  createdAt: Date; createdById: string;
   createdBy: { email: string };
   _count: { memberships: number };
 }): AdminInstanceRecord {
   return {
-    id:             i.id,
-    name:           i.name,
-    description:    i.description,
-    startsAt:       i.startsAt,
-    endsAt:         i.endsAt,
-    isActive:       i.isActive,
-    createdAt:      i.createdAt,
-    createdById:    i.createdById,
-    createdByEmail: i.createdBy.email,
-    memberCount:    i._count.memberships,
+    id:                  i.id,
+    name:                i.name,
+    description:         i.description,
+    startsAt:            i.startsAt,
+    endsAt:              i.endsAt,
+    isActive:            i.isActive,
+    weeklyDigestEnabled: i.weeklyDigestEnabled,
+    createdAt:           i.createdAt,
+    createdById:         i.createdById,
+    createdByEmail:      i.createdBy.email,
+    memberCount:         i._count.memberships,
   };
 }
 
