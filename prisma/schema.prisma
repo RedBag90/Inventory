@@ -44,7 +44,6 @@ model OlympiadInstance {
   autoAccept            Boolean              @default(true)
   inviteLinkAutoAccept  Boolean              @default(true)
   weeklyDigestEnabled   Boolean              @default(true)
-  digestSendHour        Int                  @default(8)
   createdBy    User                 @relation(fields: [createdById], references: [id])
   memberships  InstanceMembership[]
   joinRequests JoinRequest[]

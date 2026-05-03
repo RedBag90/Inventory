@@ -91,7 +91,6 @@ function InstanceDetail({ instance, onBack }: { instance: AdminInstanceRecord; o
   const [transferEmail, setTransferEmail] = useState('');
   const [transferSuccess, setTransferSuccess] = useState(false);
   const [digestEnabled, setDigestEnabled] = useState(instance.weeklyDigestEnabled);
-  const [digestHour, setDigestHour] = useState(instance.digestSendHour);
   const [digestToast, setDigestToast] = useState<string | null>(null);
 
   function showToast(msg: string) {
@@ -105,14 +104,6 @@ function InstanceDetail({ instance, onBack }: { instance: AdminInstanceRecord; o
     update({ id: instance.id, data: { weeklyDigestEnabled: next } }, {
       onSuccess: () => showToast(next ? 'Digest aktiviert' : 'Digest deaktiviert'),
       onError:   () => setDigestEnabled(!next),
-    });
-  }
-
-  function saveDigestHour(hour: number) {
-    setDigestHour(hour);
-    update({ id: instance.id, data: { digestSendHour: hour } }, {
-      onSuccess: () => showToast(`Versandzeit auf ${String(hour).padStart(2, '0')}:00 Uhr gesetzt`),
-      onError:   () => setDigestHour(instance.digestSendHour),
     });
   }
 
@@ -192,20 +183,6 @@ function InstanceDetail({ instance, onBack }: { instance: AdminInstanceRecord; o
               </button>
             </div>
           </div>
-          {digestEnabled && (
-            <div className="flex items-center gap-2">
-              <p className="text-xs text-slate-500 shrink-0">Versandzeit (UTC):</p>
-              <select
-                value={digestHour}
-                onChange={e => saveDigestHour(Number(e.target.value))}
-                className="text-xs border border-slate-200 rounded-lg px-2 py-1 text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              >
-                {Array.from({ length: 24 }, (_, h) => (
-                  <option key={h} value={h}>{String(h).padStart(2, '0')}:00 Uhr</option>
-                ))}
-              </select>
-            </div>
-          )}
         </div>
       </div>
 
