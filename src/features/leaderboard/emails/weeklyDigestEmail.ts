@@ -41,7 +41,7 @@ export function buildWeeklyDigestEmail({
   const rows = entries.map((entry, i) => {
     const rank     = i + 1;
     const isMe     = entry.id === recipientUserId;
-    const label    = entry.displayName ?? entry.email;
+    const label    = entry.displayName ?? entry.email.split('@')[0];
     const rowBg    = isMe ? '#eef2ff' : (rank % 2 === 0 ? '#f8fafc' : '#ffffff');
     const fontW    = isMe ? '700' : '400';
     const change   = rankChangeLabel(entry.rankChange);

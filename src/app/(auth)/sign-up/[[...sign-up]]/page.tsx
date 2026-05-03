@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { createClient } from '@/shared/lib/supabase/client';
 
 export default function SignUpPage() {
+  const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -20,7 +21,10 @@ export default function SignUpPage() {
     const { error: signUpError } = await supabase.auth.signUp({
       email,
       password,
-      options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+        data: { displayName: displayName.trim() },
+      },
     });
 
     if (signUpError) {
@@ -51,6 +55,22 @@ export default function SignUpPage() {
         <h1 className="text-2xl font-semibold text-center">Create account</h1>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label htmlFor="displayName" className="block text-sm font-medium mb-1">
+              Anzeigename
+            </label>
+            <input
+              id="displayName"
+              type="text"
+              required
+              maxLength={50}
+              autoComplete="nickname"
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+              className="input-base"
+            />
+          </div>
+
           <div>
             <label htmlFor="email" className="block text-sm font-medium mb-1">
               Email

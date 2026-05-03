@@ -16,7 +16,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   // US-008 — ensure the authenticated user exists in the local DB
   // syncUser redirects to /suspended if the account is deactivated
-  const syncedUser = await syncUser(user.id, user.email!);
+  const syncedUser = await syncUser(user.id, user.email!, user.user_metadata as Record<string, string>);
 
   return (
     <ActiveOlympiadProvider>

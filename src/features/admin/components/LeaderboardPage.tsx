@@ -89,7 +89,7 @@ function PreStartBanner({ startsAt, entries }: { startsAt: Date; entries: Entry[
           </p>
           <ul className="space-y-1.5">
             {entries.map((e) => {
-              const label = e.displayName ?? e.email;
+              const label = e.displayName ?? e.email.split('@')[0];
               return (
                 <li key={e.id} className="flex items-center gap-2.5">
                   <span className="w-7 h-7 rounded-full bg-indigo-700 text-white text-xs font-semibold flex items-center justify-center shrink-0">
@@ -97,9 +97,6 @@ function PreStartBanner({ startsAt, entries }: { startsAt: Date; entries: Entry[
                   </span>
                   <div className="min-w-0">
                     <p className="text-sm text-indigo-900 truncate">{label}</p>
-                    {e.displayName && (
-                      <p className="text-xs text-indigo-400 truncate">{e.email}</p>
-                    )}
                   </div>
                 </li>
               );
@@ -113,7 +110,7 @@ function PreStartBanner({ startsAt, entries }: { startsAt: Date; entries: Entry[
 
 function PodiumCard({ user, config }: { user: Entry; config: typeof PODIUM_CONFIG[number] }) {
   const tl = useTranslations('leaderboard');
-  const label = user.displayName ?? user.email;
+  const label = user.displayName ?? user.email.split('@')[0];
   return (
     <div className={[
       'relative flex flex-col items-center rounded-2xl overflow-hidden',
@@ -133,9 +130,6 @@ function PodiumCard({ user, config }: { user: Entry; config: typeof PODIUM_CONFI
 
         <div className="min-w-0 w-full">
           <p className="text-sm font-semibold text-slate-900 truncate">{label}</p>
-          {user.displayName && (
-            <p className="text-xs text-slate-400 truncate">{user.email}</p>
-          )}
         </div>
 
         <p className={['text-base font-bold tabular-nums', profitColor(user.totalProfit)].join(' ')}>
@@ -253,7 +247,7 @@ export function LeaderboardPage() {
               const user = top3[rankIdx];
               if (!user) return null;
               const config = PODIUM_CONFIG.find(c => c.rank === rankIdx + 1)!;
-              const label = user.displayName ?? user.email;
+              const label = user.displayName ?? user.email.split('@')[0];
               return (
                 <div key={user.id} className={['relative flex items-center gap-3 px-4 py-3 rounded-2xl overflow-hidden', config.card].join(' ')}>
                   <span className={['absolute right-2 bottom-0 text-5xl font-black select-none pointer-events-none leading-none', config.rankNum].join(' ')}>
@@ -272,7 +266,6 @@ export function LeaderboardPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-slate-900 truncate">{label}</p>
-                    {user.displayName && <p className="text-xs text-slate-400 truncate">{user.email}</p>}
                     <p className="text-xs text-slate-400 tabular-nums mt-0.5">
                       {user.itemCount} Items · {user.soldCount} {tl('sold')}
                     </p>
@@ -304,7 +297,7 @@ export function LeaderboardPage() {
               <ul className="divide-y divide-slate-100">
                 {ranked.map((user, i) => {
                   const isMe = user.id === me?.id;
-                  const label = user.displayName ?? user.email;
+                  const label = user.displayName ?? user.email.split('@')[0];
                   return (
                     <li
                       key={user.id}
@@ -336,9 +329,6 @@ export function LeaderboardPage() {
                             <BadgeChip key={b.slug} slug={b.slug} tier={b.tier as 'BRONZE' | 'SILVER' | 'GOLD'} label={tb(`${b.slug}.name`)} size="sm" />
                           ))}
                         </div>
-                        {user.displayName && (
-                          <p className="text-xs text-slate-400 truncate">{user.email}</p>
-                        )}
                       </div>
                       <span className="text-sm text-slate-400 tabular-nums text-right">{user.itemCount} Items</span>
                       <span className="text-sm text-slate-400 tabular-nums text-right">{user.soldCount} {tl('sold')}</span>
@@ -362,7 +352,7 @@ export function LeaderboardPage() {
               <ul className="divide-y divide-slate-100">
                 {ranked.map((user, i) => {
                   const isMe = user.id === me?.id;
-                  const label = user.displayName ?? user.email;
+                  const label = user.displayName ?? user.email.split('@')[0];
                   return (
                     <li
                       key={user.id}
@@ -397,9 +387,6 @@ export function LeaderboardPage() {
                             <BadgeChip key={b.slug} slug={b.slug} tier={b.tier as 'BRONZE' | 'SILVER' | 'GOLD'} label={tb(`${b.slug}.name`)} size="sm" />
                           ))}
                         </div>
-                        {user.displayName && (
-                          <p className="text-xs text-slate-400 truncate">{user.email}</p>
-                        )}
                         <p className="text-xs text-slate-400 tabular-nums mt-0.5">
                           {user.itemCount} Items · {user.soldCount} {tl('sold')}
                         </p>
