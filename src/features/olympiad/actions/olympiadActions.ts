@@ -69,6 +69,7 @@ export async function updateOlympiad(instanceId: string, data: {
   startsAt?: Date;
   endsAt?: Date;
   weeklyDigestEnabled?: boolean;
+  digestSendHour?: number;
 }) {
   const userId = await getCurrentUserId();
   await assertOwner(instanceId, userId);
