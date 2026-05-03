@@ -21,7 +21,11 @@ export type SyncedUser = {
  * - Redirects to /pending-assignment if USER has no OlympiadInstance membership.
  * - Handles pending invite cookie: auto-joins instance after login via invite link.
  */
-export async function syncUser(supabaseId: string, email: string): Promise<SyncedUser> {
+export async function syncUser(
+  supabaseId: string,
+  email: string,
+  userMetadata?: Record<string, string>,
+): Promise<SyncedUser> {
   let user = await prisma.user.findUnique({
     where:  { supabaseId },
     select: { id: true, email: true, role: true, isActive: true, tutorialCompletedAt: true,
@@ -29,10 +33,11 @@ export async function syncUser(supabaseId: string, email: string): Promise<Synce
   });
 
   if (!user) {
+    const displayName = userMetadata?.displayName?.trim() || null;
     user = await prisma.user.upsert({
       where:  { email },
       update: { supabaseId },
-      create: { supabaseId, email },
+      create: { supabaseId, email, displayName },
       select: { id: true, email: true, role: true, isActive: true, tutorialCompletedAt: true,
                 memberships: { select: { instanceId: true } } },
     });
