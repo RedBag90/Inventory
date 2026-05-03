@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useTutorial } from '../context/TutorialContext';
 import { SpotlightOverlay } from './SpotlightOverlay';
 
-const TOTAL_STEPS = 6; // steps 2–7 (welcome is step 1 but separate)
+const TOTAL_STEPS = 5; // steps 2–6 (welcome is step 1 but separate)
 
 export function TutorialOverlays() {
   const { step, next, skip } = useTutorial();
@@ -57,27 +57,13 @@ export function TutorialOverlays() {
     );
   }
 
-  if (step === 'set-display-name' && pathname.startsWith('/dashboard/leaderboard')) {
-    return (
-      <SpotlightOverlay
-        targetSelector="[data-tutorial='user-menu-button']"
-        title={t('displayNameTitle')}
-        description={t('displayNameDescription')}
-        step={5}
-        totalSteps={TOTAL_STEPS}
-        onNext={next}
-        onSkip={skip}
-      />
-    );
-  }
-
   if (step === 'reporting' && pathname.startsWith('/dashboard/reporting')) {
     return (
       <SpotlightOverlay
         targetSelector="[data-tutorial='reporting-tabs']"
         title={t('reportingTitle')}
         description={t('reportingDescription')}
-        step={6}
+        step={5}
         totalSteps={TOTAL_STEPS}
         onNext={next}
         onSkip={skip}
@@ -91,7 +77,7 @@ export function TutorialOverlays() {
         targetSelector="[data-tutorial='quick-sell-button']"
         title={t('firstSaleTitle')}
         description={t('firstSaleDescription')}
-        step={7}
+        step={6}
         totalSteps={TOTAL_STEPS}
         nextLabel={ts('startNow')}
         onNext={next}
