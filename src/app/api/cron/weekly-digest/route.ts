@@ -13,6 +13,7 @@ const APP_URL =
   (env.VERCEL_URL ? `https://${env.VERCEL_URL}` : 'http://localhost:3000');
 
 export async function GET(req: NextRequest) {
+  try {
   const secret = env.CRON_SECRET;
   const auth   = req.headers.get('authorization');
   if (!secret || auth !== `Bearer ${secret}`) {
@@ -73,4 +74,8 @@ export async function GET(req: NextRequest) {
   }
 
   return NextResponse.json({ ok: true, sent, skipped });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
 }
