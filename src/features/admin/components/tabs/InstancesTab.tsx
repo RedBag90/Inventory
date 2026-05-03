@@ -141,6 +141,26 @@ function InstanceDetail({ instance, onBack }: { instance: AdminInstanceRecord; o
             <p className="col-span-2 text-xs text-red-600">{(updateError as Error).message}</p>
           )}
         </div>
+        <div className="flex items-center justify-between pt-1">
+          <div>
+            <p className="text-sm font-medium text-slate-800">Wöchentlicher Leaderboard-Digest</p>
+            <p className="text-xs text-slate-400 mt-0.5">Jeden Sonntag erhalten alle Teilnehmer eine Ranglisten-E-Mail.</p>
+          </div>
+          <button
+            role="switch"
+            aria-checked={instance.weeklyDigestEnabled}
+            onClick={() => update({ id: instance.id, data: { weeklyDigestEnabled: !instance.weeklyDigestEnabled } })}
+            className={[
+              'relative inline-flex h-6 w-11 items-center rounded-full transition-colors shrink-0',
+              instance.weeklyDigestEnabled ? 'bg-indigo-600' : 'bg-slate-200',
+            ].join(' ')}
+          >
+            <span className={[
+              'inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform',
+              instance.weeklyDigestEnabled ? 'translate-x-6' : 'translate-x-1',
+            ].join(' ')} />
+          </button>
+        </div>
       </div>
 
       <div className="bg-white border border-slate-200 rounded-xl p-5 space-y-3">
