@@ -69,7 +69,7 @@ export function buildWeeklyDigestEmail({
       <table width="560" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.1)">
 
         <!-- Header -->
-        <tr style="background:linear-gradient(135deg,#4f46e5 0%,#7c3aed 100%)">
+        <tr style="background:#4f46e5">
           <td style="padding:28px 32px">
             <p style="margin:0;font-size:13px;color:#c7d2fe;letter-spacing:.05em;text-transform:uppercase">Wöchentliches Update</p>
             <h1 style="margin:4px 0 0;font-size:22px;color:#ffffff">🏅 ${instanceName}</h1>
