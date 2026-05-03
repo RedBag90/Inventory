@@ -20,24 +20,27 @@ function profitColor(v: number) {
   return 'text-slate-400';
 }
 
-function RankChange({ value }: { value: number }) {
+function RankChange({ value, size = 'sm' }: { value: number; size?: 'sm' | 'xs' }) {
+  const container   = size === 'xs' ? 'w-4 h-4' : 'w-6 h-6';
+  const iconNeutral = size === 'xs' ? 'w-2 h-2'   : 'w-2.5 h-2.5';
+  const iconArrow   = size === 'xs' ? 'w-2.5 h-2.5' : 'w-3 h-3';
   if (value === 0) return (
-    <span className="inline-flex items-center justify-center text-slate-400 bg-slate-50 border border-slate-100 w-6 h-6 rounded-full">
-      <svg className="w-2.5 h-2.5" viewBox="0 0 20 20" fill="currentColor">
+    <span className={`inline-flex items-center justify-center text-slate-400 bg-slate-50 border border-slate-100 ${container} rounded-full`}>
+      <svg className={iconNeutral} viewBox="0 0 20 20" fill="currentColor">
         <path d="M4 10a.75.75 0 0 1 .75-.75h10.5a.75.75 0 0 1 0 1.5H4.75A.75.75 0 0 1 4 10Z" />
       </svg>
     </span>
   );
   return value > 0 ? (
-    <span className="inline-flex items-center justify-center text-emerald-700 bg-emerald-50 border border-emerald-100 w-6 h-6 rounded-full">
-      <svg className="w-3 h-3" viewBox="0 0 20 20" fill="currentColor">
-        <path fillRule="evenodd" d="M10 17a.75.75 0 0 1-.75-.75V5.612L5.29 9.77a.75.75 0 0 1-1.08-1.04l5.25-5.5a.75.75 0 0 1 1.08 0l5.25 5.5a.75.75 0 1 1-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0 1 10 17Z" clipRule="evenodd" />
+    <span className={`inline-flex items-center justify-center text-emerald-700 bg-emerald-50 border border-emerald-100 ${container} rounded-full`}>
+      <svg className={iconArrow} viewBox="0 0 20 20" fill="currentColor">
+        <path fillRule="evenodd" d="M10 17a.75.75 0 0 1-.75-.75V5.612L5.29 9.77a.75.75 0 0 1-1.08-1.04l5.25-5.5a.75.75 0 0 1 1.08 0l5.25 5.5a.75.75 1 1 1-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0 1 10 17Z" clipRule="evenodd" />
       </svg>
     </span>
   ) : (
-    <span className="inline-flex items-center justify-center text-red-600 bg-red-50 border border-red-100 w-6 h-6 rounded-full">
-      <svg className="w-3 h-3" viewBox="0 0 20 20" fill="currentColor">
-        <path fillRule="evenodd" d="M10 3a.75.75 0 0 1 .75.75v10.638l3.96-4.158a.75.75 0 1 1 1.08 1.04l-5.25 5.5a.75.75 0 0 1-1.08 0l-5.25-5.5a.75.75 0 1 1 1.08-1.04l3.96 4.158V3.75A.75.75 0 0 1 10 3Z" clipRule="evenodd" />
+    <span className={`inline-flex items-center justify-center text-red-600 bg-red-50 border border-red-100 ${container} rounded-full`}>
+      <svg className={iconArrow} viewBox="0 0 20 20" fill="currentColor">
+        <path fillRule="evenodd" d="M10 3a.75.75 0 0 1 .75.75v10.638l3.96-4.158a.75.75 1 1 1 1.08 1.04l-5.25 5.5a.75.75 0 0 1-1.08 0l-5.25-5.5a.75.75 1 1 1.08-1.04l3.96 4.158V3.75A.75.75 0 0 1 10 3Z" clipRule="evenodd" />
       </svg>
     </span>
   );
@@ -174,21 +177,22 @@ export function LeaderboardPage() {
   return (
     <div className="space-y-8">
 
-      <div className="flex items-end justify-between">
+      {/* ── Header ── */}
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="page-title">{tl('title')}</h1>
           <div className="flex items-center gap-3 mt-1 flex-wrap">
             <p className="text-sm text-slate-500">{subtitle}</p>
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2.5 flex-wrap">
               <span className="flex items-center gap-1 text-xs text-slate-400">
                 <span className="inline-flex items-center justify-center text-emerald-700 bg-emerald-50 border border-emerald-100 w-5 h-5 rounded-full">
-                  <svg className="w-3 h-3" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 17a.75.75 0 0 1-.75-.75V5.612L5.29 9.77a.75.75 0 0 1-1.08-1.04l5.25-5.5a.75.75 0 0 1 1.08 0l5.25 5.5a.75.75 0 1 1-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0 1 10 17Z" clipRule="evenodd" /></svg>
+                  <svg className="w-3 h-3" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 17a.75.75 0 0 1-.75-.75V5.612L5.29 9.77a.75.75 0 0 1-1.08-1.04l5.25-5.5a.75.75 0 0 1 1.08 0l5.25 5.5a.75.75 1 1 1-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0 1 10 17Z" clipRule="evenodd" /></svg>
                 </span>
                 {tl('risen')}
               </span>
               <span className="flex items-center gap-1 text-xs text-slate-400">
                 <span className="inline-flex items-center justify-center text-red-600 bg-red-50 border border-red-100 w-5 h-5 rounded-full">
-                  <svg className="w-3 h-3" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 3a.75.75 0 0 1 .75.75v10.638l3.96-4.158a.75.75 0 1 1 1.08 1.04l-5.25 5.5a.75.75 0 0 1-1.08 0l-5.25-5.5a.75.75 0 1 1 1.08-1.04l3.96 4.158V3.75A.75.75 0 0 1 10 3Z" clipRule="evenodd" /></svg>
+                  <svg className="w-3 h-3" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 3a.75.75 0 0 1 .75.75v10.638l3.96-4.158a.75.75 1 1 1 1.08 1.04l-5.25 5.5a.75.75 0 0 1-1.08 0l-5.25-5.5a.75.75 1 1 1.08-1.04l3.96 4.158V3.75A.75.75 0 0 1 10 3Z" clipRule="evenodd" /></svg>
                 </span>
                 {tl('fallen')}
               </span>
@@ -228,7 +232,8 @@ export function LeaderboardPage() {
 
       {!isLoading && !isError && !isNotStarted && ranked.length > 0 && (
         <>
-          <div className="grid grid-cols-3 gap-3 items-end">
+          {/* ── Podium — Desktop ── */}
+          <div className="hidden md:grid grid-cols-3 gap-3 items-end">
             {PODIUM_CONFIG.map((config) => {
               const user = top3[config.rank - 1];
               if (!user) return <div key={config.rank} />;
@@ -242,68 +247,172 @@ export function LeaderboardPage() {
             })}
           </div>
 
-          <div data-tutorial="leaderboard-table" className="card overflow-hidden">
-            <div className="grid items-center gap-x-3 px-5 py-3 border-b border-slate-100 bg-slate-50 grid-cols-[2rem_1.5rem_2rem_1fr_5rem_5rem_7rem]">
-              <span />
-              <span />
-              <span />
-              <span className="text-xs font-medium text-slate-500 uppercase tracking-wide pl-3">Name</span>
-              <span className="text-xs font-medium text-slate-500 uppercase tracking-wide text-right">Items</span>
-              <span className="text-xs font-medium text-slate-500 uppercase tracking-wide text-right">{tl('sold')}</span>
-              <span className="text-xs font-medium text-slate-500 uppercase tracking-wide text-right">Profit</span>
-            </div>
-            <ul className="divide-y divide-slate-100">
-              {ranked.map((user, i) => {
-                const isMe = user.id === me?.id;
-                const label = user.displayName ?? user.email;
-                return (
-                  <li
-                    key={user.id}
-                    className={[
-                      'grid items-center gap-x-3 px-5 py-3.5 transition-colors',
-                      'grid-cols-[2rem_1.5rem_2rem_1fr_5rem_5rem_7rem]',
-                      isMe ? 'bg-indigo-50' : 'hover:bg-slate-50',
-                    ].join(' ')}
-                  >
-                    <span className="text-center">
-                      {i === 0 ? <span className="text-lg">🥇</span>
-                       : i === 1 ? <span className="text-lg">🥈</span>
-                       : i === 2 ? <span className="text-lg">🥉</span>
-                       : <span className="text-sm font-semibold text-slate-400 tabular-nums">{i + 1}</span>}
-                    </span>
-
-                    <span><RankChange value={user.rankChange} /></span>
-
-                    <span className="w-8 h-8 rounded-full bg-indigo-700 text-white text-xs font-semibold flex items-center justify-center">
-                      {initials(label)}
-                    </span>
-
-                    <div className="min-w-0 pl-3">
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        <p className="text-sm font-medium text-slate-900 truncate">{label}</p>
-                        {isMe && (
-                          <span className="text-[10px] font-bold bg-indigo-600 text-white px-1.5 py-0.5 rounded-full shrink-0">
-                            {tl('you')}
-                          </span>
-                        )}
-                        {user.topBadges.map((b) => (
-                          <BadgeChip key={b.slug} slug={b.slug} tier={b.tier as 'BRONZE' | 'SILVER' | 'GOLD'} label={tb(`${b.slug}.name`)} size="sm" />
-                        ))}
-                      </div>
-                      {user.displayName && (
-                        <p className="text-xs text-slate-400 truncate">{user.email}</p>
-                      )}
+          {/* ── Podium — Mobile (Rang 1 → 2 → 3, horizontal cards) ── */}
+          <div className="md:hidden space-y-2">
+            {([0, 1, 2] as const).map((rankIdx) => {
+              const user = top3[rankIdx];
+              if (!user) return null;
+              const config = PODIUM_CONFIG.find(c => c.rank === rankIdx + 1)!;
+              const label = user.displayName ?? user.email;
+              return (
+                <div key={user.id} className={['relative flex items-center gap-3 px-4 py-3 rounded-2xl overflow-hidden', config.card].join(' ')}>
+                  <span className={['absolute right-2 bottom-0 text-5xl font-black select-none pointer-events-none leading-none', config.rankNum].join(' ')}>
+                    {config.rank}
+                  </span>
+                  <div className="flex flex-col items-center gap-1 shrink-0">
+                    <span className="text-xl leading-none">{config.medal}</span>
+                    <div className="relative">
+                      <span className={['w-10 h-10 rounded-full bg-indigo-700 text-white text-sm font-bold flex items-center justify-center shrink-0', config.avatarRing].join(' ')}>
+                        {initials(label)}
+                      </span>
+                      <span className="absolute -bottom-1 -right-1">
+                        <RankChange value={user.rankChange} size="xs" />
+                      </span>
                     </div>
-
-                    <span className="text-sm text-slate-400 tabular-nums text-right">{user.itemCount} Items</span>
-                    <span className="text-sm text-slate-400 tabular-nums text-right">{user.soldCount} {tl('sold')}</span>
-                    <span className={['text-sm font-bold tabular-nums text-right', profitColor(user.totalProfit)].join(' ')}>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-slate-900 truncate">{label}</p>
+                    {user.displayName && <p className="text-xs text-slate-400 truncate">{user.email}</p>}
+                    <p className="text-xs text-slate-400 tabular-nums mt-0.5">
+                      {user.itemCount} Items · {user.soldCount} {tl('sold')}
+                    </p>
+                  </div>
+                  <div className="flex flex-col items-end gap-1 shrink-0">
+                    <p className={['text-base font-bold tabular-nums', profitColor(user.totalProfit)].join(' ')}>
                       {formatCurrency(user.totalProfit)}
-                    </span>
-                  </li>
-                );
-              })}
-            </ul>
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* ── Tabelle ── */}
+          <div data-tutorial="leaderboard-table" className="card overflow-hidden">
+
+            {/* Desktop: 7-Spalten-Grid */}
+            <div className="hidden md:block">
+              <div className="grid items-center gap-x-3 px-5 py-3 border-b border-slate-100 bg-slate-50 grid-cols-[2rem_1.5rem_2rem_1fr_5rem_5rem_7rem]">
+                <span />
+                <span />
+                <span />
+                <span className="text-xs font-medium text-slate-500 uppercase tracking-wide pl-3">Name</span>
+                <span className="text-xs font-medium text-slate-500 uppercase tracking-wide text-right">Items</span>
+                <span className="text-xs font-medium text-slate-500 uppercase tracking-wide text-right">{tl('sold')}</span>
+                <span className="text-xs font-medium text-slate-500 uppercase tracking-wide text-right">Profit</span>
+              </div>
+              <ul className="divide-y divide-slate-100">
+                {ranked.map((user, i) => {
+                  const isMe = user.id === me?.id;
+                  const label = user.displayName ?? user.email;
+                  return (
+                    <li
+                      key={user.id}
+                      className={[
+                        'grid items-center gap-x-3 px-5 py-3.5 transition-colors',
+                        'grid-cols-[2rem_1.5rem_2rem_1fr_5rem_5rem_7rem]',
+                        isMe ? 'bg-indigo-50' : 'hover:bg-slate-50',
+                      ].join(' ')}
+                    >
+                      <span className="text-center">
+                        {i === 0 ? <span className="text-lg">🥇</span>
+                         : i === 1 ? <span className="text-lg">🥈</span>
+                         : i === 2 ? <span className="text-lg">🥉</span>
+                         : <span className="text-sm font-semibold text-slate-400 tabular-nums">{i + 1}</span>}
+                      </span>
+                      <span><RankChange value={user.rankChange} /></span>
+                      <span className="w-8 h-8 rounded-full bg-indigo-700 text-white text-xs font-semibold flex items-center justify-center">
+                        {initials(label)}
+                      </span>
+                      <div className="min-w-0 pl-3">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <p className="text-sm font-medium text-slate-900 truncate">{label}</p>
+                          {isMe && (
+                            <span className="text-[10px] font-bold bg-indigo-600 text-white px-1.5 py-0.5 rounded-full shrink-0">
+                              {tl('you')}
+                            </span>
+                          )}
+                          {user.topBadges.map((b) => (
+                            <BadgeChip key={b.slug} slug={b.slug} tier={b.tier as 'BRONZE' | 'SILVER' | 'GOLD'} label={tb(`${b.slug}.name`)} size="sm" />
+                          ))}
+                        </div>
+                        {user.displayName && (
+                          <p className="text-xs text-slate-400 truncate">{user.email}</p>
+                        )}
+                      </div>
+                      <span className="text-sm text-slate-400 tabular-nums text-right">{user.itemCount} Items</span>
+                      <span className="text-sm text-slate-400 tabular-nums text-right">{user.soldCount} {tl('sold')}</span>
+                      <span className={['text-sm font-bold tabular-nums text-right', profitColor(user.totalProfit)].join(' ')}>
+                        {formatCurrency(user.totalProfit)}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+
+            {/* Mobile: vereinfachtes Flex-Layout */}
+            <div className="md:hidden">
+              <div className="flex items-center gap-3 px-4 py-2 border-b border-slate-100 bg-slate-50">
+                <span className="w-6 shrink-0" />
+                <span className="w-8 shrink-0" />
+                <span className="flex-1 min-w-0 pl-1 text-xs font-medium text-slate-500 uppercase tracking-wide">Name</span>
+                <span className="text-xs font-medium text-slate-500 uppercase tracking-wide text-right shrink-0 w-20">Profit</span>
+              </div>
+              <ul className="divide-y divide-slate-100">
+                {ranked.map((user, i) => {
+                  const isMe = user.id === me?.id;
+                  const label = user.displayName ?? user.email;
+                  return (
+                    <li
+                      key={user.id}
+                      className={[
+                        'flex items-center gap-3 px-4 py-3 transition-colors',
+                        isMe ? 'bg-indigo-50' : 'hover:bg-slate-50',
+                      ].join(' ')}
+                    >
+                      <span className="w-6 text-center shrink-0">
+                        {i === 0 ? <span className="text-lg">🥇</span>
+                         : i === 1 ? <span className="text-lg">🥈</span>
+                         : i === 2 ? <span className="text-lg">🥉</span>
+                         : <span className="text-sm font-semibold text-slate-400 tabular-nums">{i + 1}</span>}
+                      </span>
+                      <div className="relative shrink-0">
+                        <span className="w-8 h-8 rounded-full bg-indigo-700 text-white text-xs font-semibold flex items-center justify-center">
+                          {initials(label)}
+                        </span>
+                        <span className="absolute -bottom-1 -right-1">
+                          <RankChange value={user.rankChange} size="xs" />
+                        </span>
+                      </div>
+                      <div className="flex-1 min-w-0 pl-1">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <p className="text-sm font-medium text-slate-900 truncate">{label}</p>
+                          {isMe && (
+                            <span className="text-[10px] font-bold bg-indigo-600 text-white px-1.5 py-0.5 rounded-full shrink-0">
+                              {tl('you')}
+                            </span>
+                          )}
+                          {user.topBadges.map((b) => (
+                            <BadgeChip key={b.slug} slug={b.slug} tier={b.tier as 'BRONZE' | 'SILVER' | 'GOLD'} label={tb(`${b.slug}.name`)} size="sm" />
+                          ))}
+                        </div>
+                        {user.displayName && (
+                          <p className="text-xs text-slate-400 truncate">{user.email}</p>
+                        )}
+                        <p className="text-xs text-slate-400 tabular-nums mt-0.5">
+                          {user.itemCount} Items · {user.soldCount} {tl('sold')}
+                        </p>
+                      </div>
+                      <span className={['text-sm font-bold tabular-nums text-right shrink-0 w-20', profitColor(user.totalProfit)].join(' ')}>
+                        {formatCurrency(user.totalProfit)}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+
           </div>
         </>
       )}

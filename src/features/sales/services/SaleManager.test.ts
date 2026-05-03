@@ -17,6 +17,7 @@ function makeItem(overrides: Partial<ItemWithCosts> = {}): ItemWithCosts {
     updatedAt:        new Date('2026-01-01'),
     userId:           'user-1',
     costs:            [],
+    pendingSale:      null,
     sale:             {
       id:              'sale-1',
       salePrice:       20,
