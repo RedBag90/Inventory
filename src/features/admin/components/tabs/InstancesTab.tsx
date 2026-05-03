@@ -90,6 +90,31 @@ function InstanceDetail({ instance, onBack }: { instance: AdminInstanceRecord; o
   const { mutate: transfer, isPending: transferring, error: transferError, reset: resetTransfer } = useTransferOlympiadOwner();
   const [transferEmail, setTransferEmail] = useState('');
   const [transferSuccess, setTransferSuccess] = useState(false);
+  const [digestEnabled, setDigestEnabled] = useState(instance.weeklyDigestEnabled);
+  const [digestHour, setDigestHour] = useState(instance.digestSendHour);
+  const [digestToast, setDigestToast] = useState<string | null>(null);
+
+  function showToast(msg: string) {
+    setDigestToast(msg);
+    setTimeout(() => setDigestToast(null), 2500);
+  }
+
+  function toggleDigest() {
+    const next = !digestEnabled;
+    setDigestEnabled(next);
+    update({ id: instance.id, data: { weeklyDigestEnabled: next } }, {
+      onSuccess: () => showToast(next ? 'Digest aktiviert' : 'Digest deaktiviert'),
+      onError:   () => setDigestEnabled(!next),
+    });
+  }
+
+  function saveDigestHour(hour: number) {
+    setDigestHour(hour);
+    update({ id: instance.id, data: { digestSendHour: hour } }, {
+      onSuccess: () => showToast(`Versandzeit auf ${String(hour).padStart(2, '0')}:00 Uhr gesetzt`),
+      onError:   () => setDigestHour(instance.digestSendHour),
+    });
+  }
 
   function save(field: string, value: string) {
     resetError();
@@ -141,25 +166,46 @@ function InstanceDetail({ instance, onBack }: { instance: AdminInstanceRecord; o
             <p className="col-span-2 text-xs text-red-600">{(updateError as Error).message}</p>
           )}
         </div>
-        <div className="flex items-center justify-between pt-1">
-          <div>
-            <p className="text-sm font-medium text-slate-800">Wöchentlicher Leaderboard-Digest</p>
-            <p className="text-xs text-slate-400 mt-0.5">Jeden Sonntag erhalten alle Teilnehmer eine Ranglisten-E-Mail.</p>
+        <div className="space-y-3 pt-1">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-slate-800">Wöchentlicher Leaderboard-Digest</p>
+              <p className="text-xs text-slate-400 mt-0.5">Jeden Sonntag erhalten alle Teilnehmer eine Ranglisten-E-Mail.</p>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              {digestToast && (
+                <span className="text-xs text-emerald-600 font-medium animate-fade-in">{digestToast}</span>
+              )}
+              <button
+                role="switch"
+                aria-checked={digestEnabled}
+                onClick={toggleDigest}
+                className={[
+                  'relative inline-flex h-6 w-11 items-center rounded-full transition-colors',
+                  digestEnabled ? 'bg-indigo-600' : 'bg-slate-200',
+                ].join(' ')}
+              >
+                <span className={[
+                  'inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform',
+                  digestEnabled ? 'translate-x-6' : 'translate-x-1',
+                ].join(' ')} />
+              </button>
+            </div>
           </div>
-          <button
-            role="switch"
-            aria-checked={instance.weeklyDigestEnabled}
-            onClick={() => update({ id: instance.id, data: { weeklyDigestEnabled: !instance.weeklyDigestEnabled } })}
-            className={[
-              'relative inline-flex h-6 w-11 items-center rounded-full transition-colors shrink-0',
-              instance.weeklyDigestEnabled ? 'bg-indigo-600' : 'bg-slate-200',
-            ].join(' ')}
-          >
-            <span className={[
-              'inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform',
-              instance.weeklyDigestEnabled ? 'translate-x-6' : 'translate-x-1',
-            ].join(' ')} />
-          </button>
+          {digestEnabled && (
+            <div className="flex items-center gap-2">
+              <p className="text-xs text-slate-500 shrink-0">Versandzeit (UTC):</p>
+              <select
+                value={digestHour}
+                onChange={e => saveDigestHour(Number(e.target.value))}
+                className="text-xs border border-slate-200 rounded-lg px-2 py-1 text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              >
+                {Array.from({ length: 24 }, (_, h) => (
+                  <option key={h} value={h}>{String(h).padStart(2, '0')}:00 Uhr</option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
       </div>
 

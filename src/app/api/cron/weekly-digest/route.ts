@@ -20,13 +20,15 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const weekOf = thisSundayMidnightUTC();
-  const now    = new Date();
+  const weekOf      = thisSundayMidnightUTC();
+  const now         = new Date();
+  const currentHour = now.getUTCHours();
 
   const instances = await prisma.olympiadInstance.findMany({
     where: {
       isActive:            true,
       weeklyDigestEnabled: true,
+      digestSendHour:      currentHour,
       startsAt:            { lte: now },
       endsAt:              { gte: now },
     },

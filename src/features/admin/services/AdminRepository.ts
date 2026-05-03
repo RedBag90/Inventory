@@ -356,6 +356,7 @@ export type AdminInstanceRecord = {
   endsAt:               Date;
   isActive:             boolean;
   weeklyDigestEnabled:  boolean;
+  digestSendHour:       number;
   createdAt:            Date;
   createdById:          string;
   createdByEmail:       string;
@@ -364,7 +365,7 @@ export type AdminInstanceRecord = {
 
 function mapInstance(i: {
   id: string; name: string; description: string | null;
-  startsAt: Date; endsAt: Date; isActive: boolean; weeklyDigestEnabled: boolean;
+  startsAt: Date; endsAt: Date; isActive: boolean; weeklyDigestEnabled: boolean; digestSendHour: number;
   createdAt: Date; createdById: string;
   createdBy: { email: string };
   _count: { memberships: number };
@@ -377,6 +378,7 @@ function mapInstance(i: {
     endsAt:              i.endsAt,
     isActive:            i.isActive,
     weeklyDigestEnabled: i.weeklyDigestEnabled,
+    digestSendHour:      i.digestSendHour,
     createdAt:           i.createdAt,
     createdById:         i.createdById,
     createdByEmail:      i.createdBy.email,
