@@ -5,7 +5,11 @@ import { computeLeaderboardForInstance, thisSundayMidnightUTC } from '@/features
 import { buildWeeklyDigestEmail } from '@/features/leaderboard/emails/weeklyDigestEmail';
 import { signOptOutToken } from '@/features/leaderboard/services/digestToken';
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://localhost:3000';
+// NEXT_PUBLIC_APP_URL → set manually in Vercel for production
+// VERCEL_URL         → set automatically by Vercel for every deployment (preview + prod)
+const APP_URL =
+  process.env.NEXT_PUBLIC_APP_URL ??
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
 
 export async function GET(req: NextRequest) {
   // Verify cron secret
