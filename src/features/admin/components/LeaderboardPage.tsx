@@ -20,23 +20,26 @@ function profitColor(v: number) {
   return 'text-slate-400';
 }
 
-function RankChange({ value }: { value: number }) {
+function RankChange({ value, size = 'sm' }: { value: number; size?: 'sm' | 'xs' }) {
+  const container   = size === 'xs' ? 'w-4 h-4' : 'w-6 h-6';
+  const iconNeutral = size === 'xs' ? 'w-2 h-2'   : 'w-2.5 h-2.5';
+  const iconArrow   = size === 'xs' ? 'w-2.5 h-2.5' : 'w-3 h-3';
   if (value === 0) return (
-    <span className="inline-flex items-center justify-center text-slate-400 bg-slate-50 border border-slate-100 w-6 h-6 rounded-full">
-      <svg className="w-2.5 h-2.5" viewBox="0 0 20 20" fill="currentColor">
+    <span className={`inline-flex items-center justify-center text-slate-400 bg-slate-50 border border-slate-100 ${container} rounded-full`}>
+      <svg className={iconNeutral} viewBox="0 0 20 20" fill="currentColor">
         <path d="M4 10a.75.75 0 0 1 .75-.75h10.5a.75.75 0 0 1 0 1.5H4.75A.75.75 0 0 1 4 10Z" />
       </svg>
     </span>
   );
   return value > 0 ? (
-    <span className="inline-flex items-center justify-center text-emerald-700 bg-emerald-50 border border-emerald-100 w-6 h-6 rounded-full">
-      <svg className="w-3 h-3" viewBox="0 0 20 20" fill="currentColor">
+    <span className={`inline-flex items-center justify-center text-emerald-700 bg-emerald-50 border border-emerald-100 ${container} rounded-full`}>
+      <svg className={iconArrow} viewBox="0 0 20 20" fill="currentColor">
         <path fillRule="evenodd" d="M10 17a.75.75 0 0 1-.75-.75V5.612L5.29 9.77a.75.75 0 0 1-1.08-1.04l5.25-5.5a.75.75 0 0 1 1.08 0l5.25 5.5a.75.75 1 1 1-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0 1 10 17Z" clipRule="evenodd" />
       </svg>
     </span>
   ) : (
-    <span className="inline-flex items-center justify-center text-red-600 bg-red-50 border border-red-100 w-6 h-6 rounded-full">
-      <svg className="w-3 h-3" viewBox="0 0 20 20" fill="currentColor">
+    <span className={`inline-flex items-center justify-center text-red-600 bg-red-50 border border-red-100 ${container} rounded-full`}>
+      <svg className={iconArrow} viewBox="0 0 20 20" fill="currentColor">
         <path fillRule="evenodd" d="M10 3a.75.75 0 0 1 .75.75v10.638l3.96-4.158a.75.75 1 1 1 1.08 1.04l-5.25 5.5a.75.75 0 0 1-1.08 0l-5.25-5.5a.75.75 1 1 1.08-1.04l3.96 4.158V3.75A.75.75 0 0 1 10 3Z" clipRule="evenodd" />
       </svg>
     </span>
@@ -258,9 +261,14 @@ export function LeaderboardPage() {
                   </span>
                   <div className="flex flex-col items-center gap-1 shrink-0">
                     <span className="text-xl leading-none">{config.medal}</span>
-                    <span className={['w-10 h-10 rounded-full bg-indigo-700 text-white text-sm font-bold flex items-center justify-center shrink-0', config.avatarRing].join(' ')}>
-                      {initials(label)}
-                    </span>
+                    <div className="relative">
+                      <span className={['w-10 h-10 rounded-full bg-indigo-700 text-white text-sm font-bold flex items-center justify-center shrink-0', config.avatarRing].join(' ')}>
+                        {initials(label)}
+                      </span>
+                      <span className="absolute -bottom-1 -right-1">
+                        <RankChange value={user.rankChange} size="xs" />
+                      </span>
+                    </div>
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-slate-900 truncate">{label}</p>
@@ -273,7 +281,6 @@ export function LeaderboardPage() {
                     <p className={['text-base font-bold tabular-nums', profitColor(user.totalProfit)].join(' ')}>
                       {formatCurrency(user.totalProfit)}
                     </p>
-                    <RankChange value={user.rankChange} />
                   </div>
                 </div>
               );
@@ -348,7 +355,6 @@ export function LeaderboardPage() {
             <div className="md:hidden">
               <div className="flex items-center gap-3 px-4 py-2 border-b border-slate-100 bg-slate-50">
                 <span className="w-6 shrink-0" />
-                <span className="w-6 shrink-0" />
                 <span className="w-8 shrink-0" />
                 <span className="flex-1 min-w-0 pl-1 text-xs font-medium text-slate-500 uppercase tracking-wide">Name</span>
                 <span className="text-xs font-medium text-slate-500 uppercase tracking-wide text-right shrink-0 w-20">Profit</span>
@@ -371,10 +377,14 @@ export function LeaderboardPage() {
                          : i === 2 ? <span className="text-lg">🥉</span>
                          : <span className="text-sm font-semibold text-slate-400 tabular-nums">{i + 1}</span>}
                       </span>
-                      <span className="shrink-0"><RankChange value={user.rankChange} /></span>
-                      <span className="w-8 h-8 rounded-full bg-indigo-700 text-white text-xs font-semibold flex items-center justify-center shrink-0">
-                        {initials(label)}
-                      </span>
+                      <div className="relative shrink-0">
+                        <span className="w-8 h-8 rounded-full bg-indigo-700 text-white text-xs font-semibold flex items-center justify-center">
+                          {initials(label)}
+                        </span>
+                        <span className="absolute -bottom-1 -right-1">
+                          <RankChange value={user.rankChange} size="xs" />
+                        </span>
+                      </div>
                       <div className="flex-1 min-w-0 pl-1">
                         <div className="flex items-center gap-1.5 flex-wrap">
                           <p className="text-sm font-medium text-slate-900 truncate">{label}</p>
