@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '../src/generated/prisma';
 
 const prisma = new PrismaClient();
 
@@ -22,8 +22,9 @@ const BADGES = [
   { slug: 'speed-3d',    category: 'EFFICIENCY', tier: 'BRONZE', sortOrder: 30, criteria: { type: 'speed_days', threshold: 3 } },
   { slug: 'speed-1d',    category: 'EFFICIENCY', tier: 'SILVER', sortOrder: 31, criteria: { type: 'speed_days', threshold: 1 } },
   // LEADERBOARD
-  { slug: 'top-3',       category: 'LEADERBOARD', tier: 'SILVER', sortOrder: 40, criteria: { type: 'leaderboard_rank', threshold: 3 } },
-  { slug: 'champion',    category: 'LEADERBOARD', tier: 'GOLD',   sortOrder: 41, criteria: { type: 'leaderboard_rank', threshold: 1 } },
+  { slug: 'top-3',       category: 'LEADERBOARD', tier: 'BRONZE', sortOrder: 40, criteria: { type: 'leaderboard_rank', threshold: 3 } },
+  { slug: 'top-2',       category: 'LEADERBOARD', tier: 'SILVER', sortOrder: 41, criteria: { type: 'leaderboard_rank', threshold: 2 } },
+  { slug: 'champion',    category: 'LEADERBOARD', tier: 'GOLD',   sortOrder: 42, criteria: { type: 'leaderboard_rank', threshold: 1 } },
   // ENGAGEMENT
   { slug: 'display-name', category: 'ENGAGEMENT', tier: 'BRONZE', sortOrder: 50, criteria: { type: 'engagement', event: 'display_name_set' } },
   { slug: 'tutorial-done', category: 'ENGAGEMENT', tier: 'BRONZE', sortOrder: 51, criteria: { type: 'engagement', event: 'tutorial_done' } },

@@ -53,7 +53,16 @@ export async function confirmPendingSale(
 
   const item = await prisma.item.findFirst({
     where:   { id: itemId, userId },
-    include: { pendingSale: true, costs: true },
+    select: {
+      id:            true,
+      purchasedAt:   true,
+      purchasePrice: true,
+      shippingCostIn: true,
+      repairCost:    true,
+      isQuickSell:   true,
+      costs:         { select: { amount: true } },
+      pendingSale:   true,
+    },
   });
   if (!item)            throw new Error('Item not found');
   if (!item.pendingSale) throw new Error('No pending sale found');
@@ -87,7 +96,7 @@ export async function confirmPendingSale(
     - numShippingOut
     - item.costs.reduce((s, c) => s + c.amount.toNumber(), 0);
 
-  const saleBadges        = await checkAndAwardBadges({ type: 'sale_recorded', userId, storageDays, singleItemProfit });
+  const saleBadges        = await checkAndAwardBadges({ type: 'sale_recorded', userId, storageDays, singleItemProfit, isQuickSell: item.isQuickSell });
   const leaderboardBadges = await checkLeaderboardBadges(userId);
   const streakBadges      = await checkStreakBadges(userId);
 
@@ -147,6 +156,7 @@ export async function createQuickPendingSale(data: QuickPendingSaleInput): Promi
         purchasedAt:      parsed.soldAt,
         shippingCostIn:   0,
         repairCost:       0,
+        isQuickSell:      true,
         status:           'RESERVED',
       },
     });

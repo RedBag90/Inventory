@@ -392,6 +392,10 @@
       "name": "Podium",
       "description": "Top-3-Platzierung in einer Saison erreicht."
     },
+    "top-2": {
+      "name": "Silbermedaille",
+      "description": "Top-2-Platzierung in einer Saison erreicht."
+    },
     "champion": {
       "name": "Champion",
       "description": "Platz 1 in einer Saison belegt."

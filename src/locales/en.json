@@ -392,6 +392,10 @@
       "name": "Podium",
       "description": "Reached top 3 in a season."
     },
+    "top-2": {
+      "name": "Silver Medal",
+      "description": "Reached top 2 in a season."
+    },
     "champion": {
       "name": "Champion",
       "description": "Finished 1st in a season."
