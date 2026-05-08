@@ -41,19 +41,27 @@ export async function getLeaderboard(instanceIdOverride?: string): Promise<Leade
   const { data: { user: authUser } } = await supabase.auth.getUser();
   if (!authUser) throw new Error('Unauthenticated');
 
-  const caller = await prisma.user.findUnique({
-    where:  { supabaseId: authUser.id },
-    select: {
-      id:   true,
-      role: true,
-      memberships: {
-        orderBy: { joinedAt: 'desc' },
-        select: {
-          instance: { select: { id: true, name: true, startsAt: true, endsAt: true, isActive: true } },
+  const [caller, overrideInstance] = await Promise.all([
+    prisma.user.findUnique({
+      where:  { supabaseId: authUser.id },
+      select: {
+        id:   true,
+        role: true,
+        memberships: {
+          orderBy: { joinedAt: 'desc' },
+          select: {
+            instance: { select: { id: true, name: true, startsAt: true, endsAt: true, isActive: true } },
+          },
         },
       },
-    },
-  });
+    }),
+    instanceIdOverride
+      ? prisma.olympiadInstance.findUnique({
+          where:  { id: instanceIdOverride },
+          select: { id: true, name: true, startsAt: true, endsAt: true },
+        })
+      : Promise.resolve(null),
+  ]);
   if (!caller) throw new Error('User not found');
 
   const isMasterAdmin = caller.role === 'MASTER_ADMIN';
@@ -63,11 +71,7 @@ export async function getLeaderboard(instanceIdOverride?: string): Promise<Leade
 
   if (instanceIdOverride) {
     if (isMasterAdmin) {
-      // MASTER_ADMIN may view any instance
-      instance = await prisma.olympiadInstance.findUnique({
-        where:  { id: instanceIdOverride },
-        select: { id: true, name: true, startsAt: true, endsAt: true },
-      });
+      instance = overrideInstance;
     } else {
       // Regular users / admins may only view instances they belong to
       const membership = caller.memberships.find(m => m.instance.id === instanceIdOverride);
@@ -114,6 +118,7 @@ export async function getLeaderboard(instanceIdOverride?: string): Promise<Leade
       userBadges: {
         include: { badge: { select: { slug: true, tier: true, sortOrder: true } } },
         orderBy: [{ badge: { sortOrder: 'desc' } }],
+        take: 3,
       },
     },
   });
@@ -144,7 +149,7 @@ export async function getLeaderboard(instanceIdOverride?: string): Promise<Leade
       soldCount:      soldItems.length,
       totalProfit,
       snapshotProfit,
-      topBadges: u.userBadges.slice(0, 3).map((ub) => ({ slug: ub.badge.slug, tier: ub.badge.tier })),
+      topBadges: u.userBadges.map((ub) => ({ slug: ub.badge.slug, tier: ub.badge.tier })),
     };
   });
 

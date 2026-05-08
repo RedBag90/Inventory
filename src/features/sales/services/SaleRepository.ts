@@ -81,6 +81,7 @@ export async function createQuickSale(data: QuickSellInput): Promise<{ newBadges
         purchasedAt:      parsed.soldAt,
         shippingCostIn:   0,
         repairCost:       0,
+        isQuickSell:      true,
         status:           'SOLD',
       },
     });

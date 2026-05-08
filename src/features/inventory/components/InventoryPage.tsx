@@ -1,13 +1,15 @@
 'use client';
 
 import { useState, Suspense } from 'react';
+import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
 import { ItemTable } from './ItemTable';
 import { ItemForm } from './ItemForm';
-import { SaleModal }              from '@/features/sales/components/SaleModal';
-import { QuickSellModal }         from '@/features/sales/components/QuickSellModal';
-import { PendingSaleModal }       from '@/features/sales/components/PendingSaleModal';
-import { ConfirmPendingSaleModal } from '@/features/sales/components/ConfirmPendingSaleModal';
+
+const SaleModal               = dynamic(() => import('@/features/sales/components/SaleModal').then(m => ({ default: m.SaleModal })));
+const QuickSellModal          = dynamic(() => import('@/features/sales/components/QuickSellModal').then(m => ({ default: m.QuickSellModal })));
+const PendingSaleModal        = dynamic(() => import('@/features/sales/components/PendingSaleModal').then(m => ({ default: m.PendingSaleModal })));
+const ConfirmPendingSaleModal = dynamic(() => import('@/features/sales/components/ConfirmPendingSaleModal').then(m => ({ default: m.ConfirmPendingSaleModal })));
 import { useCancelPendingSale }   from '../hooks/usePendingSale';
 import type { ItemWithCosts } from '../types/inventory.types';
 

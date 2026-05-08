@@ -51,11 +51,11 @@ async function getUserRankInInstance(
 
 /**
  * Checks all active olympiad instances the user belongs to, computes their
- * current rank, and awards leaderboard badges (top-3, champion) if earned.
+ * current rank, and awards leaderboard badges (top-3, top-2, champion) if earned. Only runs for completed olympiads.
  */
 export async function checkLeaderboardBadges(userId: string): Promise<AwardedBadge[]> {
   const memberships = await prisma.instanceMembership.findMany({
-    where: { userId, instance: { isActive: true } },
+    where: { userId, instance: { endsAt: { lt: new Date() } } },
     select: {
       instance: { select: { id: true, startsAt: true, endsAt: true } },
     },

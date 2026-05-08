@@ -19,6 +19,7 @@ const BADGE_ICONS: Record<string, string> = {
   'speed-3d':     '⚡',
   'speed-1d':     '🔥',
   'top-3':        '🥉',
+  'top-2':        '🥈',
   'champion':     '🥇',
   'display-name': '🪪',
   'tutorial-done':'🎓',

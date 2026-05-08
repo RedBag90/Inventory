@@ -102,6 +102,7 @@ model Item {
   purchasedAt      DateTime
   shippingCostIn   Decimal          @db.Decimal(10, 2) @default(0)
   repairCost       Decimal          @db.Decimal(10, 2) @default(0)
+  isQuickSell      Boolean          @default(false)
   status           ItemStatus       @default(IN_STOCK)
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
