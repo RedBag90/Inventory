@@ -23,6 +23,9 @@ export {
   useCreateQuickPendingSale,
 } from './hooks/usePendingSale';
 
+// Components
+export { ConfirmPendingSaleModal } from './components/ConfirmPendingSaleModal';
+
 // Business logic
 export { ItemManager } from './services/ItemManager';
 

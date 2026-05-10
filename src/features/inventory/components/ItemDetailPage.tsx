@@ -8,7 +8,8 @@ import { useDeleteItem } from '../hooks/useDeleteItem';
 import { ItemManager } from '../services/ItemManager';
 import { CostEditor } from './CostEditor';
 import { ItemEditForm } from './ItemEditForm';
-import { SaleManager, ConfirmPendingSaleModal } from '@/features/sales';
+import { SaleManager } from '@/features/sales';
+import { ConfirmPendingSaleModal } from './ConfirmPendingSaleModal';
 import { useCancelPendingSale } from '../hooks/usePendingSale';
 import { formatCurrency, formatDate } from '@/shared/lib/utils';
 

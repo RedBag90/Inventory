@@ -11,6 +11,5 @@ export { RecordSaleSchema, QuickSellSchema, CreatePendingSaleSchema, UpdatePendi
 export type { RecordSaleInput, QuickSellInput, CreatePendingSaleInput, UpdatePendingSaleInput, QuickPendingSaleInput } from './types/sales.types';
 
 // Modals
-export { PendingSaleModal }       from './components/PendingSaleModal';
-export { QuickSellModal }         from './components/QuickSellModal';
-export { ConfirmPendingSaleModal } from './components/ConfirmPendingSaleModal';
+export { PendingSaleModal } from './components/PendingSaleModal';
+export { QuickSellModal }   from './components/QuickSellModal';

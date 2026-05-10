@@ -1,6 +1,6 @@
 import { prisma } from '@/shared/lib/prisma';
 import { computeProfit } from '@/shared/lib/calculations';
-import type { LeaderboardEntry } from '@/features/admin/services/getLeaderboard';
+import type { LeaderboardEntry } from '../types/leaderboard.types';
 
 /** Returns the most recent Sunday at 00:00 UTC */
 export function lastSundayMidnightUTC(): Date {
