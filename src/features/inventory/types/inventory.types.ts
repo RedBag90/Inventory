@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { PlatformEnum } from '@/shared/constants/platforms';
 
 // Zod schemas are the source of truth — TypeScript types are derived from them.
 // Never define a type manually if a schema already exists.
@@ -7,7 +8,7 @@ export const CreateItemSchema = z.object({
   name:             z.string().min(1, 'Name is required').max(200),
   description:      z.string().max(1000).optional(),
   purchasePrice:    z.number().positive('Purchase price must be positive'),
-  purchasePlatform: z.enum(['KLEINANZEIGEN', 'EBAY', 'FACEBOOK', 'OTHER'], { errorMap: () => ({ message: 'Bitte eine Plattform auswählen.' }) }),
+  purchasePlatform: PlatformEnum,
   purchasedAt:      z.coerce.date(),
   shippingCostIn:   z.number().min(0, 'Must be 0 or more').default(0),
   repairCost:       z.number().min(0, 'Must be 0 or more').default(0),
@@ -20,7 +21,7 @@ export const EditItemSchema = z.object({
   name:             z.string().min(1, 'Name is required').max(200),
   description:      z.string().max(1000).optional(),
   purchasePrice:    z.number().positive('Purchase price must be positive'),
-  purchasePlatform: z.enum(['KLEINANZEIGEN', 'EBAY', 'FACEBOOK', 'OTHER'], { errorMap: () => ({ message: 'Bitte eine Plattform auswählen.' }) }),
+  purchasePlatform: PlatformEnum,
   purchasedAt:      z.coerce.date(),
 });
 
