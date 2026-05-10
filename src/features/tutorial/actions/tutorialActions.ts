@@ -3,7 +3,7 @@
 import { prisma } from '@/shared/lib/prisma';
 import { getCurrentUserId } from '@/shared/lib/auth/getCurrentUserId';
 import { revalidateTag } from 'next/cache';
-import { checkAndAwardBadges } from '@/features/badges/services/BadgeAwardService';
+import { checkAndAwardBadges } from '@/features/badges';
 
 export async function completeTutorial(): Promise<void> {
   const userId = await getCurrentUserId();

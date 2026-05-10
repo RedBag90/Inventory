@@ -3,7 +3,7 @@
 import { SaleManager } from '../services/SaleManager';
 import { useRecordSale } from '../hooks/useRecordSale';
 import { formatCurrency } from '@/shared/lib/utils';
-import type { ItemWithCosts } from '@/features/inventory/types/inventory.types';
+import type { ItemWithCosts } from '@/features/inventory';
 import type { RecordSaleInput } from '../types/sales.types';
 
 type Props = {

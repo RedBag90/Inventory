@@ -7,9 +7,8 @@
 import { useState } from 'react';
 import { usePendingJoinRequestCount } from '../hooks/useJoinRequests';
 import { usePendingInstanceRequestCount } from '../hooks/useInstanceRequests';
-import { useCurrentDbUser } from '@/features/auth/hooks/useCurrentDbUser';
-import { useMyMemberships } from '@/features/olympiad/hooks/useOlympiads';
-import { OlympiadPanel } from '@/features/olympiad/components/OlympiadPanel';
+import { useCurrentDbUser } from '@/features/auth';
+import { useMyMemberships, OlympiadPanel } from '@/features/olympiad';
 import { JoinRequestsTab } from './tabs/JoinRequestsTab';
 import { InstanceRequestsTab } from './tabs/InstanceRequestsTab';
 import { InstancesTab } from './tabs/InstancesTab';

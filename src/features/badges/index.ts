@@ -10,6 +10,17 @@ export { BadgeToast } from './components/BadgeToast';
 export { useMyBadgesPageData, useMyBadgeCount, useMarkBadgesNotified } from './hooks/useBadges';
 export { badgeKeys } from './hooks/badgeKeys';
 
+// Badge award services (server-side)
+export { checkAndAwardBadges } from './services/BadgeAwardService';
+export { checkLeaderboardBadges } from './services/leaderboardBadgeService';
+export { checkStreakBadges } from './services/streakBadgeService';
+
+// Client utilities
+export { showBadgeToasts } from './lib/badgeToasts';
+
+// Server actions (public)
+export { getMyBadgesPageData } from './actions/badgeActions';
+
 // Types
 export type {
   AwardedBadge,

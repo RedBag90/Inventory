@@ -4,8 +4,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { createItem } from '../services/ItemRepository';
 import { inventoryKeys } from './inventoryKeys';
-import { badgeKeys } from '@/features/badges/hooks/badgeKeys';
-import { showBadgeToasts } from '@/features/badges/lib/badgeToasts';
+import { badgeKeys, showBadgeToasts } from '@/features/badges';
 import type { CreateItemInput } from '../types/inventory.types';
 
 export function useCreateItem() {

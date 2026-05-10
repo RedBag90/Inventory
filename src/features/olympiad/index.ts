@@ -36,4 +36,7 @@ export { getOlympiads, getOlympiadMembers, getCurrentUserInstanceId } from './se
 export type { OlympiadRecord, OlympiadMember } from './services/olympiadRepository';
 
 // Actions
-export { joinViaToken, storePendingEmailInvite, checkHasMembership } from './actions/olympiadActions';
+export { joinViaToken, storePendingEmailInvite, checkHasMembership, submitInstanceRequest, getMyInstanceRequest } from './actions/olympiadActions';
+
+// Context provider
+export { ActiveOlympiadProvider } from './context/ActiveOlympiadContext';

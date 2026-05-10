@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { QuickSellForm } from './QuickSellForm';
 import { QuickSellConfirmation } from './QuickSellConfirmation';
-import { useCreateQuickPendingSale } from '@/features/inventory/hooks/usePendingSale';
+import { useCreateQuickPendingSale } from '@/features/inventory';
 import type { QuickSellInput, QuickPendingSaleInput } from '../types/sales.types';
 
 type Props = {

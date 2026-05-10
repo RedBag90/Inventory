@@ -2,22 +2,12 @@
 
 import { prisma } from '@/shared/lib/prisma';
 import { getCurrentUserId } from '@/shared/lib/auth/getCurrentUserId';
-import { checkAndAwardBadges } from '@/features/badges/services/BadgeAwardService';
-import { checkLeaderboardBadges } from '@/features/badges/services/leaderboardBadgeService';
-import { checkStreakBadges } from '@/features/badges/services/streakBadgeService';
+import { checkAndAwardBadges, checkLeaderboardBadges, checkStreakBadges } from '@/features/badges';
 import { calculateStorageDays } from '@/shared/lib/calculations';
 import { revalidatePath } from 'next/cache';
-import {
-  CreatePendingSaleSchema,
-  UpdatePendingSaleSchema,
-  QuickPendingSaleSchema,
-} from '@/features/sales/types/sales.types';
-import type {
-  CreatePendingSaleInput,
-  UpdatePendingSaleInput,
-  QuickPendingSaleInput,
-} from '@/features/sales/types/sales.types';
-import type { AwardedBadge } from '@/features/badges/types/badge.types';
+import { CreatePendingSaleSchema, UpdatePendingSaleSchema, QuickPendingSaleSchema } from '@/features/sales';
+import type { CreatePendingSaleInput, UpdatePendingSaleInput, QuickPendingSaleInput } from '@/features/sales';
+import type { AwardedBadge } from '@/features/badges';
 
 export async function createPendingSale(data: CreatePendingSaleInput): Promise<void> {
   const parsed = CreatePendingSaleSchema.parse(data);

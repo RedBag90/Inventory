@@ -2,8 +2,8 @@
 
 import { prisma } from '@/shared/lib/prisma';
 import { createClient } from '@/shared/lib/supabase/server';
-import { checkAndAwardBadges } from '@/features/badges/services/BadgeAwardService';
-import type { AwardedBadge } from '@/features/badges/types/badge.types';
+import { checkAndAwardBadges } from '@/features/badges';
+import type { AwardedBadge } from '@/features/badges';
 
 export async function updateDisplayName(displayName: string): Promise<{ newBadges: AwardedBadge[] }> {
   const supabase = await createClient();

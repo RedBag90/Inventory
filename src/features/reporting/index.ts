@@ -11,7 +11,7 @@ export { useCumulativeReport }   from './hooks/useCumulativeReport';
 export { useAllMonthlyReports }  from './hooks/useAllMonthlyReports';
 export { useDashboardData }      from './hooks/useDashboardData';
 export { useDashboardFilters }   from './hooks/useDashboardFilters';
-export { reportingKeys }         from './hooks/reportingKeys';
+export { reportingKeys }          from './hooks/reportingKeys';
 export type { MonthlyReport, QuarterlyReport, CumulativeReport } from './types/reporting.types';
 export type { DashboardSale }   from './services/getDashboardData';
 export type { Granularity, ItemMeta } from './lib/dashboardUtils';

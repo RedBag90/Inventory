@@ -1,10 +1,10 @@
 'use client';
 
 import { useLeaderboard } from '../hooks/useLeaderboard';
-import { useCurrentDbUser } from '@/features/auth/hooks/useCurrentDbUser';
-import { useActiveOlympiad } from '@/features/olympiad/hooks/useActiveOlympiad';
+import { useCurrentDbUser } from '@/features/auth';
+import { useActiveOlympiad } from '@/features/olympiad';
 import { formatCurrency } from '@/shared/lib/utils';
-import { BadgeChip } from '@/features/badges/components/BadgeChip';
+import { BadgeChip } from '@/features/badges';
 import { useTranslations, useLocale } from 'next-intl';
 
 function initials(name: string) {

@@ -14,6 +14,14 @@ export { useItem }       from './hooks/useItem';
 export { useCreateItem } from './hooks/useCreateItem';
 export { useUpdateItem } from './hooks/useUpdateItem';
 export { useEditItem }   from './hooks/useEditItem';
+export { inventoryKeys } from './hooks/inventoryKeys';
+export {
+  useCreatePendingSale,
+  useConfirmPendingSale,
+  useCancelPendingSale,
+  useUpdatePendingSale,
+  useCreateQuickPendingSale,
+} from './hooks/usePendingSale';
 
 // Business logic
 export { ItemManager } from './services/ItemManager';

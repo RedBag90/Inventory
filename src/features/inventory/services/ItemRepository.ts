@@ -6,7 +6,7 @@
 
 import { prisma } from '@/shared/lib/prisma';
 import { getCurrentUserId } from '@/shared/lib/auth/getCurrentUserId';
-import { checkAndAwardBadges } from '@/features/badges/services/BadgeAwardService';
+import { checkAndAwardBadges } from '@/features/badges';
 import {
   CreateItemSchema,
   EditItemSchema,
@@ -18,7 +18,7 @@ import type {
   UpdateItemCostsInput,
   ItemWithCosts,
 } from '../types/inventory.types';
-import type { AwardedBadge } from '@/features/badges/types/badge.types';
+import type { AwardedBadge } from '@/features/badges';
 
 // ─── Prisma → plain object ────────────────────────────────────────────────────
 // Prisma returns Decimal objects; we convert to number so the client can use them.

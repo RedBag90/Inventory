@@ -2,7 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { ItemManager } from '../services/ItemManager';
-import { SaleManager } from '@/features/sales/services/SaleManager';
+import { SaleManager } from '@/features/sales';
 import { formatCurrency, formatDate } from '@/shared/lib/utils';
 import type { ItemWithCosts } from '../types/inventory.types';
 

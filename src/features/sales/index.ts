@@ -7,5 +7,10 @@ export { SaleManager } from './services/SaleManager';
 export { createSale } from './services/SaleRepository';
 export { useRecordSale } from './hooks/useRecordSale';
 export { salesKeys } from './hooks/salesKeys';
-export { RecordSaleSchema } from './types/sales.types';
-export type { RecordSaleInput } from './types/sales.types';
+export { RecordSaleSchema, QuickSellSchema, CreatePendingSaleSchema, UpdatePendingSaleSchema, QuickPendingSaleSchema } from './types/sales.types';
+export type { RecordSaleInput, QuickSellInput, CreatePendingSaleInput, UpdatePendingSaleInput, QuickPendingSaleInput } from './types/sales.types';
+
+// Modals
+export { PendingSaleModal }       from './components/PendingSaleModal';
+export { QuickSellModal }         from './components/QuickSellModal';
+export { ConfirmPendingSaleModal } from './components/ConfirmPendingSaleModal';

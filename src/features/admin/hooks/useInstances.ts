@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { adminKeys } from './adminKeys';
-import { olympiadKeys } from '@/features/olympiad/hooks/useOlympiads';
+import { olympiadKeys } from '@/features/olympiad';
 import { getAllInstances, getInstanceOlympiads, transferOlympiadOwner } from '../services/AdminRepository';
 
 export function useInstances() {

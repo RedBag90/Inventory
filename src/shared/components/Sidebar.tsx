@@ -4,9 +4,9 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { usePendingJoinRequestCount } from '@/features/admin/hooks/useJoinRequests';
-import { useActiveOlympiad } from '@/features/olympiad/hooks/useActiveOlympiad';
-import { useMyBadgeCount } from '@/features/badges/hooks/useBadges';
+import { usePendingJoinRequestCount } from '@/features/admin';
+import { useActiveOlympiad } from '@/features/olympiad';
+import { useMyBadgeCount } from '@/features/badges';
 
 // ── icons ─────────────────────────────────────────────────────────────────────
 

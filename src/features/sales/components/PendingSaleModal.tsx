@@ -4,11 +4,11 @@ import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { SaleManager } from '../services/SaleManager';
-import { useCreatePendingSale } from '@/features/inventory/hooks/usePendingSale';
+import { useCreatePendingSale } from '@/features/inventory';
 import { formatCurrency, formatDate } from '@/shared/lib/utils';
 import { PLATFORMS } from '@/shared/constants/platforms';
 import { CreatePendingSaleSchema, type CreatePendingSaleInput } from '../types/sales.types';
-import type { ItemWithCosts } from '@/features/inventory/types/inventory.types';
+import type { ItemWithCosts } from '@/features/inventory';
 
 type Props = {
   item:    ItemWithCosts;

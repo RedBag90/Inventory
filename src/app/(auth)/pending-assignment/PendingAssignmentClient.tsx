@@ -6,7 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { useSubmitJoinRequest, useMyJoinRequests, checkHasMembership } from '@/features/olympiad';
 import { createClient } from '@/shared/lib/supabase/client';
-import { useSubmitInstanceRequest, useMyInstanceRequest } from '@/features/admin/hooks/useInstanceRequests';
+import { useSubmitInstanceRequest, useMyInstanceRequest } from '@/features/admin';
 
 export function PendingAssignmentClient({ email }: { email: string }) {
   const t = useTranslations('auth.pending');

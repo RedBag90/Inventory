@@ -6,13 +6,11 @@
 
 import { prisma, toNum } from '@/shared/lib/prisma';
 import { getCurrentUserId } from '@/shared/lib/auth/getCurrentUserId';
-import { checkAndAwardBadges } from '@/features/badges/services/BadgeAwardService';
-import { checkLeaderboardBadges } from '@/features/badges/services/leaderboardBadgeService';
-import { checkStreakBadges } from '@/features/badges/services/streakBadgeService';
+import { checkAndAwardBadges, checkLeaderboardBadges, checkStreakBadges } from '@/features/badges';
 import { calculateStorageDays } from '@/shared/lib/calculations';
 import { RecordSaleSchema, QuickSellSchema } from '../types/sales.types';
 import type { RecordSaleInput, QuickSellInput } from '../types/sales.types';
-import type { AwardedBadge } from '@/features/badges/types/badge.types';
+import type { AwardedBadge } from '@/features/badges';
 
 // ─── Mutations ────────────────────────────────────────────────────────────────
 
