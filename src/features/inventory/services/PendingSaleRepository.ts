@@ -2,7 +2,8 @@
 
 import { prisma } from '@/shared/lib/prisma';
 import { getCurrentUserId } from '@/shared/lib/auth/getCurrentUserId';
-import { checkAndAwardBadges, checkLeaderboardBadges, checkStreakBadges } from '@/features/badges';
+import { awardBadgesForEvent } from '@/features/badges';
+import { computeProfit } from '@/features/sales';
 import { calculateStorageDays } from '@/shared/lib/calculations';
 import { revalidatePath } from 'next/cache';
 import { CreatePendingSaleSchema, UpdatePendingSaleSchema, QuickPendingSaleSchema } from '@/features/sales';
@@ -76,24 +77,23 @@ export async function confirmPendingSale(
     prisma.item.update({ where: { id: itemId }, data: { status: 'SOLD' } }),
   ]);
 
-  const numSalePrice      = parsed?.salePrice       ?? item.pendingSale.salePrice.toNumber();
-  const numShippingOut    = parsed?.shippingCostOut  ?? item.pendingSale.shippingCostOut.toNumber();
-  const singleItemProfit  =
-    numSalePrice
-    - item.purchasePrice.toNumber()
-    - item.shippingCostIn.toNumber()
-    - item.repairCost.toNumber()
-    - numShippingOut
-    - item.costs.reduce((s, c) => s + c.amount.toNumber(), 0);
+  const numSalePrice   = parsed?.salePrice      ?? item.pendingSale.salePrice.toNumber();
+  const numShippingOut = parsed?.shippingCostOut ?? item.pendingSale.shippingCostOut.toNumber();
+  const singleItemProfit = computeProfit({
+    salePrice:       numSalePrice,
+    purchasePrice:   item.purchasePrice.toNumber(),
+    shippingCostIn:  item.shippingCostIn.toNumber(),
+    repairCost:      item.repairCost.toNumber(),
+    shippingCostOut: numShippingOut,
+    additionalCosts: item.costs.map(c => c.amount.toNumber()),
+  });
 
-  const saleBadges        = await checkAndAwardBadges({ type: 'sale_recorded', userId, storageDays, singleItemProfit, isQuickSell: item.isQuickSell });
-  const leaderboardBadges = await checkLeaderboardBadges(userId);
-  const streakBadges      = await checkStreakBadges(userId);
+  const newBadges = await awardBadgesForEvent({ type: 'sale_recorded', userId, storageDays, singleItemProfit, isQuickSell: item.isQuickSell ?? undefined });
 
   revalidatePath('/dashboard/inventory');
   revalidatePath('/dashboard');
 
-  return { newBadges: [...saleBadges, ...leaderboardBadges, ...streakBadges] };
+  return { newBadges };
 }
 
 export async function cancelPendingSale(itemId: string): Promise<void> {

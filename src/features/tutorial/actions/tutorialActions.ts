@@ -3,7 +3,7 @@
 import { prisma } from '@/shared/lib/prisma';
 import { getCurrentUserId } from '@/shared/lib/auth/getCurrentUserId';
 import { revalidateTag } from 'next/cache';
-import { checkAndAwardBadges } from '@/features/badges';
+import { awardBadgesForEvent } from '@/features/badges';
 
 export async function completeTutorial(): Promise<void> {
   const userId = await getCurrentUserId();
@@ -13,7 +13,7 @@ export async function completeTutorial(): Promise<void> {
     data:  { tutorialCompletedAt: new Date() },
   });
 
-  await checkAndAwardBadges({ type: 'engagement', userId, event: 'tutorial_done' });
+  await awardBadgesForEvent({ type: 'engagement', userId, event: 'tutorial_done' });
   revalidateTag('currentDbUser');
 }
 

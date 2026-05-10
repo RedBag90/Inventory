@@ -3,9 +3,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { inventoryKeys } from './inventoryKeys';
-import { badgeKeys } from '@/features/badges';
-import { reportingKeys } from '@/features/reporting';
 import { showBadgeToasts } from '@/features/badges';
+import { invalidateForMutation } from '@/shared/lib/queryInvalidation';
 import {
   createPendingSale,
   confirmPendingSale,
@@ -34,13 +33,8 @@ export function useConfirmPendingSale() {
       confirmPendingSale(itemId, overrides),
     onSuccess: ({ newBadges }) => {
       toast.success('Verkauf bestätigt');
-      queryClient.invalidateQueries({ queryKey: inventoryKeys.all });
-      queryClient.invalidateQueries({ queryKey: reportingKeys.dashboardAll() });
-      queryClient.invalidateQueries({ queryKey: reportingKeys.rangeAll() });
-      if (newBadges.length > 0) {
-        queryClient.invalidateQueries({ queryKey: badgeKeys.all });
-        showBadgeToasts(newBadges);
-      }
+      invalidateForMutation(queryClient, 'pending_sale_confirmed', { hasBadges: newBadges.length > 0 });
+      if (newBadges.length > 0) showBadgeToasts(newBadges);
     },
     onError: (err) => toast.error(err instanceof Error ? err.message : 'Fehler beim Bestätigen'),
   });
@@ -52,7 +46,7 @@ export function useCancelPendingSale() {
     mutationFn: (itemId: string) => cancelPendingSale(itemId),
     onSuccess: () => {
       toast.success('Inserat aufgehoben');
-      queryClient.invalidateQueries({ queryKey: inventoryKeys.all });
+      invalidateForMutation(queryClient, 'pending_sale_cancelled');
     },
     onError: (err) => toast.error(err instanceof Error ? err.message : 'Fehler beim Aufheben'),
   });

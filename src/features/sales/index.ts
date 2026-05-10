@@ -1,5 +1,6 @@
 // Public API — only import from here, never from internal paths
 
+export { computeProfit, computeQuickSellProfit } from './lib/computeProfit';
 export { SaleForm } from './components/SaleForm';
 export { SaleConfirmation } from './components/SaleConfirmation';
 export { SaleModal } from './components/SaleModal';
