@@ -4,8 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
-import { useSubmitJoinRequest, useMyJoinRequests } from '@/features/olympiad/hooks/useOlympiads';
-import { checkHasMembership } from '@/features/olympiad/actions/olympiadActions';
+import { useSubmitJoinRequest, useMyJoinRequests, checkHasMembership } from '@/features/olympiad';
 import { createClient } from '@/shared/lib/supabase/client';
 import { useSubmitInstanceRequest, useMyInstanceRequest } from '@/features/admin/hooks/useInstanceRequests';
 

@@ -2,9 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/shared/lib/prisma';
 import { sendMail } from '@/shared/lib/mailer';
 import { env } from '@/shared/config/env';
-import { computeLeaderboardForInstance, thisSundayMidnightUTC } from '@/features/leaderboard/services/computeLeaderboard';
-import { buildWeeklyDigestEmail } from '@/features/leaderboard/emails/weeklyDigestEmail';
-import { signOptOutToken } from '@/features/leaderboard/services/digestToken';
+import { computeLeaderboardForInstance, thisSundayMidnightUTC, buildWeeklyDigestEmail, signOptOutToken } from '@/features/leaderboard';
 
 // NEXT_PUBLIC_APP_URL → set manually in Vercel per environment
 // VERCEL_URL         → set automatically by Vercel for every deployment (preview + prod)

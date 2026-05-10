@@ -17,3 +17,6 @@ export { useEditItem }   from './hooks/useEditItem';
 
 // Business logic
 export { ItemManager } from './services/ItemManager';
+
+// Server actions
+export { getItemById } from './services/ItemRepository';

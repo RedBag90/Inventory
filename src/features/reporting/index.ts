@@ -15,3 +15,6 @@ export { reportingKeys }         from './hooks/reportingKeys';
 export type { MonthlyReport, QuarterlyReport, CumulativeReport } from './types/reporting.types';
 export type { DashboardSale }   from './services/getDashboardData';
 export type { Granularity, ItemMeta } from './lib/dashboardUtils';
+
+// Server actions
+export { getEarliestItemDate } from './services/getEarliestItemDate';

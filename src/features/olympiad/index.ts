@@ -34,3 +34,6 @@ export type { ActiveOlympiadState } from './hooks/useActiveOlympiad';
 // Services (server actions)
 export { getOlympiads, getOlympiadMembers, getCurrentUserInstanceId } from './services/olympiadRepository';
 export type { OlympiadRecord, OlympiadMember } from './services/olympiadRepository';
+
+// Actions
+export { joinViaToken, storePendingEmailInvite, checkHasMembership } from './actions/olympiadActions';

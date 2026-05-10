@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/shared/lib/prisma';
-import { verifyOptOutToken } from '@/features/leaderboard/services/digestToken';
+import { verifyOptOutToken } from '@/features/leaderboard';
 
 const HTML_OK = `<!DOCTYPE html><html lang="de"><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">

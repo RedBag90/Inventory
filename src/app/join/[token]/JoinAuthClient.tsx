@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/shared/lib/supabase/client';
-import { storePendingEmailInvite } from '@/features/olympiad/actions/olympiadActions';
+import { storePendingEmailInvite } from '@/features/olympiad';
 
 type Tab = 'login' | 'register';
 

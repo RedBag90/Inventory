@@ -1,7 +1,6 @@
 import { Suspense } from 'react';
 import { HydrationBoundary, QueryClient, dehydrate } from '@tanstack/react-query';
-import { ReportingPage } from '@/features/reporting';
-import { getEarliestItemDate } from '@/features/reporting/services/getEarliestItemDate';
+import { ReportingPage, getEarliestItemDate } from '@/features/reporting';
 
 export default async function ReportingRoute() {
   const qc = new QueryClient();
