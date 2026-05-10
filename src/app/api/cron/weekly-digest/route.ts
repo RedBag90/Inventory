@@ -66,7 +66,16 @@ export async function GET(req: NextRequest) {
         appUrl:          APP_URL,
       });
 
-      await sendMail({ to: membership.user.email, subject, html, text });
+      await sendMail({
+        to:      membership.user.email,
+        subject,
+        html,
+        text,
+        headers: {
+          'List-Unsubscribe':      `<${optOutUrl}>`,
+          'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+        },
+      });
       sent++;
     }
 

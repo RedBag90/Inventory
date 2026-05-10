@@ -26,11 +26,13 @@ export async function sendMail({
   subject,
   html,
   text,
+  headers,
 }: {
-  to: string;
-  subject: string;
-  html: string;
-  text?: string;
+  to:       string;
+  subject:  string;
+  html:     string;
+  text?:    string;
+  headers?: Record<string, string>;
 }) {
   const from = env.SMTP_FROM ?? env.SMTP_USER ?? 'noreply@example.com';
   const transport = createTransport();
@@ -41,5 +43,5 @@ export async function sendMail({
     return;
   }
 
-  await transport.sendMail({ from, to, subject, html, text });
+  await transport.sendMail({ from, to, subject, html, text, headers });
 }
