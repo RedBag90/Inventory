@@ -93,7 +93,7 @@ export function buildWeeklyDigestEmail({
 
         <!-- CTA -->
         <tr><td style="padding:8px 24px 24px;text-align:center">
-          <a href="${appUrl}/dashboard" style="display:inline-block;background:#4f46e5;color:#ffffff;font-size:14px;font-weight:600;text-decoration:none;padding:11px 28px;border-radius:8px">
+          <a href="${appUrl}/dashboard/leaderboard" style="display:inline-block;background:#4f46e5;color:#ffffff;font-size:14px;font-weight:600;text-decoration:none;padding:11px 28px;border-radius:8px">
             Zur Rangliste →
           </a>
         </td></tr>
@@ -122,7 +122,7 @@ export function buildWeeklyDigestEmail({
       return `${rankMedal(rank).padEnd(4)} ${label.padEnd(25)} ${change.padStart(5)}   ${formatCurrency(e.totalProfit)}`;
     }),
     '',
-    `Rangliste: ${appUrl}/dashboard`,
+    `Rangliste: ${appUrl}/dashboard/leaderboard`,
     `Abmelden: ${optOutUrl}`,
   ].join('\n');
 
