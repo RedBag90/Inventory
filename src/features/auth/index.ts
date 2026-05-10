@@ -3,3 +3,4 @@ export { syncUser } from './actions/syncUser';
 export { UserMenu } from './components/UserMenu';
 export { useCurrentUser } from './hooks/useCurrentUser';
 export { useCurrentDbUser } from './hooks/useCurrentDbUser';
+export { useUserMenuData } from './hooks/useUserMenuData';

@@ -11,6 +11,8 @@ export { useMyBadgesPageData, useMyBadgeCount, useMarkBadgesNotified } from './h
 export { badgeKeys } from './hooks/badgeKeys';
 
 // Badge award services (server-side)
+export { awardBadgesForEvent } from './services/awardBadgesForEvent';
+export type { BadgeEvent } from './services/awardBadgesForEvent';
 export { checkAndAwardBadges } from './services/BadgeAwardService';
 export { checkLeaderboardBadges } from './services/leaderboardBadgeService';
 export { checkStreakBadges } from './services/streakBadgeService';

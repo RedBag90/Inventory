@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/shared/lib/prisma';
 import { sendMail } from '@/shared/lib/mailer';
 import { env } from '@/shared/config/env';
-import { computeLeaderboardForInstance, thisSundayMidnightUTC, buildWeeklyDigestEmail, signOptOutToken } from '@/features/leaderboard';
+import { getLeaderboardData, thisSundayMidnightUTC, buildWeeklyDigestEmail, signOptOutToken } from '@/features/leaderboard';
 
 // NEXT_PUBLIC_APP_URL → set manually in Vercel per environment
 // VERCEL_URL         → set automatically by Vercel for every deployment (preview + prod)
@@ -47,7 +47,7 @@ export async function GET(req: NextRequest) {
     const instance = instances[0];
     if (!instance) return NextResponse.json({ ok: true, sent: 0, note: 'no active instance' });
 
-    const { entries } = await computeLeaderboardForInstance(instance.id);
+    const { entries } = await getLeaderboardData(instance.id);
     const optOutUrl   = `${APP_URL}/api/digest/opt-out?token=test`;
 
     const { subject, html, text } = buildWeeklyDigestEmail({
@@ -80,7 +80,7 @@ export async function GET(req: NextRequest) {
     });
     if (existing) { skipped++; continue; }
 
-    const { entries } = await computeLeaderboardForInstance(instance.id);
+    const { entries } = await getLeaderboardData(instance.id);
 
     for (const membership of instance.memberships) {
       const optOutToken = signOptOutToken(membership.id);

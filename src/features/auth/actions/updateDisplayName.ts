@@ -2,7 +2,7 @@
 
 import { prisma } from '@/shared/lib/prisma';
 import { createClient } from '@/shared/lib/supabase/server';
-import { checkAndAwardBadges } from '@/features/badges';
+import { awardBadgesForEvent } from '@/features/badges';
 import type { AwardedBadge } from '@/features/badges';
 
 export async function updateDisplayName(displayName: string): Promise<{ newBadges: AwardedBadge[] }> {
@@ -19,7 +19,7 @@ export async function updateDisplayName(displayName: string): Promise<{ newBadge
   });
 
   const newBadges = trimmed
-    ? await checkAndAwardBadges({ type: 'engagement', userId: dbUser.id, event: 'display_name_set' })
+    ? await awardBadgesForEvent({ type: 'engagement', userId: dbUser.id, event: 'display_name_set' })
     : [];
 
   return { newBadges };

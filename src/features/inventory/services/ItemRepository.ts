@@ -6,7 +6,7 @@
 
 import { prisma } from '@/shared/lib/prisma';
 import { getCurrentUserId } from '@/shared/lib/auth/getCurrentUserId';
-import { checkAndAwardBadges } from '@/features/badges';
+import { awardBadgesForEvent } from '@/features/badges';
 import {
   CreateItemSchema,
   EditItemSchema,
@@ -127,7 +127,7 @@ export async function createItem(data: CreateItemInput): Promise<{ item: ItemWit
     include: ITEM_INCLUDE,
   });
   const currentStockCount = await prisma.item.count({ where: { userId, status: 'IN_STOCK' } });
-  const newBadges = await checkAndAwardBadges({ type: 'item_created', userId, currentStockCount });
+  const newBadges = await awardBadgesForEvent({ type: 'item_created', userId, currentStockCount });
   return { item: toPlain(raw), newBadges };
 }
 

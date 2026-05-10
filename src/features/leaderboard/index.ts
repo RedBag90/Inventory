@@ -3,8 +3,15 @@
 // Types
 export type { LeaderboardEntry, LeaderboardBadge, LeaderboardResult } from './types/leaderboard.types';
 
-// Services
-export { computeLeaderboardForInstance, thisSundayMidnightUTC, lastSundayMidnightUTC } from './services/computeLeaderboard';
+// Server action (public entry point)
+export { getLeaderboardData } from './actions/getLeaderboardData';
+
+// Client hook
+export { useLeaderboard } from './hooks/useLeaderboard';
+export { leaderboardKeys } from './hooks/leaderboardKeys';
+
+// Time helpers (used by cron + emails)
+export { thisSundayMidnightUTC, lastSundayMidnightUTC } from './services/computeLeaderboard';
 
 // Token helpers
 export { signOptOutToken, verifyOptOutToken } from './services/digestToken';

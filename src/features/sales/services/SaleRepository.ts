@@ -6,8 +6,9 @@
 
 import { prisma, toNum } from '@/shared/lib/prisma';
 import { getCurrentUserId } from '@/shared/lib/auth/getCurrentUserId';
-import { checkAndAwardBadges, checkLeaderboardBadges, checkStreakBadges } from '@/features/badges';
+import { awardBadgesForEvent } from '@/features/badges';
 import { calculateStorageDays } from '@/shared/lib/calculations';
+import { computeProfit, computeQuickSellProfit } from '../lib/computeProfit';
 import { RecordSaleSchema, QuickSellSchema } from '../types/sales.types';
 import type { RecordSaleInput, QuickSellInput } from '../types/sales.types';
 import type { AwardedBadge } from '@/features/badges';
@@ -32,13 +33,14 @@ export async function createSale(data: RecordSaleInput): Promise<{ newBadges: Aw
 
   const storageDays = calculateStorageDays(item.purchasedAt, parsed.soldAt);
   const shippingOut = parsed.shippingCostOut ?? 0;
-  const singleItemProfit =
-    parsed.salePrice
-    - (toNum(item.purchasePrice) ?? 0)
-    - (toNum(item.shippingCostIn) ?? 0)
-    - (toNum(item.repairCost) ?? 0)
-    - shippingOut
-    - item.costs.reduce((s, c) => s + (toNum(c.amount) ?? 0), 0);
+  const singleItemProfit = computeProfit({
+    salePrice:       parsed.salePrice,
+    purchasePrice:   toNum(item.purchasePrice) ?? 0,
+    shippingCostIn:  toNum(item.shippingCostIn) ?? 0,
+    repairCost:      toNum(item.repairCost) ?? 0,
+    shippingCostOut: shippingOut,
+    additionalCosts: item.costs.map(c => toNum(c.amount) ?? 0),
+  });
 
   await prisma.$transaction([
     prisma.sale.create({
@@ -53,12 +55,8 @@ export async function createSale(data: RecordSaleInput): Promise<{ newBadges: Aw
     prisma.item.update({ where: { id: parsed.itemId }, data: { status: 'SOLD' } }),
   ]);
 
-  const [saleBadges, leaderboardBadges, streakBadges] = await Promise.all([
-    checkAndAwardBadges({ type: 'sale_recorded', userId, storageDays, singleItemProfit }),
-    checkLeaderboardBadges(userId),
-    checkStreakBadges(userId),
-  ]);
-  return { newBadges: [...saleBadges, ...leaderboardBadges, ...streakBadges] };
+  const newBadges = await awardBadgesForEvent({ type: 'sale_recorded', userId, storageDays, singleItemProfit });
+  return { newBadges };
 }
 
 /**
@@ -94,11 +92,10 @@ export async function createQuickSale(data: QuickSellInput): Promise<{ newBadges
     });
   });
 
-  const singleItemProfit = parsed.salePrice - (parsed.shippingCostOut ?? 0);
-  const [saleBadges, leaderboardBadges, streakBadges] = await Promise.all([
-    checkAndAwardBadges({ type: 'sale_recorded', userId, storageDays: 0, isQuickSell: true, singleItemProfit }),
-    checkLeaderboardBadges(userId),
-    checkStreakBadges(userId),
-  ]);
-  return { newBadges: [...saleBadges, ...leaderboardBadges, ...streakBadges] };
+  const singleItemProfit = computeQuickSellProfit({
+    salePrice:       parsed.salePrice,
+    shippingCostOut: parsed.shippingCostOut ?? 0,
+  });
+  const newBadges = await awardBadgesForEvent({ type: 'sale_recorded', userId, storageDays: 0, singleItemProfit, isQuickSell: true });
+  return { newBadges };
 }

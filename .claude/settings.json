@@ -95,11 +95,24 @@
       "Bash(curl -s -X GET 'https://flohmarktolympiade-git-develop-phil-kos-projects.vercel.app/api/cron/weekly-digest?x-vercel-protection-bypass=454q8jnZ3ES2QflibsresmBUGz8ZW7Og' -H 'Authorization: Bearer da0dcd64f2bef749ff79017799d44140dc500a5314172191ac453f86591adbde')",
       "Bash(curl -s -X GET 'https://flohmarktolympiade-git-develop-phil-kos-projects.vercel.app/api/cron/weekly-digest?x-vercel-protection-bypass=454q8jnZ3ES2QflibsresmBUGz8ZW7Og' -H 'Authorization: Bearer da0dcd64f2bef749ff79017799d44140dc500a5314172191ac453f86591adbde' -w '\\\\nHTTP Status: %{http_code}')",
       "Bash(curl -v 'https://flohmarktolympiade-git-develop-phil-kos-projects.vercel.app/api/cron/weekly-digest?x-vercel-protection-bypass=454q8jnZ3ES2QflibsresmBUGz8ZW7Og' -H 'Authorization: Bearer da0dcd64f2bef749ff79017799d44140dc500a5314172191ac453f86591adbde')",
-      "Bash(curl -s 'https://flohmarktolympiade-git-develop-phil-kos-projects.vercel.app/api/cron/weekly-digest?x-vercel-protection-bypass=454q8jnZ3ES2QflibsresmBUGz8ZW7Og' -H 'Authorization: Bearer da0dcd64f2bef749ff79017799d44140dc500a5314172191ac453f86591adbde')"
+      "Bash(curl -s 'https://flohmarktolympiade-git-develop-phil-kos-projects.vercel.app/api/cron/weekly-digest?x-vercel-protection-bypass=454q8jnZ3ES2QflibsresmBUGz8ZW7Og' -H 'Authorization: Bearer da0dcd64f2bef749ff79017799d44140dc500a5314172191ac453f86591adbde')",
+      "Bash(mkdir -p /Users/philippkoch/Documents/GitHub/Inventory/.claude/skills)",
+      "Bash(mkdir -p /Users/philippkoch/Documents/GitHub/Inventory/.claude/skills/tdd)",
+      "Edit(/.claude/skills/tdd/**)",
+      "Bash(mkdir -p /Users/philippkoch/Documents/GitHub/Inventory/.claude/skills/improve-codebase-architecture)",
+      "Edit(/.claude/skills/improve-codebase-architecture/**)",
+      "Read(//Users/philippkoch/.claude/skills/gstack/**)",
+      "Bash(./setup)",
+      "Bash(~/.bun/bin/bun run *)",
+      "Bash(PATH=__TRACKED_VAR__/.bun/bin:__TRACKED_VAR__ ./setup)",
+      "Bash(ls ~/.claude/skills/ && echo \"---\" && ls ~/.claude/skills/gstack/.agents/skills/ | head -10)",
+      "Read(//Users/philippkoch/.claude/skills/**)"
     ],
     "additionalDirectories": [
       "/Users/philippkoch/Documents/GitHub/Inventory/.git",
-      "/Users/philippkoch/Documents/GitHub/Inventory/src/app/join/[token]"
+      "/Users/philippkoch/Documents/GitHub/Inventory/src/app/join/[token]",
+      "/Users/philippkoch/Documents/GitHub/Inventory/.claude",
+      "/Users/philippkoch/Documents/GitHub/Inventory/.claude/skills"
     ]
   }
 }

@@ -2,7 +2,7 @@
 
 import { prisma } from '@/shared/lib/prisma';
 import { createClient } from '@/shared/lib/supabase/server';
-import { computeLeaderboardForInstance } from '@/features/leaderboard';
+import { getLeaderboardData } from '@/features/leaderboard';
 
 import type { LeaderboardBadge, LeaderboardEntry, LeaderboardResult } from '@/features/leaderboard';
 export type { LeaderboardBadge, LeaderboardEntry, LeaderboardResult };
@@ -58,7 +58,7 @@ export async function getLeaderboard(instanceIdOverride?: string): Promise<Leade
     return { entries: [], instanceName: null, startsAt: null, endsAt: null };
   }
 
-  const { entries, instanceName } = await computeLeaderboardForInstance(instance.id);
+  const { entries, instanceName } = await getLeaderboardData(instance.id);
 
   return {
     entries,

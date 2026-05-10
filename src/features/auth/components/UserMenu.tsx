@@ -3,18 +3,10 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useQueryClient } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { createClient } from '@/shared/lib/supabase/client';
-import { useCurrentUser }    from '../hooks/useCurrentUser';
-import { useCurrentDbUser }  from '../hooks/useCurrentDbUser';
-import { updateDisplayName } from '../actions/updateDisplayName';
-import { useTutorial } from '@/features/tutorial';
 import { useLocale, useSetLocale } from '@/shared/hooks/useLocale';
-import { useActiveOlympiad } from '@/features/olympiad';
-import { toast } from 'sonner';
-import { useMyBadgeCount, badgeKeys, BadgeToast } from '@/features/badges';
-import type { AwardedBadge } from '@/features/badges';
+import { useUserMenuData } from '../hooks/useUserMenuData';
 
 function initials(email: string) {
   return email.slice(0, 2).toUpperCase();
@@ -25,24 +17,22 @@ function formatDate(iso: string, locale: string) {
 }
 
 export function UserMenu() {
-  const t = useTranslations('userMenu');
-  const tc = useTranslations('common');
+  const t     = useTranslations('userMenu');
+  const tc    = useTranslations('common');
   const t_nav = useTranslations('nav');
-  const { active, all: memberships, setActive } = useActiveOlympiad();
-  const locale = useLocale();
+
+  const { user, isLoading, dbUser, active, memberships, setActive, badgeCount, restartTutorial, saveName } = useUserMenuData();
+
+  const locale    = useLocale();
   const setLocale = useSetLocale();
-  const { user, isLoading }   = useCurrentUser();
-  const { data: dbUser }      = useCurrentDbUser();
-  const { data: badgeCount }    = useMyBadgeCount();
-  const router                = useRouter();
-  const queryClient           = useQueryClient();
-  const { restart: restartTutorial } = useTutorial();
+  const router    = useRouter();
+
   const [open, setOpen]       = useState(false);
   const [editing, setEditing] = useState(false);
   const [nameInput, setNameInput] = useState('');
   const [saving, setSaving]   = useState(false);
   const [saveError, setSaveError] = useState('');
-  const containerRef          = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (open) {
@@ -56,9 +46,7 @@ export function UserMenu() {
     if (!open) return;
     function onKey(e: KeyboardEvent)   { if (e.key === 'Escape') setOpen(false); }
     function onOutside(e: MouseEvent)  {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) setOpen(false);
     }
     document.addEventListener('keydown',   onKey);
     document.addEventListener('mousedown', onOutside);
@@ -72,15 +60,7 @@ export function UserMenu() {
     setSaving(true);
     setSaveError('');
     try {
-      const { newBadges } = await updateDisplayName(nameInput);
-      await queryClient.invalidateQueries({ queryKey: ['auth', 'currentDbUser'] });
-      await queryClient.invalidateQueries({ queryKey: ['admin', 'leaderboard'] });
-      if (newBadges.length > 0) {
-        queryClient.invalidateQueries({ queryKey: badgeKeys.all });
-        for (const badge of newBadges as AwardedBadge[]) {
-          toast.custom(() => <BadgeToast badge={badge} />, { duration: 6000 });
-        }
-      }
+      await saveName(nameInput);
       setEditing(false);
     } catch (e) {
       setSaveError((e as Error).message);
@@ -97,10 +77,10 @@ export function UserMenu() {
 
   if (isLoading || !user) return null;
 
-  const email      = user.email ?? '';
-  const role       = dbUser?.role ?? 'USER';
-  const memberId   = dbUser?.id   ?? user.id;
-  const since      = user.created_at ? formatDate(user.created_at, locale) : '—';
+  const email        = user.email ?? '';
+  const role         = dbUser?.role ?? 'USER';
+  const memberId     = dbUser?.id   ?? user.id;
+  const since        = user.created_at ? formatDate(user.created_at, locale) : '—';
   const displayLabel = dbUser?.displayName ?? email;
 
   const roleLabel =
