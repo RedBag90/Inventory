@@ -6,11 +6,10 @@ import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useItems } from '../hooks/useItems';
 import { ItemCard } from './ItemCard';
-import { SaleManager } from '@/features/sales/services/SaleManager';
+import { SaleManager } from '@/features/sales';
 import { formatCurrency } from '@/shared/lib/utils';
 import type { ItemWithCosts } from '../types/inventory.types';
-import { useTutorial } from '@/features/tutorial/context/TutorialContext';
-import { GhostItemCard } from '@/features/tutorial/components/GhostItemCard';
+import { useTutorial, GhostItemCard } from '@/features/tutorial';
 
 type FilterTab = 'ALL' | 'IN_STOCK' | 'RESERVED' | 'SOLD';
 

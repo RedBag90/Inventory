@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
 import { useDashboardData }    from '../hooks/useDashboardData';
 import { useDashboardFilters } from '../hooks/useDashboardFilters';
-import { useCurrentDbUser }    from '@/features/auth/hooks/useCurrentDbUser';
+import { useCurrentDbUser }    from '@/features/auth';
 import { getReportableUsers }  from '../services/getReportableUsers';
 import { getEarliestItemDate } from '../services/getEarliestItemDate';
 import {

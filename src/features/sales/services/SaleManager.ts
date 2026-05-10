@@ -1,4 +1,4 @@
-import type { ItemWithCosts } from '@/features/inventory/types/inventory.types';
+import type { ItemWithCosts } from '@/features/inventory';
 
 // Business logic layer for sales.
 // Profit is NEVER stored in the DB — always computed here at runtime.

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useInstances, useInstanceOlympiads, useTransferOlympiadOwner } from '../../hooks/useInstances';
-import { useOlympiadMembers, useUpdateOlympiad } from '@/features/olympiad/hooks/useOlympiads';
+import { useOlympiadMembers, useUpdateOlympiad } from '@/features/olympiad';
 import type { AdminInstanceRecord } from '../../services/AdminRepository';
 
 export function InstancesTab() {

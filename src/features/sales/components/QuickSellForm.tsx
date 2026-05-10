@@ -34,7 +34,7 @@ export function QuickSellForm({ onReview, onPreMark, onCancel }: Props) {
     resolver: zodResolver(QuickSellSchema),
     defaultValues: {
       shippingCostOut: 0,
-      soldAt: todayISO() as unknown as Date,
+      soldAt: new Date(todayISO()),
     },
   });
 

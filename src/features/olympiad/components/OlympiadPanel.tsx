@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useCurrentDbUser } from '@/features/auth/hooks/useCurrentDbUser';
+import { useCurrentDbUser } from '@/features/auth';
 import {
   useOlympiads,
   useCreateOlympiad,

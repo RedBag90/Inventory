@@ -9,14 +9,12 @@ import { createClient } from '@/shared/lib/supabase/client';
 import { useCurrentUser }    from '../hooks/useCurrentUser';
 import { useCurrentDbUser }  from '../hooks/useCurrentDbUser';
 import { updateDisplayName } from '../actions/updateDisplayName';
-import { useTutorial } from '@/features/tutorial/context/TutorialContext';
+import { useTutorial } from '@/features/tutorial';
 import { useLocale, useSetLocale } from '@/shared/hooks/useLocale';
-import { useActiveOlympiad } from '@/features/olympiad/hooks/useActiveOlympiad';
+import { useActiveOlympiad } from '@/features/olympiad';
 import { toast } from 'sonner';
-import { useMyBadgeCount } from '@/features/badges/hooks/useBadges';
-import { badgeKeys } from '@/features/badges/hooks/badgeKeys';
-import { BadgeToast } from '@/features/badges/components/BadgeToast';
-import type { AwardedBadge } from '@/features/badges/types/badge.types';
+import { useMyBadgeCount, badgeKeys, BadgeToast } from '@/features/badges';
+import type { AwardedBadge } from '@/features/badges';
 
 function initials(email: string) {
   return email.slice(0, 2).toUpperCase();

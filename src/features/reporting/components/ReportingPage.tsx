@@ -22,7 +22,7 @@ import { getSaleLineItems }     from '../services/ReportingRepository';
 import { getReportableUsers }   from '../services/getReportableUsers';
 import { getEarliestItemDate }  from '../services/getEarliestItemDate';
 import { reportingKeys }        from '../hooks/reportingKeys';
-import { useCurrentDbUser }     from '@/features/auth/hooks/useCurrentDbUser';
+import { useCurrentDbUser }     from '@/features/auth';
 import type { MonthlyReport }   from '../types/reporting.types';
 
 type View = 'daily' | 'monthly' | 'quarterly' | 'cumulative';

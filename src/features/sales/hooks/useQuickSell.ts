@@ -3,11 +3,11 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { salesKeys } from './salesKeys';
-import { inventoryKeys } from '@/features/inventory/hooks/inventoryKeys';
-import { reportingKeys } from '@/features/reporting/hooks/reportingKeys';
-import { badgeKeys } from '@/features/badges/hooks/badgeKeys';
+import { inventoryKeys } from '@/features/inventory';
+import { reportingKeys } from '@/features/reporting';
+import { badgeKeys } from '@/features/badges';
 import { createQuickSale } from '../services/SaleRepository';
-import { showBadgeToasts } from '@/features/badges/lib/badgeToasts';
+import { showBadgeToasts } from '@/features/badges';
 import type { QuickSellInput } from '../types/sales.types';
 
 export function useQuickSell() {

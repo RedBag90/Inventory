@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { DashboardPage } from '@/features/reporting/components/DashboardPage';
+import { DashboardPage } from '@/features/reporting';
 
 export default function ReportingDashboardRoute() {
   return (

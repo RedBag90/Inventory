@@ -1,8 +1,7 @@
 // Thin route — item detail view.
 // No logic lives here. Import only from features/inventory/index.ts.
 import { notFound } from 'next/navigation';
-import { getItemById } from '@/features/inventory/services/ItemRepository';
-import { ItemDetailPage } from '@/features/inventory';
+import { getItemById, ItemDetailPage } from '@/features/inventory';
 
 type Props = { params: Promise<{ id: string }> };
 

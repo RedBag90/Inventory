@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { SaleForm } from './SaleForm';
 import { SaleConfirmation } from './SaleConfirmation';
-import type { ItemWithCosts } from '@/features/inventory/types/inventory.types';
+import type { ItemWithCosts } from '@/features/inventory';
 import type { RecordSaleInput } from '../types/sales.types';
 import { formatCurrency, formatDate } from '@/shared/lib/utils';
 

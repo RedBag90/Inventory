@@ -3,12 +3,11 @@
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { SaleManager } from '../services/SaleManager';
-import { useConfirmPendingSale, useCancelPendingSale } from '@/features/inventory/hooks/usePendingSale';
+import { SaleManager, UpdatePendingSaleSchema, type UpdatePendingSaleInput } from '@/features/sales';
+import { useConfirmPendingSale, useCancelPendingSale } from '@/features/inventory';
 import { formatCurrency, formatDate } from '@/shared/lib/utils';
 import { PLATFORMS } from '@/shared/constants/platforms';
-import { UpdatePendingSaleSchema, type UpdatePendingSaleInput } from '../types/sales.types';
-import type { ItemWithCosts } from '@/features/inventory/types/inventory.types';
+import type { ItemWithCosts } from '@/features/inventory';
 
 type Props = {
   item:    ItemWithCosts;
@@ -143,7 +142,7 @@ export function ConfirmPendingSaleModal({ item, onClose }: Props) {
               </label>
               <button
                 type="button"
-                onClick={() => setValue('soldAt', todayISO() as unknown as Date)}
+                onClick={() => setValue('soldAt', new Date(todayISO()))}
                 className="text-xs text-slate-500 underline hover:text-slate-800"
               >
                 Heute

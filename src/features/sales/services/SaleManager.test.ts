@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { SaleManager } from './SaleManager';
-import type { ItemWithCosts } from '@/features/inventory/types/inventory.types';
+import type { ItemWithCosts } from '@/features/inventory';
 
 function makeItem(overrides: Partial<ItemWithCosts> = {}): ItemWithCosts {
   return {

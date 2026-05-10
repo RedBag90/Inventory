@@ -4,15 +4,13 @@
 // No UI logic. No business rules. Only Prisma queries.
 // Auth check happens before every mutation.
 
-import { prisma } from '@/shared/lib/prisma';
+import { prisma, toNum } from '@/shared/lib/prisma';
 import { getCurrentUserId } from '@/shared/lib/auth/getCurrentUserId';
-import { checkAndAwardBadges } from '@/features/badges/services/BadgeAwardService';
-import { checkLeaderboardBadges } from '@/features/badges/services/leaderboardBadgeService';
-import { checkStreakBadges } from '@/features/badges/services/streakBadgeService';
+import { checkAndAwardBadges, checkLeaderboardBadges, checkStreakBadges } from '@/features/badges';
 import { calculateStorageDays } from '@/shared/lib/calculations';
 import { RecordSaleSchema, QuickSellSchema } from '../types/sales.types';
 import type { RecordSaleInput, QuickSellInput } from '../types/sales.types';
-import type { AwardedBadge } from '@/features/badges/types/badge.types';
+import type { AwardedBadge } from '@/features/badges';
 
 // ─── Mutations ────────────────────────────────────────────────────────────────
 
@@ -36,11 +34,11 @@ export async function createSale(data: RecordSaleInput): Promise<{ newBadges: Aw
   const shippingOut = parsed.shippingCostOut ?? 0;
   const singleItemProfit =
     parsed.salePrice
-    - item.purchasePrice.toNumber()
-    - item.shippingCostIn.toNumber()
-    - item.repairCost.toNumber()
+    - (toNum(item.purchasePrice) ?? 0)
+    - (toNum(item.shippingCostIn) ?? 0)
+    - (toNum(item.repairCost) ?? 0)
     - shippingOut
-    - item.costs.reduce((s, c) => s + c.amount.toNumber(), 0);
+    - item.costs.reduce((s, c) => s + (toNum(c.amount) ?? 0), 0);
 
   await prisma.$transaction([
     prisma.sale.create({

@@ -1,4 +1,4 @@
-import type { LeaderboardEntry } from '@/features/admin/services/getLeaderboard';
+import type { LeaderboardEntry } from '../types/leaderboard.types';
 
 function formatCurrency(value: number): string {
   return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(value);

@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/shared/lib/supabase/server';
 import { prisma } from '@/shared/lib/prisma';
-import { joinViaToken } from '@/features/olympiad/actions/olympiadActions';
+import { joinViaToken } from '@/features/olympiad';
 import { JoinAuthClient } from './JoinAuthClient';
 
 export default async function JoinPage({ params }: { params: Promise<{ token: string }> }) {

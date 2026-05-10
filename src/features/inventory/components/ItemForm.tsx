@@ -21,7 +21,7 @@ export function ItemForm({ onSuccess }: Props) {
   } = useForm<CreateItemInput>({
     resolver: zodResolver(CreateItemSchema),
     defaultValues: {
-      purchasedAt:   new Date().toISOString().split('T')[0] as unknown as Date,
+      purchasedAt:   new Date(new Date().toISOString().split('T')[0]),
       shippingCostIn: 0,
       repairCost:    0,
     },

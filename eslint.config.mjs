@@ -19,6 +19,27 @@ const eslintConfig = [
   ...tanstackQuery.configs['flat/recommended'],
   {
     rules: {
+      // Enforce barrel-only imports across feature boundaries.
+      // Import from @/features/<name> only — never from internal sub-paths.
+      'no-restricted-imports': [
+        'warn',
+        {
+          patterns: [
+            {
+              group: [
+                '@/features/*/services/*',
+                '@/features/*/hooks/*',
+                '@/features/*/actions/*',
+                '@/features/*/components/*',
+                '@/features/*/types/*',
+                '@/features/*/lib/*',
+                '@/features/*/context/*',
+              ],
+              message: "Importiere nur aus '@/features/<name>' (barrel). Kein Direktimport aus internen Pfaden.",
+            },
+          ],
+        },
+      ],
       // Disallow process.env access outside src/shared/config/env.ts
       'no-restricted-syntax': [
         'error',

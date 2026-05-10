@@ -1,11 +1,10 @@
 // Dashboard shell — auth check, user sync (US-008), sidebar (US-028), header with UserMenu (US-029).
 import { redirect } from 'next/navigation';
 import { createClient } from '@/shared/lib/supabase/server';
-import { syncUser } from '@/features/auth/actions/syncUser';
+import { syncUser, UserMenu } from '@/features/auth';
 import { Sidebar } from '@/shared/components/Sidebar';
-import { UserMenu } from '@/features/auth/components/UserMenu';
-import { TutorialShell } from '@/features/tutorial/components/TutorialShell';
-import { ActiveOlympiadProvider } from '@/features/olympiad/context/ActiveOlympiadContext';
+import { TutorialShell } from '@/features/tutorial';
+import { ActiveOlympiadProvider } from '@/features/olympiad';
 import { AppErrorBoundary } from '@/shared/components/AppErrorBoundary';
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {

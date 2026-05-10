@@ -14,6 +14,20 @@ export { useItem }       from './hooks/useItem';
 export { useCreateItem } from './hooks/useCreateItem';
 export { useUpdateItem } from './hooks/useUpdateItem';
 export { useEditItem }   from './hooks/useEditItem';
+export { inventoryKeys } from './hooks/inventoryKeys';
+export {
+  useCreatePendingSale,
+  useConfirmPendingSale,
+  useCancelPendingSale,
+  useUpdatePendingSale,
+  useCreateQuickPendingSale,
+} from './hooks/usePendingSale';
+
+// Components
+export { ConfirmPendingSaleModal } from './components/ConfirmPendingSaleModal';
 
 // Business logic
 export { ItemManager } from './services/ItemManager';
+
+// Server actions
+export { getItemById } from './services/ItemRepository';

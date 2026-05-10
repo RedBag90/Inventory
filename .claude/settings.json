@@ -88,7 +88,14 @@
       "Bash(awk '/const FEATURES/,/const FEATURE_ICONS/{print NR\": \"$0}' '/Users/philippkoch/Documents/GitHub/Inventory/src/app/\\(auth\\)/sign-in/[[...sign-in]]/page.tsx')",
       "WebSearch",
       "Bash(python3 -c ' *)",
-      "Bash(npx tsx *)"
+      "Bash(npx tsx *)",
+      "Bash(grep -E \"\\\\.\\(tsx|ts|jsx|js\\)$\")",
+      "Bash(echo \"TSC_EXIT:$?\")",
+      "Bash(curl -s -X GET https://flohmarktolympiade-git-develop-phil-kos-projects.vercel.app/api/cron/weekly-digest -H 'Authorization: Bearer da0dcd64f2bef749ff79017799d44140dc500a5314172191ac453f86591adbde')",
+      "Bash(curl -s -X GET 'https://flohmarktolympiade-git-develop-phil-kos-projects.vercel.app/api/cron/weekly-digest?x-vercel-protection-bypass=454q8jnZ3ES2QflibsresmBUGz8ZW7Og' -H 'Authorization: Bearer da0dcd64f2bef749ff79017799d44140dc500a5314172191ac453f86591adbde')",
+      "Bash(curl -s -X GET 'https://flohmarktolympiade-git-develop-phil-kos-projects.vercel.app/api/cron/weekly-digest?x-vercel-protection-bypass=454q8jnZ3ES2QflibsresmBUGz8ZW7Og' -H 'Authorization: Bearer da0dcd64f2bef749ff79017799d44140dc500a5314172191ac453f86591adbde' -w '\\\\nHTTP Status: %{http_code}')",
+      "Bash(curl -v 'https://flohmarktolympiade-git-develop-phil-kos-projects.vercel.app/api/cron/weekly-digest?x-vercel-protection-bypass=454q8jnZ3ES2QflibsresmBUGz8ZW7Og' -H 'Authorization: Bearer da0dcd64f2bef749ff79017799d44140dc500a5314172191ac453f86591adbde')",
+      "Bash(curl -s 'https://flohmarktolympiade-git-develop-phil-kos-projects.vercel.app/api/cron/weekly-digest?x-vercel-protection-bypass=454q8jnZ3ES2QflibsresmBUGz8ZW7Og' -H 'Authorization: Bearer da0dcd64f2bef749ff79017799d44140dc500a5314172191ac453f86591adbde')"
     ],
     "additionalDirectories": [
       "/Users/philippkoch/Documents/GitHub/Inventory/.git",

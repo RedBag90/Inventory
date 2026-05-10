@@ -7,10 +7,7 @@ import {
   getPendingInstanceRequestCount,
   resolveInstanceRequest,
 } from '../services/AdminRepository';
-import {
-  submitInstanceRequest,
-  getMyInstanceRequest,
-} from '@/features/olympiad/actions/olympiadActions';
+import { submitInstanceRequest, getMyInstanceRequest } from '@/features/olympiad';
 
 export function useInstanceRequests(statusFilter: 'PENDING' | 'ALL' = 'PENDING') {
   return useQuery({

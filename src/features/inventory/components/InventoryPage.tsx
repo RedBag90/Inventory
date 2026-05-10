@@ -9,7 +9,7 @@ import { ItemForm } from './ItemForm';
 const SaleModal               = dynamic(() => import('@/features/sales/components/SaleModal').then(m => ({ default: m.SaleModal })));
 const QuickSellModal          = dynamic(() => import('@/features/sales/components/QuickSellModal').then(m => ({ default: m.QuickSellModal })));
 const PendingSaleModal        = dynamic(() => import('@/features/sales/components/PendingSaleModal').then(m => ({ default: m.PendingSaleModal })));
-const ConfirmPendingSaleModal = dynamic(() => import('@/features/sales/components/ConfirmPendingSaleModal').then(m => ({ default: m.ConfirmPendingSaleModal })));
+const ConfirmPendingSaleModal = dynamic(() => import('./ConfirmPendingSaleModal').then(m => ({ default: m.ConfirmPendingSaleModal })));
 import { useCancelPendingSale }   from '../hooks/usePendingSale';
 import type { ItemWithCosts } from '../types/inventory.types';
 

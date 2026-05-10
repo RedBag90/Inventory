@@ -3,9 +3,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { inventoryKeys } from './inventoryKeys';
-import { badgeKeys } from '@/features/badges/hooks/badgeKeys';
-import { reportingKeys } from '@/features/reporting/hooks/reportingKeys';
-import { showBadgeToasts } from '@/features/badges/lib/badgeToasts';
+import { badgeKeys } from '@/features/badges';
+import { reportingKeys } from '@/features/reporting';
+import { showBadgeToasts } from '@/features/badges';
 import {
   createPendingSale,
   confirmPendingSale,
@@ -13,7 +13,7 @@ import {
   updatePendingSale,
   createQuickPendingSale,
 } from '../services/PendingSaleRepository';
-import type { CreatePendingSaleInput, UpdatePendingSaleInput, QuickPendingSaleInput } from '@/features/sales/types/sales.types';
+import type { CreatePendingSaleInput, UpdatePendingSaleInput, QuickPendingSaleInput } from '@/features/sales';
 
 export function useCreatePendingSale() {
   const queryClient = useQueryClient();
