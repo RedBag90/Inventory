@@ -36,7 +36,7 @@ export function buildWeeklyDigestEmail({
   optOutUrl:       string;
   appUrl:          string;
 }): { subject: string; html: string; text: string } {
-  const subject = `🏅 Wöchentliches Update: ${instanceName}`;
+  const subject = `Wöchentliches Update: ${instanceName}`;
 
   const rows = entries.map((entry, i) => {
     const rank     = i + 1;

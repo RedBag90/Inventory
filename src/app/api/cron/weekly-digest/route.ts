@@ -43,6 +43,36 @@ export async function GET(req: NextRequest) {
     },
   });
 
+  // Test mode: send to a single address using the first active instance
+  const testEmail = req.nextUrl.searchParams.get('testEmail') ?? null;
+  if (testEmail) {
+    const instance = instances[0];
+    if (!instance) return NextResponse.json({ ok: true, sent: 0, note: 'no active instance' });
+
+    const { entries } = await computeLeaderboardForInstance(instance.id);
+    const optOutUrl   = `${APP_URL}/api/digest/opt-out?token=test`;
+
+    const { subject, html, text } = buildWeeklyDigestEmail({
+      entries,
+      instanceName:    instance.name,
+      recipientUserId: '',
+      optOutUrl,
+      appUrl:          APP_URL,
+    });
+
+    await sendMail({
+      to:      testEmail,
+      subject: `[TEST] ${subject}`,
+      html,
+      text,
+      headers: {
+        'List-Unsubscribe':      `<${optOutUrl}>`,
+        'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+      },
+    });
+    return NextResponse.json({ ok: true, sent: 1, testEmail });
+  }
+
   let sent    = 0;
   let skipped = 0;
 
@@ -66,7 +96,16 @@ export async function GET(req: NextRequest) {
         appUrl:          APP_URL,
       });
 
-      await sendMail({ to: membership.user.email, subject, html, text });
+      await sendMail({
+        to:      membership.user.email,
+        subject,
+        html,
+        text,
+        headers: {
+          'List-Unsubscribe':      `<${optOutUrl}>`,
+          'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+        },
+      });
       sent++;
     }
 
