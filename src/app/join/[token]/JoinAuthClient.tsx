@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/shared/lib/supabase/client';
 import { storePendingEmailInvite } from '@/features/olympiad';
+import { getAuthCallbackUrl } from '@/shared/lib/auth/authRedirectUrl';
 
 type Tab = 'login' | 'register';
 
@@ -106,7 +107,7 @@ function LoginForm({ token }: { token: string }) {
     setForgotLoading(true);
     const supabase = createClient();
     const { error: err } = await supabase.auth.resetPasswordForEmail(forgotEmail, {
-      redirectTo: `${window.location.origin}/auth/callback?next=/update-password`,
+      redirectTo: getAuthCallbackUrl('/update-password'),
     });
     setForgotLoading(false);
     if (err) { setForgotError(err.message); } else { setForgotSent(true); }
@@ -196,7 +197,7 @@ function RegisterForm({ instanceId }: { instanceId: string }) {
     const { error: err } = await supabase.auth.signUp({
       email,
       password,
-      options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+      options: { emailRedirectTo: getAuthCallbackUrl() },
     });
 
     if (err) {

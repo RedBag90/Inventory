@@ -58,9 +58,9 @@ type Entry = {
 };
 
 const PODIUM_CONFIG = [
-  { rank: 2, medal: '🥈', card: 'bg-gradient-to-b from-slate-50 to-slate-100 ring-1 ring-slate-300 shadow-md',                         avatarRing: 'ring-2 ring-slate-400 ring-offset-2',  rankNum: 'text-slate-300',  order: 'order-first', h: 'h-[210px]' },
-  { rank: 1, medal: '🥇', card: 'bg-gradient-to-b from-amber-50 to-amber-100 ring-2 ring-amber-400 shadow-xl shadow-amber-200/60',      avatarRing: 'ring-2 ring-amber-400 ring-offset-2',  rankNum: 'text-amber-200',  order: 'order-none',  h: 'h-[250px]' },
-  { rank: 3, medal: '🥉', card: 'bg-gradient-to-b from-orange-50 to-orange-100 ring-1 ring-orange-300 shadow-lg shadow-orange-100/60',  avatarRing: 'ring-2 ring-orange-400 ring-offset-2', rankNum: 'text-orange-200', order: 'order-last',  h: 'h-[180px]' },
+  { rank: 2, card: 'bg-gradient-to-b from-slate-50 to-slate-100 ring-1 ring-slate-300 shadow-md',                         avatarRing: 'ring-2 ring-slate-400 ring-offset-2',  rankNum: 'text-slate-300',  order: 'order-first', h: 'h-[210px]' },
+  { rank: 1, card: 'bg-gradient-to-b from-amber-50 to-amber-100 ring-2 ring-amber-400 shadow-xl shadow-amber-200/60',      avatarRing: 'ring-2 ring-amber-400 ring-offset-2',  rankNum: 'text-amber-200',  order: 'order-none',  h: 'h-[250px]' },
+  { rank: 3, card: 'bg-gradient-to-b from-orange-50 to-orange-100 ring-1 ring-orange-300 shadow-lg shadow-orange-100/60',  avatarRing: 'ring-2 ring-orange-400 ring-offset-2', rankNum: 'text-orange-200', order: 'order-last',  h: 'h-[180px]' },
 ] as const;
 
 function PreStartBanner({ startsAt, entries }: { startsAt: Date; entries: Entry[] }) {
@@ -122,8 +122,6 @@ function PodiumCard({ user, config }: { user: Entry; config: typeof PODIUM_CONFI
       </span>
 
       <div className="relative flex flex-col items-center justify-center gap-2 flex-1 px-4 py-3 text-center min-w-0 w-full">
-        <span className="text-3xl leading-none">{config.medal}</span>
-
         <span className={['w-11 h-11 rounded-full bg-indigo-700 text-white text-sm font-bold flex items-center justify-center shrink-0', config.avatarRing].join(' ')}>
           {initials(label)}
         </span>
@@ -254,7 +252,6 @@ export function LeaderboardPage() {
                     {config.rank}
                   </span>
                   <div className="flex flex-col items-center gap-1 shrink-0">
-                    <span className="text-xl leading-none">{config.medal}</span>
                     <div className="relative">
                       <span className={['w-10 h-10 rounded-full bg-indigo-700 text-white text-sm font-bold flex items-center justify-center shrink-0', config.avatarRing].join(' ')}>
                         {initials(label)}

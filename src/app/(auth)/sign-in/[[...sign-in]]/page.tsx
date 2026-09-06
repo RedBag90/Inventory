@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { createClient } from '@/shared/lib/supabase/client';
+import { getAuthCallbackUrl } from '@/shared/lib/auth/authRedirectUrl';
 
 export default function SignInPage() {
   const t = useTranslations('auth.signIn');
@@ -50,7 +51,7 @@ export default function SignInPage() {
 
     const supabase = createClient();
     const { error: resetError } = await supabase.auth.resetPasswordForEmail(forgotEmail, {
-      redirectTo: `${window.location.origin}/auth/callback?next=/update-password`,
+      redirectTo: getAuthCallbackUrl('/update-password'),
     });
 
     setForgotLoading(false);

@@ -226,6 +226,13 @@ otp_expiry = 3600
 # admin_email = "admin@email.com"
 # sender_name = "Admin"
 
+# Sign-Up-Bestätigungsmail — versioniert unter supabase/templates/.
+# Dasselbe HTML muss im Supabase-Dashboard unter
+# Authentication -> Email Templates -> "Confirm signup" hinterlegt sein.
+[auth.email.template.confirmation]
+subject = "Bestätige deine E-Mail-Adresse für die Flohmarkt-Olympiade"
+content_path = "./supabase/templates/confirm-signup.html"
+
 # Uncomment to customize email template
 # [auth.email.template.invite]
 # subject = "You have been invited"

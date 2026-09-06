@@ -6,7 +6,8 @@ export default defineConfig({
     environment: 'node',
     globals: true,
     pool: 'forks',
-    exclude: ['**/node_modules/**', '**/e2e/**'],
+    // Integration tests live in vitest.integration.config.ts — they need a real Postgres.
+    exclude: ['**/node_modules/**', '**/e2e/**', 'src/**/*.integration.test.{ts,tsx}'],
     setupFiles: ['./src/test/setup.ts'],
     coverage: {
       provider: 'v8',
