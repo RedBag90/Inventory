@@ -19,6 +19,8 @@ export default function setup() {
   execSync('npx prisma db push --force-reset --skip-generate', {
     stdio: 'inherit',
     env: {
+      // Test bootstrap — see the note in ./url.ts on why process.env is read directly here.
+      // eslint-disable-next-line no-restricted-syntax
       ...process.env,
       DATABASE_URL:        TEST_DATABASE_URL,
       DIRECT_DATABASE_URL: TEST_DATABASE_URL,

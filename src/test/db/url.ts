@@ -6,7 +6,12 @@
  * reading the ambient `DATABASE_URL` there would be catastrophic. Integration tests use
  * `TEST_DATABASE_URL`, or a local default, and nothing else.
  */
+// Test bootstrap reads process.env directly, like prisma.ts and supabase/client.ts do:
+// `@/shared/config/env` does not define TEST_DATABASE_URL (it is not an app runtime
+// variable), and importing it here would require DATABASE_URL to be present — the very
+// variable this module exists to avoid reading.
 export const TEST_DATABASE_URL =
+  // eslint-disable-next-line no-restricted-syntax
   process.env.TEST_DATABASE_URL ??
   'postgresql://inventory:inventory@localhost:5432/inventory_test';
 
