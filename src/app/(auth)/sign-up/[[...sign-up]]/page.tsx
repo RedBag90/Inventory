@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { createClient } from '@/shared/lib/supabase/client';
+import { getAuthCallbackUrl } from '@/shared/lib/auth/authRedirectUrl';
 
 export default function SignUpPage() {
   const [displayName, setDisplayName] = useState('');
@@ -22,7 +23,7 @@ export default function SignUpPage() {
       email,
       password,
       options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
+        emailRedirectTo: getAuthCallbackUrl(),
         data: { displayName: displayName.trim() },
       },
     });
